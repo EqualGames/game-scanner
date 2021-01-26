@@ -1,0 +1,25 @@
+{
+  "name": "game-scan",
+  "version": "1.0.0",
+  "description": "game scan",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "neon build --release",
+    "pretest": "npm run build",
+    "test": "node test/print.js"
+  },
+  "keywords": [
+    "game-scan"
+  ],
+  "author": "Matheus Albino",
+  "license": "MIT",
+  "devDependencies": {
+    "neon-cli": "^0.7.0"
+  },
+  "files": [
+    "lib/index.js",
+    "native/index.node",
+    "package-lock.json",
+    "package.json"
+  ]
+}
