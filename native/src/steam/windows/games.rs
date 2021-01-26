@@ -4,7 +4,6 @@ use crate::util::registry::*;
 use crate::util::io::*;
 use inflector::Inflector;
 
-
 pub fn list() -> std::io::Result<Vec<Game>> {
   let mut items: Vec<Game> = Vec::new();
 
