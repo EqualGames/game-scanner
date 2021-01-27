@@ -1,3 +1,7 @@
-const game = require("../lib");
+const gamescan = require("../lib");
 
-console.log(game.games());
+console.time("Scan Games");
+const games = gamescan.games();
+console.timeEnd("Scan Games");
+
+console.log(games);
