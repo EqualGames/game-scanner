@@ -2,24 +2,31 @@
   "name": "game-scan",
   "version": "1.0.0",
   "description": "game scan",
+  "author": "Matheus Albino <matheusalbino@users.noreply.github.com>",
+  "license": "MIT",
+  "keywords": [
+    "game-scan"
+  ],
+  "files": [
+    "lib/index.js",
+    "native/index.node",
+    "package.json"
+  ],
   "main": "lib/index.js",
   "scripts": {
     "build": "neon build --release",
     "pretest": "npm run build",
-    "test": "node test/print.js"
+    "test": "node example/print.js",
+    "prepack": "npm run build"
   },
-  "keywords": [
-    "game-scan"
-  ],
-  "author": "Matheus Albino",
-  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com:matheusalbino/game-scan.git"
+  },
+  "bugs": {
+    "url": "https://github.com/matheusalbino/game-scan/issues"
+  },
   "devDependencies": {
     "neon-cli": "^0.7.0"
-  },
-  "files": [
-    "lib/index.js",
-    "native/index.node",
-    "package-lock.json",
-    "package.json"
-  ]
+  }
 }
