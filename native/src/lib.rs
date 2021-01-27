@@ -12,24 +12,34 @@ use neon::prelude::*;
 fn games(mut cx: FunctionContext) -> JsResult<JsArray> {
   let mut games = Vec::new();
 
-  {
-    let amazon_games = amazon::games().unwrap();
-    games.extend(amazon_games);
+  match amazon::games() {
+    Ok(items) => games.extend(items),
+    Err(_e) => {}
+  }
 
-    let epicgames_games = epicgames::games().unwrap();
-    games.extend(epicgames_games);
+  match epicgames::games() {
+    Ok(items) => games.extend(items),
+    Err(_e) => {}
+  }
 
-    let gog_games = gog::games().unwrap();
-    games.extend(gog_games);
+  match gog::games() {
+    Ok(items) => games.extend(items),
+    Err(_e) => {}
+  }
 
-    let origin_games = origin::games().unwrap();
-    games.extend(origin_games);
+  match origin::games() {
+    Ok(items) => games.extend(items),
+    Err(_e) => {}
+  }
 
-    let steam_games = steam::games().unwrap();
-    games.extend(steam_games);
+  match steam::games() {
+    Ok(items) => games.extend(items),
+    Err(_e) => {}
+  }
 
-    let ubisoft_games = ubisoft::games().unwrap();
-    games.extend(ubisoft_games);
+  match ubisoft::games() {
+    Ok(items) => games.extend(items),
+    Err(_e) => {}
   }
 
   let js_array = JsArray::new(&mut cx, games.len() as u32);
