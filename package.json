@@ -8,14 +8,13 @@
     "game-scan"
   ],
   "files": [
-    "lib/index.js",
-    "native/index.node",
-    "package.json"
+    "example/",
+    "lib/",
+    "native/index.node"
   ],
   "main": "lib/index.js",
   "scripts": {
     "build": "neon build --release",
-    "pretest": "npm run build",
     "test": "node example/print.js",
     "prepack": "npm run build"
   },
