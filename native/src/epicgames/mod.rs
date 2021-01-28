@@ -4,10 +4,7 @@ mod item;
 
 use crate::scan::types::Game;
 
+#[cfg(target_os = "windows")]
 pub fn games() -> std::io::Result<Vec<Game>> {
-  if cfg!(target_os = "windows") {
-    return windows::games::list();
-  }
-
-  return Ok(Vec::new());
+  return windows::games::list();
 }
