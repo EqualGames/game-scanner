@@ -1,5 +1,5 @@
-use std::env;
 use winreg;
+use std::env;
 
 pub fn get_local_machine_reg_key(sub_key: &str) -> std::io::Result<winreg::RegKey> {
   let reg = winreg::RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE);

@@ -3,12 +3,8 @@ mod windows;
 mod mfst;
 
 use crate::scan::types::Game;
-use std::env;
 
+#[cfg(target_os = "windows")]
 pub fn games() -> std::io::Result<Vec<Game>> {
-  if cfg!(target_os = "windows") {
-    return windows::games::list();
-  }
-
-  return Ok(Vec::new());
+  return windows::games::list();
 }
