@@ -27,8 +27,8 @@ jobs:
     strategy:
       matrix:
         config:
-#          - os: ubuntu-latest
-#          - os: macos-latest
+          - os: ubuntu-latest
+          - os: macos-latest
           - os: windows-latest
 
     steps:
@@ -46,12 +46,14 @@ jobs:
 
       - run: npm run build
 
+      - run: tar -a -c -f out.zip native/index.node lib/* package.json
+
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_name: ${{ github.repository }}-${{ matrix.config.os }}
-          asset_path: ./native/index.node
+          asset_name: game-scan.${{ github.ref }}-${{ runner.os }}.zip
+          asset_path: ./out.zip
           asset_content_type: application/octet-stream
