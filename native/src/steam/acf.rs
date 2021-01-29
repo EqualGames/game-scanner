@@ -1,6 +1,7 @@
-use crate::scan::types::Game;
+use crate::types::Game;
+use std::path::Path;
 
-pub fn read(file: &String, launcher_path: &String) -> std::io::Result<Game> {
+pub fn read(file: &Path, launcher_path: &Path) -> std::io::Result<Game> {
   let file_data = std::fs::read_to_string(&file)?;
   let file_lines: Vec<&str> = file_data.split("\n").collect();
 
@@ -34,8 +35,8 @@ pub fn read(file: &String, launcher_path: &String) -> std::io::Result<Game> {
     return Err(std::io::Error::new(std::io::ErrorKind::Other, "invalid game"));
   }
 
-  let mut command: String = String::from(launcher_path);
-  command.push_str(" steam://run/");
+  let mut command: String = String::from(launcher_path.to_str().unwrap());
+  command.push_str(" -silent steam://run/");
   command.push_str(&game.id);
 
   game.launch_command = command;

@@ -1,10 +1,10 @@
-mod amazon;
-mod epicgames;
-mod gog;
-mod origin;
-mod scan;
-mod steam;
-mod ubisoft;
+pub mod amazon;
+pub mod epicgames;
+pub mod gog;
+pub mod origin;
+pub mod types;
+pub mod steam;
+pub mod ubisoft;
 mod util;
 
 use neon::prelude::*;
@@ -12,32 +12,32 @@ use neon::prelude::*;
 fn games(mut cx: FunctionContext) -> JsResult<JsArray> {
   let mut games = Vec::new();
 
-  match amazon::games() {
+  match amazon::games::list() {
     Ok(items) => games.extend(items),
     Err(_e) => {}
   }
 
-  match epicgames::games() {
+  match epicgames::games::list() {
     Ok(items) => games.extend(items),
     Err(_e) => {}
   }
 
-  match gog::games() {
+  match gog::games::list() {
     Ok(items) => games.extend(items),
     Err(_e) => {}
   }
 
-  match origin::games() {
+  match origin::games::list() {
     Ok(items) => games.extend(items),
     Err(_e) => {}
   }
 
-  match steam::games() {
+  match steam::games::list() {
     Ok(items) => games.extend(items),
     Err(_e) => {}
   }
 
-  match ubisoft::games() {
+  match ubisoft::games::list() {
     Ok(items) => games.extend(items),
     Err(_e) => {}
   }

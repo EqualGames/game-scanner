@@ -1,4 +1,4 @@
-use crate::scan::types::Game;
+use crate::types::Game;
 use crate::util::registry::*;
 
 pub fn list() -> std::io::Result<Vec<Game>> {
