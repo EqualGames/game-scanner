@@ -1,4 +1,4 @@
-use crate::scan::types::Game;
+use crate::types::Game;
 use rusqlite::{params, Connection, OpenFlags};
 use directories::BaseDirs;
 

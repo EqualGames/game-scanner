@@ -1,55 +1,48 @@
-use crate::scan::types::Game;
+use crate::types::Game;
 use crate::steam::acf;
+use crate::steam::vdf;
 use crate::util::registry::*;
 use crate::util::io::*;
-use inflector::Inflector;
+use crate::steam::windows::utils::get_steam_executable;
+use std::path::{Path, PathBuf};
 
 pub fn list() -> std::io::Result<Vec<Game>> {
-  let mut items: Vec<Game> = Vec::new();
+    let mut items: Vec<Game> = Vec::new();
 
-  let reg = get_local_machine_reg_key("Valve\\Steam")?;
-  let mut steam_path: String = reg.get_value("InstallPath")?;
-  steam_path.push_str("\\steamapps");
-
-  let steam_reg = get_current_user_reg_key("Valve\\Steam")?;
-  let steam_executable: String = get_steam_executable(&steam_reg.get_value("SteamExe")?);
+    let reg = get_local_machine_reg_key("Valve\\Steam")?;
+    let steam_install_path: String = reg.get_value("InstallPath")?;
+    let steam_path_default = Path::new(&steam_install_path).join("steamapps");
 
 
-  let files = get_files(&steam_path, |item| item.contains(".acf") && !item.contains("\\workshop\\"))?;
+    let library_folders_file = steam_path_default.join("libraryfolders.vdf");
+    let mut library_paths: Vec<PathBuf> = Vec::new();
+    library_paths.push(steam_path_default);
 
-  for file in files {
-    let game = acf::read(&file, &steam_executable);
-
-    match game {
-      Ok(g) => items.push(g),
-      Err(_e) => {}
-    }
-  }
-
-  return Ok(items);
-}
-
-fn get_steam_executable(path: &String) -> String {
-  let words: Vec<&str> = path.split("/").collect();
-  let mut transformed: Vec<String> = Vec::new();
-
-  for see in words {
-    let mut fmt = see.to_title_case();
-
-    if fmt.eq("C") {
-      fmt.push_str(":")
+    for folder in vdf::read_library_folders(&library_folders_file)? {
+        library_paths.push(folder.join("steamapps"));
     }
 
-    if fmt.ends_with("X86") {
-      fmt = fmt.replace("X86", "(x86)")
+    let steam_reg = get_current_user_reg_key("Valve\\Steam")?;
+    let steam_exe: String = steam_reg.get_value("SteamExe")?;
+    let steam_executable = get_steam_executable(&steam_exe);
+
+    let mut files: Vec<PathBuf> = Vec::new();
+
+    for folder in library_paths {
+        match get_files(&folder, |item| item.extension().unwrap().eq("acf")) {
+            Ok(list) => files.extend(list),
+            Err(_e) => {}
+        }
     }
 
-    if fmt.eq("Steam Exe") {
-      fmt = String::from("steam.exe");
+    for file in files {
+        let game = acf::read(&file, &steam_executable);
+
+        match game {
+            Ok(g) => items.push(g),
+            Err(_e) => {}
+        }
     }
 
-    transformed.push(fmt);
-  }
-
-  return transformed.join("\\");
+    return Ok(items);
 }

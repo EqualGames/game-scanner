@@ -1,5 +1,6 @@
-use crate::scan::types::Game;
+use crate::types::Game;
 use serde::{Serialize, Deserialize};
+use std::path::Path;
 
 #[derive(Serialize, Deserialize)]
 struct Manifest {
@@ -15,7 +16,7 @@ struct Manifest {
   launch_executable: String,
 }
 
-pub fn read(file: &str, launcher_path: &String) -> std::io::Result<Game> {
+pub fn read(file: &Path, launcher_path: &Path) -> std::io::Result<Game> {
   let file_data = std::fs::read_to_string(&file)?;
   let manifest: Manifest = serde_json::from_str(&file_data)?;
 
@@ -23,7 +24,7 @@ pub fn read(file: &str, launcher_path: &String) -> std::io::Result<Game> {
     return Err(std::io::Error::new(std::io::ErrorKind::Other, "invalid game"));
   }
 
-  let mut command: String = launcher_path.clone();
+  let mut command: String = launcher_path.to_str().unwrap().to_string();
   command.push_str(" com.epicgames.launcher://apps/");
   command.push_str(&manifest.app_name);
   command.push_str("?action=launch&silent=true");
