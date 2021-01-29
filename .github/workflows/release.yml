@@ -42,12 +42,12 @@ jobs:
           toolchain: stable
 
       - run: |
-        cd node
-        npm ci
+          cd node
+          npm ci
 
       - run: |
-        cd node
-        npm run build
+          cd node
+          npm run build
 
       - run: tar -a -c -f out.zip node/native/index.node node/lib/* node/package.json
 
