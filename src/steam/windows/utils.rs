@@ -8,8 +8,8 @@ pub fn get_steam_executable(path: &String) -> PathBuf {
     for word in words {
         let mut new_word = word.to_camel();
 
-        if new_word.eq("C") {
-            new_word.push_str(":\\")
+        if new_word.eq("C:") {
+            new_word.push_str(&std::path::MAIN_SEPARATOR.to_string())
         }
 
         if new_word.ends_with("X86") {
