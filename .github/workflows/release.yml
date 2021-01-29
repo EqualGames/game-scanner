@@ -10,13 +10,16 @@ jobs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
 
     steps:
+      - uses: actions/checkout@v2
+
       - id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${ GITHUB_SHA::8 }
         with:
-          tag_name: ${ GITHUB_SHA::8 }
-          release_name: ${ GITHUB_SHA::8 }
+          tag_name: ${ VERSION }
+          release_name: ${ VERSION }
           draft: true
           prerelease: false
 
@@ -57,8 +60,11 @@ jobs:
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_NAME: game-scan
+          VERSION: ${ GITHUB_SHA::8 }
+          PLATFORM: ${{ runner.os }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_name: game-scan.${ GITHUB_SHA::8 }-${{ runner.os }}.zip
+          asset_name: ${{ format('{0}.{1}-{2}.zip', ${PROJECT_NAME}, ${VERSION}, ${PLATFORM}) }}
           asset_path: node/out.zip
           asset_content_type: application/octet-stream
