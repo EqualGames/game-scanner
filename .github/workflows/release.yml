@@ -15,8 +15,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: v${{ github.ref }}
+          tag_name: ${{ github.sha::8 }}
+          release_name: ${{ github.sha::8 }}
           draft: true
           prerelease: false
 
@@ -49,7 +49,9 @@ jobs:
           cd node
           npm run build
 
-      - run: tar -a -c -f out.zip node/native/index.node node/lib/* node/package.json
+      - run: |
+          cd node
+          tar -a -c -f out.zip native/index.node lib/* package.json examples/*
 
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
@@ -57,6 +59,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_name: game-scan.${{ github.ref }}-${{ runner.os }}.zip
-          asset_path: ./out.zip
+          asset_name: game-scan.${{ github.sha::8 }}-${{ runner.os }}.zip
+          asset_path: node/out.zip
           asset_content_type: application/octet-stream
