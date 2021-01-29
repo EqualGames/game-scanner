@@ -1,12 +1,12 @@
 use std::path::PathBuf;
-use inflector::Inflector;
+use case::CaseExt;
 
 pub fn get_steam_executable(path: &String) -> PathBuf {
     let words: Vec<&str> = path.split("/").collect();
     let mut result_path = PathBuf::new();
 
     for word in words {
-        let mut new_word = word.to_title_case();
+        let mut new_word = word.to_camel();
 
         if new_word.eq("C") {
             new_word.push_str(":\\")

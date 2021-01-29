@@ -10,12 +10,12 @@ name = "libgamescan"
 crate-type = ["rlib", "cdylib"]
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-Inflector = "0.11.4"
-url = "2.2.0"
-rusqlite = { version = "0.24.2", features = ["bundled"] }
+serde = { version = "1.0", features = ["derive"] } # MIT/Apache License
+serde_json = "1.0" # MIT/Apache License
+case = "1.0.0"  # MIT License
+url = "2.2.0"  # MIT/Apache License
+rusqlite = { version = "0.24.2", features = ["bundled"] } # MIT License
 directories = "3.0.1"
 
 [target.'cfg(windows)'.dependencies]
-winreg = "0.8.0"
+winreg = "0.8.0" # MIT License

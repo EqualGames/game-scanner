@@ -2,9 +2,23 @@
 
 ## Requirements
 
-- [Rust](https://www.rust-lang.org/)
-- [Node v12](https://nodejs.org)
+- [Rust](https://www.rust-lang.org)
+  - cargo >= v1.49.0
+  - rustup >= v1.23.1
+  - rustc >= v1.49.0
+- [Node](https://nodejs.org) 
+  - node \>= 12.20.0
+  - npm \>= 6.14.8
 
-## Dependencies
+## Other resources
 
-- [Neon](https://neon-bindings.com)
+- [Neon Bindings](https://neon-bindings.com)
+
+## Code of Conduct
+
+If you are interested in contributing to the project, please take a look at the [Code of Conduct](./CODE_OF_CONDUCT.md).
+
+## License
+
+This project is licensed under the terms of the
+[MIT license](./LICENSE).

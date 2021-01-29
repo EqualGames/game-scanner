@@ -2,10 +2,15 @@
   "name": "@matheusalbino/game-scan",
   "version": "1.0.0",
   "description": "game scan",
+  "private": true,
   "author": "Matheus Albino <matheusalbino@users.noreply.github.com>",
   "license": "MIT",
   "keywords": [
-    "game-scan"
+    "game-scan",
+    "games",
+    "scan",
+    "library",
+    "game-library"
   ],
   "files": [
     "examples/",
