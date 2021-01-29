@@ -15,8 +15,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.sha::8 }}
-          release_name: ${{ github.sha::8 }}
+          tag_name: ${ GITHUB_SHA::8 }
+          release_name: ${ GITHUB_SHA::8 }
           draft: true
           prerelease: false
 
@@ -59,6 +59,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_name: game-scan.${{ github.sha::8 }}-${{ runner.os }}.zip
+          asset_name: game-scan.${ GITHUB_SHA::8 }-${{ runner.os }}.zip
           asset_path: node/out.zip
           asset_content_type: application/octet-stream
