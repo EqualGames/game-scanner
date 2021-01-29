@@ -3,7 +3,19 @@ on: [ push ]
 name: Release
 
 jobs:
+
+  github:
+    runs-on: ubuntu-latest
+    outputs:
+      sha8: ${{ steps.sha8.outputs.value }}
+
+    steps:
+      - name: Get SHA8
+        id: sha8
+        run: echo "::set-output name=value::$(echo ${{ github.sha }} | cut -c1-8)"
+
   create_release:
+    needs: github
     runs-on: ubuntu-latest
 
     outputs:
@@ -16,7 +28,7 @@ jobs:
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ github.sha }}
+          VERSION: ${{ needs.github.outputs.sha8 }}
         with:
           tag_name: ${{ env.VERSION }}
           release_name: ${{ env.VERSION }}
@@ -24,7 +36,7 @@ jobs:
           prerelease: false
 
   release_assets:
-    needs: create_release
+    needs: [github, create_release]
     runs-on: ${{ matrix.config.os }}
 
     strategy:
@@ -60,7 +72,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ASSET_NAME: game-scan.${{ github.sha }}-${{ runner.os }}).zip
+          ASSET_NAME: game-scan.${{ needs.github.outputs.sha8 }}-${{ runner.os }}).zip
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_name: ${{ env.ASSET_NAME }}
