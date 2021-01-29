@@ -1,1 +1,1 @@
-mod games;
+pub mod games;
