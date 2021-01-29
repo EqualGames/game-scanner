@@ -1,7 +1,11 @@
-/native/target
-/native/index.node
-/native/artifacts.json
-/node_modules
+# Build
+target
+index.node
+artifacts.json
 
-/.vscode
-/.idea
+# Dependencies
+node_modules
+
+# IDE & Editors
+.idea
+.vscode

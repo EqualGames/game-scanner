@@ -1,0 +1,19 @@
+[package]
+name = "node"
+version = "0.1.0"
+authors = ["Matheus Albino <matheusalbino@users.noreply.github.com>"]
+edition = "2018"
+build = "build.rs"
+exclude = ["artifacts.json", "index.node"]
+publish = false
+
+[lib]
+name = "libnode"
+crate-type = ["cdylib"]
+
+[build-dependencies]
+neon-build = "0.4.0"
+
+[dependencies]
+neon = "0.4.0"
+game-scan = { version = "0.1.0", path = "../../" }

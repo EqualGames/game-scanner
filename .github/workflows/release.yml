@@ -16,7 +16,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          release_name: v${{ github.ref }}
           draft: true
           prerelease: false
 
@@ -36,17 +36,20 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12.x
-          registry-url: "https://npm.pkg.github.com"
 
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
 
-      - run: npm ci
+      - run: |
+        cd node
+        npm ci
 
-      - run: npm run build
+      - run: |
+        cd node
+        npm run build
 
-      - run: tar -a -c -f out.zip native/index.node lib/* package.json
+      - run: tar -a -c -f out.zip node/native/index.node node/lib/* node/package.json
 
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
