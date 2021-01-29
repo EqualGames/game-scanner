@@ -65,6 +65,6 @@ jobs:
           PLATFORM: ${{ runner.os }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_name: ${{ format('{0}.{1}-{2}.zip', ${PROJECT_NAME}, ${VERSION}, ${PLATFORM}) }}
+          asset_name: format('{0}.{1}-{2}.zip', ${PROJECT_NAME}, ${VERSION}, ${PLATFORM})
           asset_path: node/out.zip
           asset_content_type: application/octet-stream
