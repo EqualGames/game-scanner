@@ -15,5 +15,5 @@ crate-type = ["cdylib"]
 neon-build = "0.4.0"
 
 [dependencies]
-neon = "0.4.0"
+neon = "0.7.0"
 game-scanner = { version = "0.1.0", path = "../../" }
