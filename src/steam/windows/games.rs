@@ -4,18 +4,17 @@ use crate::steam::vdf;
 use crate::util::registry::*;
 use crate::util::io::*;
 use crate::steam::windows::utils::get_steam_executable;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 pub fn list() -> std::io::Result<Vec<Game>> {
-    let mut items: Vec<Game> = Vec::new();
+    let mut items = Vec::new();
 
     let reg = get_local_machine_reg_key("Valve\\Steam")?;
     let steam_install_path: String = reg.get_value("InstallPath")?;
-    let steam_path_default = Path::new(&steam_install_path).join("steamapps");
-
+    let steam_path_default = PathBuf::from(steam_install_path).join("steamapps");
 
     let library_folders_file = steam_path_default.join("libraryfolders.vdf");
-    let mut library_paths: Vec<PathBuf> = Vec::new();
+    let mut library_paths = Vec::new();
     library_paths.push(steam_path_default);
 
     for folder in vdf::read_library_folders(&library_folders_file)? {
@@ -26,7 +25,7 @@ pub fn list() -> std::io::Result<Vec<Game>> {
     let steam_exe: String = steam_reg.get_value("SteamExe")?;
     let steam_executable = get_steam_executable(&steam_exe);
 
-    let mut files: Vec<PathBuf> = Vec::new();
+    let mut files = Vec::new();
 
     for folder in library_paths {
         match get_files(&folder, |item| item.extension().unwrap().eq("acf")) {

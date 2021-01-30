@@ -2,7 +2,7 @@ use crate::types::Game;
 use crate::util::registry::*;
 
 pub fn list() -> std::io::Result<Vec<Game>> {
-  let mut items: Vec<Game> = Vec::new();
+  let mut items = Vec::new();
   let launcher_reg = get_local_machine_reg_key("Ubisoft\\Launcher")?;
   let installs_reg = launcher_reg.open_subkey("Installs")?;
 
