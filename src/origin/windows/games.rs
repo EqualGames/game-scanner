@@ -5,7 +5,7 @@ use crate::util::io::*;
 use std::path::Path;
 
 pub fn list() -> std::io::Result<Vec<Game>> {
-    let mut items: Vec<Game> = Vec::new();
+    let mut items = Vec::new();
 
     let origin_reg = get_local_machine_reg_key("Origin")?;
     let origin_client_path: String = origin_reg.get_value("ClientPath")?;

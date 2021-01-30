@@ -2,7 +2,7 @@ use crate::types::Game;
 use crate::util::registry::*;
 
 pub fn list() -> std::io::Result<Vec<Game>> {
-  let mut items: Vec<Game> = Vec::new();
+  let mut items = Vec::new();
 
   let reg = get_local_machine_reg_key("GOG.com\\GalaxyClient\\paths")?;
   let gog_path: String = reg.get_value("client")?;
