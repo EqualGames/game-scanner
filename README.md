@@ -5,13 +5,13 @@ Game Scanner for any launcher and OS.
 ## Requirements
 
 - [Rust](https://www.rust-lang.org)
-    - cargo >= v1.49.0
-    - rustup >= v1.23.1
-    - rustc >= v1.49.0
+  - cargo >= v1.49.0
+  - rustup >= v1.23.1
+  - rustc >= v1.49.0
 
 ## Launchers Support
 
-| Launcher   | Multi-directories | Windows | Linux | MacOS |  
+| Launcher   | Multi-directories[¹](#multi-directories) | Windows | Linux | MacOS |  
 |------------|-------------------|---------|-------|-------|
 | Amazon     | ✅                 | ✅      | ❌    | ❌     |
 | Epic Games | ❌                 | ✅      | ❌    | ❌     |
@@ -19,6 +19,8 @@ Game Scanner for any launcher and OS.
 | Origin     | ❌                 | ✅      | ❌    | ❌     |
 | Steam      | ✅                 | ✅      | ❌    | ❌     |
 | Ubisoft    | ❌                 | ✅      | ❌    | ❌     |
+
+<a name="multi-directories"></a>[1]: **Multi-directories**: is different install locations (e.g., folders, and drivers).
 
 ## NodeJS Binding
 
