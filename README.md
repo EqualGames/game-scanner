@@ -6,9 +6,6 @@
     - cargo >= v1.49.0
     - rustup >= v1.23.1
     - rustc >= v1.49.0
-- [Node](https://nodejs.org)
-    - node \>= 12.20.0
-    - npm \>= 6.14.8
 
 ## Launchers Support
 
@@ -21,8 +18,15 @@
 | Steam      | ✅                 | ✅      | ❌    | ❌     |
 | Ubisoft    | ❌                 | ✅      | ❌    | ❌     |
 
-## Other resources
+## NodeJS Binding
 
+### Requirements
+
+- [Node](https://nodejs.org)
+  - node \>= 12.20.0
+  - npm \>= 6.14.8
+
+### Resources
 - [Neon Bindings](https://neon-bindings.com)
 
 ## Code of Conduct
