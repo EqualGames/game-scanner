@@ -1,7 +1,7 @@
 mod utils;
 
 use crate::utils::make_js_game;
-use libgamescan::*;
+use libgamescanner::*;
 use neon::prelude::*;
 
 fn games(mut cx: FunctionContext) -> JsResult<JsArray> {

@@ -16,4 +16,4 @@ neon-build = "0.4.0"
 
 [dependencies]
 neon = "0.4.0"
-game-scan = { version = "0.1.0", path = "../../" }
+game-scanner = { version = "0.1.0", path = "../../" }

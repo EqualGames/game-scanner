@@ -146,7 +146,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "game-scan"
+name = "game-scanner"
 version = "0.1.0"
 dependencies = [
  "case",
@@ -285,7 +285,7 @@ dependencies = [
 name = "node"
 version = "0.1.0"
 dependencies = [
- "game-scan",
+ "game-scanner",
  "neon",
  "neon-build",
 ]

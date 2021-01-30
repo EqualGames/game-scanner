@@ -1,12 +1,12 @@
 [package]
-name = "game-scan"
+name = "game-scanner"
 version = "0.1.0"
 authors = ["Matheus Albino <matheusalbino@users.noreply.github.com>"]
 edition = "2018"
 publish = false
 
 [lib]
-name = "libgamescan"
+name = "libgamescanner"
 crate-type = ["rlib", "cdylib"]
 
 [dependencies]

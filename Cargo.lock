@@ -125,7 +125,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "game-scan"
+name = "game-scanner"
 version = "0.1.0"
 dependencies = [
  "case",
