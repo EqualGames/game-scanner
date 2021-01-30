@@ -20,7 +20,7 @@ Game Scanner for any launcher and OS.
 | Steam      | ✅                 | ✅      | ❌    | ❌     |
 | Ubisoft    | ❌                 | ✅      | ❌    | ❌     |
 
-<a name="multi-directories"></a>[1]: **Multi-directories**: is different install locations (e.g., folders, and drivers).
+<a name="multi-directories"></a>[1]: **Multi-directories**: is different game install locations (e.g., folders, and drivers).
 
 ## NodeJS Binding
 
