@@ -1,4 +1,4 @@
-use libgamescan::types::Game;
+use libgamescanner::types::Game;
 use neon::prelude::*;
 use neon::types::JsObject;
 

@@ -1,4 +1,6 @@
-# Game Scan
+# Game Scanner
+
+Game Scanner for any launcher and OS.
 
 ## Requirements
 
