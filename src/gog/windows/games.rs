@@ -1,27 +1,32 @@
 use std::io;
+use std::path::PathBuf;
 
 use crate::prelude::Game;
 use crate::util::registry::*;
 
 pub fn list() -> io::Result<Vec<Game>> {
-    let mut items = Vec::new();
+    let mut games = Vec::new();
 
-    let reg = get_local_machine_reg_key("GOG.com\\GalaxyClient\\paths")?;
-    let gog_path: String = reg.get_value("client")?;
+    let reg = get_local_machine_reg_key("GOG.com\\GalaxyClient\\paths").unwrap();
+    let gog_reg = get_local_machine_reg_key("GOG.com\\GalaxyClient").unwrap();
 
-    let gog_reg = get_local_machine_reg_key("GOG.com\\GalaxyClient")?;
-    let gog_filename: String = gog_reg.get_value("clientExecutable")?;
-    let mut gog_executable: String = gog_path.clone();
-    gog_executable.push_str("\\");
-    gog_executable.push_str(&gog_filename);
+    let gog_path = PathBuf::from(reg.get_value::<String, &str>("client").unwrap());
+    let gog_executable = gog_path
+        .clone()
+        .join(std::path::MAIN_SEPARATOR.to_string())
+        .join(
+            gog_reg
+                .get_value::<String, &str>("clientExecutable")
+                .unwrap(),
+        );
 
     let gog_games_reg = get_local_machine_reg_key("GOG.com\\Games")?;
 
-    for identifier in gog_games_reg.enum_keys().map(|x| x.unwrap()) {
+    for identifier in gog_games_reg.enum_keys().map(|key| key.unwrap()) {
         let game_reg = gog_games_reg.open_subkey(&identifier)?;
 
-        let game_path: String = game_reg.get_value("path")?;
-        let mut launch_command = gog_executable.clone();
+        let game_path = game_reg.get_value::<String, &str>("path")?;
+        let mut launch_command = gog_executable.clone().to_str().unwrap().to_string();
         launch_command.push_str(" /command=runGame /gameId=");
         launch_command.push_str(&identifier);
         launch_command.push_str(" /path=");
@@ -35,8 +40,8 @@ pub fn list() -> io::Result<Vec<Game>> {
             launch_command,
         };
 
-        items.push(game);
+        games.push(game);
     }
 
-    return Ok(items);
+    return Ok(games);
 }

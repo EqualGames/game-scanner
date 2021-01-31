@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use case::CaseExt;
 
 pub fn get_steam_executable(path: &String) -> PathBuf {
-    let words: Vec<&str> = path.split("/").collect();
+    let words = path.split("/").collect::<Vec<&str>>();
     let mut result_path = PathBuf::new();
 
     for word in words {

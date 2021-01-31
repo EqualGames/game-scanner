@@ -9,41 +9,61 @@ use crate::util::io::*;
 use crate::util::registry::*;
 
 pub fn list() -> io::Result<Vec<Game>> {
-    let mut items = Vec::new();
+    let mut games = Vec::new();
 
-    let reg = get_local_machine_reg_key("Valve\\Steam")?;
-    let steam_install_path: String = reg.get_value("InstallPath")?;
-    let steam_path_default = PathBuf::from(steam_install_path).join("steamapps");
+    let steam_regs = get_local_machine_reg_key("Valve\\Steam").and_then(|launcher_reg| {
+        get_current_user_reg_key("Valve\\Steam").map(|installs_reg| (launcher_reg, installs_reg))
+    });
 
-    let library_folders_file = steam_path_default.join("libraryfolders.vdf");
+    if steam_regs.is_err() {
+        return Ok(games);
+    }
+
+    let (launcher_reg, user_launcher_reg) = steam_regs.unwrap();
+
+    let steam_path_default = PathBuf::from(
+        launcher_reg
+            .get_value::<String, &str>("InstallPath")
+            .unwrap(),
+    )
+    .join("steamapps");
+
+    if !steam_path_default.exists() {
+        return Ok(games);
+    }
+
     let mut library_paths = Vec::new();
-    library_paths.push(steam_path_default);
+    library_paths.push(steam_path_default.clone());
 
-    for folder in vdf::read_library_folders(&library_folders_file)? {
+    let library_folders =
+        vdf::read_library_folders(&steam_path_default.join("libraryfolders.vdf")).unwrap();
+
+    for folder in library_folders {
         library_paths.push(folder.join("steamapps"));
     }
 
-    let steam_reg = get_current_user_reg_key("Valve\\Steam")?;
-    let steam_exe: String = steam_reg.get_value("SteamExe")?;
-    let steam_executable = get_steam_executable(&steam_exe);
+    let steam_executable = get_steam_executable(
+        &user_launcher_reg
+            .get_value::<String, &str>("SteamExe")
+            .unwrap(),
+    );
 
-    let mut files = Vec::new();
+    let mut manifests = Vec::new();
+    let get_manifest_predicate = |item: &PathBuf| -> bool { item.extension().unwrap().eq("acf") };
 
-    for folder in library_paths {
-        match get_files(&folder, |item| item.extension().unwrap().eq("acf")) {
-            Ok(list) => files.extend(list),
+    for path in library_paths {
+        match get_files(&path, get_manifest_predicate) {
+            Ok(list) => manifests.extend(list),
             Err(_e) => {}
         }
     }
 
-    for file in files {
-        let game = acf::read(&file, &steam_executable);
-
-        match game {
-            Ok(g) => items.push(g),
+    for manifest in manifests {
+        match acf::read(&manifest, &steam_executable) {
+            Ok(g) => games.push(g),
             Err(_e) => {}
         }
     }
 
-    return Ok(items);
+    return Ok(games);
 }
