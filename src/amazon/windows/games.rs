@@ -1,29 +1,49 @@
+use std::io;
+use std::path::PathBuf;
+
 use directories::BaseDirs;
 use rusqlite::{params, Connection, OpenFlags};
 
 use crate::prelude::Game;
 
-pub fn list() -> std::io::Result<Vec<Game>> {
-    let base_dirs = BaseDirs::new().unwrap();
+pub fn list() -> io::Result<Vec<Game>> {
+    let mut games = Vec::new();
 
-    let mut amazon_path = base_dirs.data_local_dir().to_str().unwrap().to_string();
-    amazon_path.push_str("\\Amazon Games");
+    let amazon_path = PathBuf::from(BaseDirs::new().unwrap().data_local_dir()).join("Amazon Games");
+    let db_path = amazon_path
+        .clone()
+        .join("Data")
+        .join("Games")
+        .join("Sql")
+        .join("GameInstallInfo.sqlite");
 
-    let mut db_path = amazon_path.clone();
-    db_path.push_str("\\Data\\Games\\Sql\\GameInstallInfo.sqlite");
+    if !db_path.exists() {
+        return Ok(games);
+    }
 
-    let conn = Connection::open_with_flags(&db_path, OpenFlags::SQLITE_OPEN_READ_ONLY)
-        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+    let conn = Connection::open_with_flags(&db_path, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(
+        |_error| io::Error::new(io::ErrorKind::Other, "invalid amazon launcher database"),
+    )?;
 
     let mut stmt = conn
         .prepare("SELECT id, ProductTitle, InstallDirectory FROM DbSet WHERE Installed = 1;")
-        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+        .map_err(|_error| {
+            io::Error::new(
+                io::ErrorKind::Other,
+                "error to read the amazon launcher database",
+            )
+        })?;
 
     let game_itr = stmt
         .query_map(params![], |row| {
             let id: String = row.get(0)?;
-            let mut launch_command = amazon_path.clone();
-            launch_command.push_str("\\App\\Amazon Games.exe");
+            let mut launch_command: String = amazon_path
+                .clone()
+                .join("App")
+                .join("Amazon Games.exe")
+                .to_str()
+                .unwrap()
+                .to_string();
             launch_command.push_str(" amazon-games://play/");
             launch_command.push_str(&id);
 
@@ -35,13 +55,17 @@ pub fn list() -> std::io::Result<Vec<Game>> {
                 launch_command,
             });
         })
-        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
-
-    let mut items = Vec::new();
+        .map_err(|_error| {
+            io::Error::new(
+                io::ErrorKind::Other,
+                "error to read the games from the amazon launcher",
+            )
+        })
+        .unwrap();
 
     for game in game_itr {
-        items.push(game.unwrap());
+        games.push(game.unwrap());
     }
 
-    return Ok(items);
+    return Ok(games);
 }

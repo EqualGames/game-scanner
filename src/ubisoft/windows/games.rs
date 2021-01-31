@@ -1,28 +1,51 @@
 use std::io;
+use std::path::PathBuf;
 
 use crate::prelude::Game;
 use crate::util::registry::*;
 
 pub fn list() -> io::Result<Vec<Game>> {
-    let mut items = Vec::new();
-    let launcher_reg = get_local_machine_reg_key("Ubisoft\\Launcher")?;
-    let installs_reg = launcher_reg.open_subkey("Installs")?;
+    let mut games = Vec::new();
 
-    let mut ubisoft_executable: String = launcher_reg.get_value("InstallDir")?;
-    ubisoft_executable.push_str("upc.exe");
+    let ubisoft_regs = get_local_machine_reg_key("Ubisoft\\Launcher").and_then(|launcher_reg| {
+        launcher_reg
+            .open_subkey("Installs")
+            .map(|installs_reg| (launcher_reg, installs_reg))
+    });
 
-    for identifier in installs_reg.enum_keys().map(|x| x.unwrap()) {
-        let mut game_reg_path =
-            String::from("Microsoft\\Windows\\CurrentVersion\\Uninstall\\Uplay Install ");
-        game_reg_path.push_str(&identifier);
-        let game_reg = get_local_machine_reg_key(&game_reg_path)?;
+    if ubisoft_regs.is_err() {
+        return Ok(games);
+    }
 
-        let mut command = ubisoft_executable.clone();
+    let (launcher_reg, installs_reg) = ubisoft_regs.unwrap();
+
+    let ubisoft_executable = PathBuf::from(
+        launcher_reg
+            .get_value::<String, &str>("InstallDir")
+            .unwrap(),
+    )
+    .join("upc.exe");
+
+    if !ubisoft_executable.exists() {
+        return Ok(games);
+    }
+
+    let game_identifiers = installs_reg
+        .enum_keys()
+        .map(|x| x.unwrap())
+        .collect::<Vec<String>>();
+
+    for identifier in game_identifiers {
+        let game_reg = get_local_machine_reg_key(&get_game_reg_path(&identifier)).unwrap();
+
+        let mut command = ubisoft_executable.to_str().unwrap().to_string();
         command.push_str(" uplay://launch/");
         command.push_str(&identifier);
 
-        let mut install_location: String = game_reg.get_value("InstallLocation")?;
-        install_location = install_location.replace("/", "\\");
+        let install_location = game_reg
+            .get_value::<String, &str>("InstallLocation")
+            .map(|value| value.replace("/", "\\"))
+            .unwrap();
 
         let game = Game {
             _type: "ubisoft".to_string(),
@@ -32,8 +55,15 @@ pub fn list() -> io::Result<Vec<Game>> {
             launch_command: command,
         };
 
-        items.push(game)
+        games.push(game)
     }
 
-    return Ok(items);
+    return Ok(games);
+}
+
+fn get_game_reg_path(id: &String) -> String {
+    let mut path = String::from("Microsoft\\Windows\\CurrentVersion\\Uninstall\\Uplay Install ");
+    path.push_str(id);
+
+    return path;
 }

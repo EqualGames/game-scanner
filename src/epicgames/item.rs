@@ -19,8 +19,8 @@ struct Manifest {
 }
 
 pub fn read(file: &Path, launcher_path: &Path) -> std::io::Result<Game> {
-    let file_data = std::fs::read_to_string(&file)?;
-    let manifest: Manifest = serde_json::from_str(&file_data)?;
+    let file_data = std::fs::read_to_string(&file).unwrap();
+    let manifest: Manifest = serde_json::from_str(&file_data).unwrap();
 
     if manifest.display_name.contains("Unreal Engine") {
         return Err(std::io::Error::new(

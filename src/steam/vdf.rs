@@ -4,12 +4,12 @@ use std::path::{Path, PathBuf};
 use crate::util::string::remove_quotes;
 
 pub fn read_library_folders(file: &Path) -> io::Result<Vec<PathBuf>> {
-    let file_data = std::fs::read_to_string(&file)?;
-    let file_lines: Vec<&str> = file_data.split("\n").collect();
+    let file_content = std::fs::read_to_string(&file).unwrap();
+    let file_data = file_content.split("\n").collect::<Vec<&str>>();
 
     let mut folders = Vec::new();
 
-    for file_line in file_lines {
+    for file_line in file_data {
         let line: Vec<&str> = file_line
             .split("\t")
             .filter(|str| str.trim().len() != 0)

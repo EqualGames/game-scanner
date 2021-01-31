@@ -1,5 +1,5 @@
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::prelude::Game;
 
@@ -10,18 +10,30 @@ struct Manifest {
 }
 
 pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Game> {
-    let file_data = std::fs::read_to_string(&file)?;
+    let file_data = std::fs::read_to_string(&file).unwrap();
 
     let mut manifest = String::from("http://mock/");
     manifest.push_str(&file_data);
 
     let manifest_url = url::Url::parse(&manifest)
-        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
+        .map_err(|_error| {
+            std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "error to read the games from the origin launcher",
+            )
+        })
+        .unwrap();
 
-    let query_data = manifest_url
+    let query_pairs = manifest_url
         .query()
-        .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::Other, "Invalid url query"))?;
-    let query_pairs: Vec<&str> = query_data.split("&").collect();
+        .map(|data| data.split("&").collect::<Vec<&str>>())
+        .ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "error to read the game from the origin launcher",
+            )
+        })
+        .unwrap();
 
     let mut manifest = Manifest {
         id: String::new(),
@@ -30,7 +42,7 @@ pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Game> {
     };
 
     for query_pair in query_pairs {
-        let pair: Vec<&str> = query_pair.split("=").collect();
+        let pair = query_pair.split("=").collect::<Vec<&str>>();
 
         let attr = pair.get(0).unwrap().to_string();
         let value = pair.get(1).unwrap().to_string();
@@ -38,12 +50,16 @@ pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Game> {
         match attr.as_str() {
             "id" => manifest.id = value,
             "dipinstallpath" => {
-                let mut dipinstallpath = value.clone();
-                dipinstallpath = dipinstallpath.replace("%5c", "\\");
-                dipinstallpath = dipinstallpath.replace("%3a", ":");
-                dipinstallpath = dipinstallpath.replace("%20", " ");
+                let mut dip_install_path = value.clone();
+                dip_install_path =
+                    dip_install_path.replace("%5c", &std::path::MAIN_SEPARATOR.to_string());
+                dip_install_path = dip_install_path.replace("%3a", ":");
+                dip_install_path = dip_install_path.replace("%20", " ");
 
-                manifest.dipinstallpath = dipinstallpath;
+                manifest.dipinstallpath = PathBuf::from(dip_install_path)
+                    .to_str()
+                    .unwrap()
+                    .to_string();
             }
             "previousstate" => manifest.previousstate = value,
             _ => {}
@@ -53,7 +69,7 @@ pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Game> {
     if manifest.previousstate != "kCompleted" {
         return Err(std::io::Error::new(
             std::io::ErrorKind::Other,
-            "invalid game",
+            "invalid origin game",
         ));
     }
 
