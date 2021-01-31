@@ -1,27 +1,26 @@
 # Steam
 
+## Windows
+
 ### Launcher Info
 
-- Executable: 
+- Executable:
   `HKEY_CURRENT_USER\SOFTWARE\Valve\Steam\SteamExe`
-- InstallPath: 
+- InstallPath:
   `HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam`
-- Path: 
+- Path:
   `HKEY_CURRENT_USER\SOFTWARE\Valve\Steam\SteamPath`
-- Manifests: 
+- Manifests:
   `{Path|InstallPath}\steamapps\*.acf`
 
 ### Start game
 
-- Windows
-  `{Executable} -silent steam://run/<id>`
+`{Executable} -silent steam://run/<Manifest.appid>`
 
 ### Close game
 
-- Windows
-  `{Executable} -shutdown`
+`{Executable} -shutdown`
 
 ### Uninstall game
 
-- Windows
-  `{Executable} -silent steam://uninstall/<Manifest.appid>`
+`{Executable} -silent steam://uninstall/<Manifest.appid>`

@@ -36,7 +36,7 @@ jobs:
           prerelease: false
 
   release_assets:
-    needs: [github, create_release]
+    needs: [ github, create_release ]
     runs-on: ${{ matrix.config.os }}
 
     strategy:

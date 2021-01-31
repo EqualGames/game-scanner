@@ -1,5 +1,7 @@
 # Ubisoft
 
+## Windows
+
 ### Launcher Info
 
 - Executable:
@@ -13,5 +15,4 @@
 
 ### Start game
 
-- Windows 
-  `{Executable}\upc.exe uplay://launch/<install_reg_name>`
+`{Executable}\upc.exe uplay://launch/<install_reg_name>`

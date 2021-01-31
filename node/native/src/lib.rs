@@ -1,8 +1,10 @@
-mod utils;
+use neon::prelude::*;
+
+use libgamescanner::*;
 
 use crate::utils::make_js_game;
-use libgamescanner::*;
-use neon::prelude::*;
+
+mod utils;
 
 fn games(mut cx: FunctionContext) -> JsResult<JsArray> {
     let mut games = Vec::new();
@@ -42,13 +44,10 @@ fn games(mut cx: FunctionContext) -> JsResult<JsArray> {
     for (i, game) in games.iter().enumerate() {
         let js_game = make_js_game(&mut cx, game);
 
-        js_array
-            .set(&mut cx, i as u32, js_game)
-            .unwrap();
+        js_array.set(&mut cx, i as u32, js_game).unwrap();
     }
 
     return Ok(js_array);
 }
-
 
 register_module!(mut m, { m.export_function("games", games) });

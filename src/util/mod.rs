@@ -1,3 +1,4 @@
-pub mod io;
+pub(crate) mod io;
 #[cfg(target_os = "windows")]
-pub mod registry;
+pub(crate) mod registry;
+pub(crate) mod string;

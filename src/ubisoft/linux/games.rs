@@ -1,5 +1,7 @@
-use crate::types::Game;
+use std::io;
 
-pub fn list() -> std::io::Result<Vec<Game>> {
-    return Ok(Vec::new());
+use crate::prelude::Game;
+
+pub fn list() -> io::Result<Vec<Game>> {
+    Ok(Vec::new())
 }

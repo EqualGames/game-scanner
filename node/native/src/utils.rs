@@ -1,6 +1,7 @@
-use libgamescanner::types::Game;
 use neon::prelude::*;
 use neon::types::JsObject;
+
+use libgamescanner::prelude::Game;
 
 pub fn make_js_game<'a>(cx: &mut FunctionContext<'a>, game: &Game) -> Handle<'a, JsObject> {
     let js_obj = JsObject::new(cx);

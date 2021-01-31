@@ -1,5 +1,7 @@
 # Amazon
 
+## Windows
+
 ### Launcher Info
 
 - Games
@@ -10,5 +12,4 @@
 
 ### Start game
 
-- Windows
-  `{Executable} amazon-games://play/{game_id}`
+`{Executable} amazon-games://play/{game_id}`
