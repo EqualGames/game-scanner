@@ -15,11 +15,13 @@ crate-type = ["rlib", "cdylib"]
 name = "list"
 harness = false
 
-[target.'cfg(target_os = "windows")'.dependencies]
+[dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
-case = { version = "1.0.0" }
 url = { version = "2.2.0" }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+case = { version = "1.0.0" }
 rusqlite = { version = "0.24.2", features = ["bundled"] }
 directories = { version = "3.0.1" }
 winreg = { version = "0.8.0" }
