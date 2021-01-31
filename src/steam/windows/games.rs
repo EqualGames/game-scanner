@@ -1,12 +1,14 @@
-use crate::types::Game;
-use crate::steam::acf;
-use crate::steam::vdf;
-use crate::util::registry::*;
-use crate::util::io::*;
-use crate::steam::windows::utils::get_steam_executable;
+use std::io;
 use std::path::PathBuf;
 
-pub fn list() -> std::io::Result<Vec<Game>> {
+use crate::prelude::Game;
+use crate::steam::acf;
+use crate::steam::vdf;
+use crate::steam::windows::utils::get_steam_executable;
+use crate::util::io::*;
+use crate::util::registry::*;
+
+pub fn list() -> io::Result<Vec<Game>> {
     let mut items = Vec::new();
 
     let reg = get_local_machine_reg_key("Valve\\Steam")?;

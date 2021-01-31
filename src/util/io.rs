@@ -1,8 +1,11 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub fn get_files(path: &Path, predicate: fn(item: &PathBuf) -> bool) -> std::io::Result<Vec<PathBuf>> {
-    let mut files= Vec::new();
+pub fn get_files(
+    path: &Path,
+    predicate: fn(item: &PathBuf) -> bool,
+) -> std::io::Result<Vec<PathBuf>> {
+    let mut files = Vec::new();
 
     for entry in fs::read_dir(path)? {
         let entry_path = entry?.path();
@@ -17,7 +20,10 @@ pub fn get_files(path: &Path, predicate: fn(item: &PathBuf) -> bool) -> std::io:
     return Ok(files);
 }
 
-pub fn get_files_recursive(path: &Path, predicate: fn(item: &PathBuf) -> bool) -> std::io::Result<Vec<PathBuf>> {
+pub fn get_files_recursive(
+    path: &Path,
+    predicate: fn(item: &PathBuf) -> bool,
+) -> std::io::Result<Vec<PathBuf>> {
     let mut files = Vec::new();
 
     for entry in fs::read_dir(path)? {

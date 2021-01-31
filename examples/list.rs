@@ -1,5 +1,6 @@
-use libgamescan::*;
 use std::io;
+
+use libgamescanner::*;
 
 fn main() -> io::Result<()> {
     let mut games = Vec::new();

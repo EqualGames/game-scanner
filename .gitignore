@@ -3,6 +3,9 @@ target
 index.node
 artifacts.json
 
+# Bench
+.criterion
+
 # Dependencies
 node_modules
 

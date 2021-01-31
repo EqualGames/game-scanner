@@ -1,5 +1,7 @@
 # GOG
 
+## Windows
+
 ### Launcher info
 
 - Path:
@@ -9,3 +11,6 @@
 - Games:
   `HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\GOG.com\Games`
   
+### Start game
+
+`{Executable} /command=runGame /gameId={id} /path={game_install_location}`

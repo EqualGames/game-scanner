@@ -1,5 +1,7 @@
-use crate::types::Game;
+use std::io;
 use std::path::Path;
+
+use crate::prelude::Game;
 
 struct Manifest {
     id: String,
@@ -7,7 +9,7 @@ struct Manifest {
     previousstate: String,
 }
 
-pub fn read(file: &Path, launcher_path: &Path) -> std::io::Result<Game> {
+pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Game> {
     let file_data = std::fs::read_to_string(&file)?;
 
     let mut manifest = String::from("http://mock/");
@@ -16,7 +18,8 @@ pub fn read(file: &Path, launcher_path: &Path) -> std::io::Result<Game> {
     let manifest_url = url::Url::parse(&manifest)
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))?;
 
-    let query_data = manifest_url.query()
+    let query_data = manifest_url
+        .query()
         .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::Other, "Invalid url query"))?;
     let query_pairs: Vec<&str> = query_data.split("&").collect();
 
@@ -48,14 +51,24 @@ pub fn read(file: &Path, launcher_path: &Path) -> std::io::Result<Game> {
     }
 
     if manifest.previousstate != "kCompleted" {
-        return Err(std::io::Error::new(std::io::ErrorKind::Other, "invalid game"));
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "invalid game",
+        ));
     }
 
     let mut launch_command: String = String::from(launcher_path.to_str().unwrap());
     launch_command.push_str(" origin2://game/launch?offerIds=");
     launch_command.push_str(&manifest.id);
 
-    let name = file.parent().unwrap().file_name().unwrap().to_str().unwrap().to_string();
+    let name = file
+        .parent()
+        .unwrap()
+        .file_name()
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_string();
 
     let game = Game {
         _type: "origin".to_string(),

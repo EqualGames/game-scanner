@@ -1,4 +1,5 @@
 use std::path::PathBuf;
+
 use case::CaseExt;
 
 pub fn get_steam_executable(path: &String) -> PathBuf {
