@@ -3,6 +3,7 @@ use std::path::Path;
 use serde::{Deserialize, Serialize};
 
 use crate::prelude::Game;
+use crate::util::error::make_io_error;
 
 #[derive(Serialize, Deserialize)]
 struct Manifest {
@@ -23,23 +24,19 @@ pub fn read(file: &Path, launcher_path: &Path) -> std::io::Result<Game> {
     let manifest: Manifest = serde_json::from_str(&file_data).unwrap();
 
     if manifest.display_name.contains("Unreal Engine") {
-        return Err(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            "invalid game",
-        ));
+        return Err(make_io_error("invalid game"));
     }
 
-    let mut command: String = launcher_path.to_str().unwrap().to_string();
-    command.push_str(" com.epicgames.launcher://apps/");
-    command.push_str(&manifest.app_name);
-    command.push_str("?action=launch&silent=true");
-
     let game = Game {
-        _type: "epicgames".to_string(),
+        _type: String::from("epicgames"),
         id: manifest.catalog_item_id,
         name: manifest.display_name,
         path: manifest.install_location,
-        launch_command: command,
+        launch_command: format!(
+            "{} com.epicgames.launcher://apps/{}?action=launch&silent=true",
+            launcher_path.display().to_string(),
+            &manifest.app_name
+        ),
     };
 
     return Ok(game);

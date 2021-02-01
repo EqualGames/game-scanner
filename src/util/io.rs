@@ -7,8 +7,8 @@ pub fn get_files(
 ) -> std::io::Result<Vec<PathBuf>> {
     let mut files = Vec::new();
 
-    for entry in fs::read_dir(path)? {
-        let entry_path = entry?.path();
+    for entry in fs::read_dir(path).unwrap() {
+        let entry_path = entry.unwrap().path();
 
         if entry_path.is_file() {
             if predicate(&entry_path) {
@@ -26,15 +26,15 @@ pub fn get_files_recursive(
 ) -> std::io::Result<Vec<PathBuf>> {
     let mut files = Vec::new();
 
-    for entry in fs::read_dir(path)? {
-        let entry_path = entry?.path();
+    for entry in fs::read_dir(path).unwrap() {
+        let entry_path = entry.unwrap().path();
 
         if entry_path.is_file() {
             if predicate(&entry_path) {
                 files.push(entry_path);
             }
         } else if entry_path.is_dir() {
-            files.extend(get_files(&entry_path, predicate)?);
+            files.extend(get_files(&entry_path, predicate).unwrap());
         }
     }
 
