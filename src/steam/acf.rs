@@ -1,15 +1,16 @@
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::prelude::Game;
+use crate::util::error::make_io_error;
 use crate::util::string::remove_quotes;
 
-pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Game> {
+pub fn read(file: &Path, launcher_path: &Path, library_path: &Path) -> io::Result<Game> {
     let file_content = std::fs::read_to_string(&file).unwrap();
     let file_data = file_content.split("\n").collect::<Vec<&str>>();
 
     let mut game = Game {
-        _type: "steam".to_string(),
+        _type: String::from("steam"),
         id: String::new(),
         name: String::new(),
         path: String::new(),
@@ -32,23 +33,25 @@ pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Game> {
         match attr.as_str() {
             "appid" => game.id = value,
             "name" => game.name = value,
-            "installdir" => game.path = value,
+            "installdir" => {
+                game.path = PathBuf::from(library_path)
+                    .join(value)
+                    .display()
+                    .to_string()
+            }
             _ => {}
         }
     }
 
     if game.id == "228980" {
-        return Err(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            "invalid steam game",
-        ));
+        return Err(make_io_error("invalid steam game"));
     }
 
-    let mut command: String = launcher_path.to_str().unwrap().to_string();
-    command.push_str(" -silent steam://run/");
-    command.push_str(&game.id);
-
-    game.launch_command = command;
+    game.launch_command = format!(
+        "{} -silent steam://run/{}",
+        launcher_path.display().to_string(),
+        &game.id
+    );
 
     return Ok(game);
 }

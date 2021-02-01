@@ -24,13 +24,10 @@ pub fn read_library_folders(file: &Path) -> io::Result<Vec<PathBuf>> {
 
         match attr.parse::<i32>() {
             Ok(_n) => {
-                let mut double_separator = std::path::MAIN_SEPARATOR.to_string();
-                double_separator.push_str(&std::path::MAIN_SEPARATOR.to_string());
+                let double_separator =
+                    std::path::MAIN_SEPARATOR.to_string() + &std::path::MAIN_SEPARATOR.to_string();
 
-                value = value.replace(
-                    &double_separator,
-                    std::path::MAIN_SEPARATOR.to_string().as_str(),
-                );
+                value = value.replace(&double_separator, &std::path::MAIN_SEPARATOR.to_string());
 
                 folders.push(PathBuf::from(value))
             }

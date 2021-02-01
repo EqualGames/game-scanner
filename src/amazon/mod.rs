@@ -9,5 +9,6 @@ pub use windows::*;
 pub mod linux;
 #[cfg(target_os = "macos")]
 pub mod macos;
+mod sqlite;
 #[cfg(target_os = "windows")]
 mod windows;

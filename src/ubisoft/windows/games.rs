@@ -7,52 +7,57 @@ use crate::util::registry::*;
 pub fn list() -> io::Result<Vec<Game>> {
     let mut games = Vec::new();
 
-    let ubisoft_regs = get_local_machine_reg_key("Ubisoft\\Launcher").and_then(|launcher_reg| {
-        launcher_reg
-            .open_subkey("Installs")
-            .map(|installs_reg| (launcher_reg, installs_reg))
-    });
-
-    if ubisoft_regs.is_err() {
-        return Ok(games);
-    }
-
-    let (launcher_reg, installs_reg) = ubisoft_regs.unwrap();
-
-    let ubisoft_executable = PathBuf::from(
+    let launcher_info = get_local_machine_reg_key("Ubisoft\\Launcher").and_then(|launcher_reg| {
         launcher_reg
             .get_value::<String, &str>("InstallDir")
-            .unwrap(),
-    )
-    .join("upc.exe");
+            .map(PathBuf::from)
+            .map(|path| path.join("upc.exe"))
+            .and_then(|launcher_executable| {
+                launcher_reg
+                    .open_subkey("Installs")
+                    .map(|launcher_games| (launcher_executable, launcher_games))
+            })
+    });
 
-    if !ubisoft_executable.exists() {
+    if launcher_info.is_err() {
         return Ok(games);
     }
 
-    let game_identifiers = installs_reg
+    let (launcher_executable, launcher_games) = launcher_info.unwrap();
+
+    if !launcher_executable.exists() {
+        return Ok(games);
+    }
+
+    let game_ids = launcher_games
         .enum_keys()
         .map(|x| x.unwrap())
         .collect::<Vec<String>>();
 
-    for identifier in game_identifiers {
-        let game_reg = get_local_machine_reg_key(&get_game_reg_path(&identifier)).unwrap();
-
-        let mut command = ubisoft_executable.to_str().unwrap().to_string();
-        command.push_str(" uplay://launch/");
-        command.push_str(&identifier);
-
-        let install_location = game_reg
-            .get_value::<String, &str>("InstallLocation")
-            .map(|value| value.replace("/", "\\"))
+    for id in game_ids {
+        let (game_name, game_path) = get_local_machine_reg_key(&get_game_reg_path(&id))
+            .and_then(|game_reg| {
+                game_reg
+                    .get_value::<String, &str>("DisplayName")
+                    .and_then(|game_name| {
+                        game_reg
+                            .get_value::<String, &str>("InstallLocation")
+                            .map(|value| value.replace("/", &std::path::MAIN_SEPARATOR.to_string()))
+                            .map(|game_path| (game_name, game_path))
+                    })
+            })
             .unwrap();
 
         let game = Game {
-            _type: "ubisoft".to_string(),
-            id: String::from(&identifier),
-            name: game_reg.get_value("DisplayName")?,
-            path: install_location,
-            launch_command: command,
+            _type: String::from("ubisoft"),
+            id: String::from(&id),
+            name: game_name,
+            path: game_path,
+            launch_command: format!(
+                "{} uplay://launch/{}",
+                launcher_executable.display().to_string(),
+                &id
+            ),
         };
 
         games.push(game)
@@ -62,8 +67,5 @@ pub fn list() -> io::Result<Vec<Game>> {
 }
 
 fn get_game_reg_path(id: &String) -> String {
-    let mut path = String::from("Microsoft\\Windows\\CurrentVersion\\Uninstall\\Uplay Install ");
-    path.push_str(id);
-
-    return path;
+    return String::from("Microsoft\\Windows\\CurrentVersion\\Uninstall\\Uplay Install ") + id;
 }
