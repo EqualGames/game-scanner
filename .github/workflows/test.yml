@@ -20,9 +20,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2.1.4
-        with:
-          node-version: 12.x
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -58,10 +55,13 @@ jobs:
           - os: windows-latest
 
     steps:
-      - run: |
-          cd node
-          npm ci
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2.1.4
+        with:
+          node-version: 12.x
 
       - run: |
           cd node
+          npm ci
           npm run build
