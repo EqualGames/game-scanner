@@ -21,7 +21,9 @@ pub fn launch_game(app: &Game) -> io::Result<()> {
         .spawn()
         .expect(&format!("Couldn't run {}", app.name));
 
-    println!("Launching {} [{}]", app.name, process.id());
+    if cfg!(debug_assertions) {
+        println!("Launching {} [{}]", app.name, process.id());
+    }
 
     Ok(())
 }
@@ -39,62 +41,37 @@ pub fn close_game(app: &Game) -> io::Result<()> {
         _ => panic!("Invalid game"),
     };
 
-    let all_processes = sys.get_processes();
-
     let str_array_contains =
         |path: &[String], value: &str| String::from(path.to_vec().join(" ")).contains(value);
     let path_contains = |path: &Path, value: &str| path.display().to_string().contains(value);
 
     // Find all processes related to launcher and game
-    let processes_to_kill = all_processes.clone().iter().filter(|&(_pid, process)| {
-        path_contains(process.cwd(), launcher_folder)
+    let processes = sys.get_processes();
+
+    if cfg!(debug_assertions) {
+        println!("Closing {}", app.name);
+    }
+
+    for (_pid, process) in processes {
+        if path_contains(process.cwd(), launcher_folder)
             || path_contains(process.exe(), launcher_folder)
             || str_array_contains(process.cmd(), launcher_folder)
             || path_contains(process.cwd(), &app.path)
             || path_contains(process.exe(), &app.path)
             || str_array_contains(process.cmd(), &app.path)
-    });
-
-    // Find all process and your parents to kill
-    let mut pid_list = Vec::new();
-    processes_to_kill.for_each(|(pid, process)| {
-        if std::process::id().to_string().contains(&pid.to_string()) {
-            return;
-        }
-
-        pid_list.push(process.pid());
-
-        match process.parent() {
-            Some(parent_pid) => {
-                if !std::process::id()
-                    .to_string()
-                    .contains(&parent_pid.to_string())
-                {
-                    pid_list.push(parent_pid)
-                }
+        {
+            if cfg!(debug_assertions) {
+                println!(
+                    "killing {:?} {:?} {:?} {:?}",
+                    process.pid(),
+                    process.name(),
+                    process.exe(),
+                    process.cwd()
+                );
             }
-            None => {}
+
+            process.kill(sysinfo::Signal::Quit);
         }
-    });
-
-    let processes = all_processes
-        .clone()
-        .iter()
-        .filter(|&(pid, _process)| pid_list.contains(pid));
-
-    println!("Closing {}", app.name);
-
-    for (pid, process) in processes {
-        if cfg!(debug_assertions) {
-            println!(
-                "killing {:?} {:?} {:?} {:?}",
-                pid,
-                process.name(),
-                process.exe(),
-                process.cwd()
-            );
-        }
-        process.kill(sysinfo::Signal::Quit);
     }
 
     Ok(())
