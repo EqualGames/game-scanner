@@ -1,10 +1,8 @@
-use std::io;
-use std::path::PathBuf;
-
-use directories::BaseDirs;
-
 use crate::amazon::sqlite;
 use crate::prelude::Game;
+use directories::BaseDirs;
+use std::io;
+use std::path::PathBuf;
 
 pub fn list() -> io::Result<Vec<Game>> {
     let launcher_path = BaseDirs::new()

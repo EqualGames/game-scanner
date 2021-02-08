@@ -16,3 +16,12 @@
 ### Start game
 
 `{Executable}\upc.exe uplay://launch/<install_reg_name>`
+`{Executable}\upc.exe uplay://open/game/<install_reg_name>`
+
+### Install game
+
+`{Executable}\upc.exe uplay://install/<install_reg_name>`
+
+### Uninstall game
+
+`{Executable}\upc.exe uplay://uninstall/<install_reg_name>`

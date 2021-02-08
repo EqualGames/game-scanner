@@ -1,11 +1,10 @@
-use std::io;
-use std::path::{Path, PathBuf};
-
 use crate::prelude::Game;
 use crate::util::error::make_io_error;
 use crate::util::string::remove_quotes;
+use std::io;
+use std::path::{Path, PathBuf};
 
-pub fn read(file: &Path, launcher_path: &Path, library_path: &Path) -> io::Result<Game> {
+pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> io::Result<Game> {
     let file_content = std::fs::read_to_string(&file).unwrap();
     let file_data = file_content.split("\n").collect::<Vec<&str>>();
 
@@ -14,7 +13,7 @@ pub fn read(file: &Path, launcher_path: &Path, library_path: &Path) -> io::Resul
         id: String::new(),
         name: String::new(),
         path: String::new(),
-        launch_command: String::new(),
+        launch_command: Vec::new(),
     };
 
     for file_line in file_data {
@@ -47,11 +46,17 @@ pub fn read(file: &Path, launcher_path: &Path, library_path: &Path) -> io::Resul
         return Err(make_io_error("invalid steam game"));
     }
 
-    game.launch_command = format!(
-        "{} -silent steam://run/{}",
-        launcher_path.display().to_string(),
-        &game.id
-    );
+    game.launch_command = make_launch_command(&launcher_executable, &game.id);
 
     return Ok(game);
+}
+
+fn make_launch_command(launcher_executable: &Path, id: &String) -> Vec<String> {
+    let mut command = Vec::new();
+
+    command.push(launcher_executable.display().to_string());
+    command.push(String::from("-silent"));
+    command.push(format!("steam://run/{}", id));
+
+    return command;
 }

@@ -1,12 +1,11 @@
-use std::io;
-use std::path::PathBuf;
-
 use crate::prelude::Game;
 use crate::steam::acf;
 use crate::steam::vdf;
-use crate::steam::windows::utils::get_steam_executable;
+use crate::steam::windows::utils::fix_path;
 use crate::util::io::*;
 use crate::util::registry::*;
+use std::io;
+use std::path::PathBuf;
 
 pub fn list() -> io::Result<Vec<Game>> {
     let mut games = Vec::new();
@@ -14,7 +13,7 @@ pub fn list() -> io::Result<Vec<Game>> {
     let launcher_info = get_local_machine_reg_key("Valve\\Steam").and_then(|launcher_reg| {
         get_current_user_reg_key("Valve\\Steam")
             .and_then(|user_launcher_reg| user_launcher_reg.get_value::<String, &str>("SteamExe"))
-            .map(|path| get_steam_executable(&path))
+            .map(|path| fix_path(&path))
             .map(PathBuf::from)
             .map(|launcher_executable| (launcher_executable, launcher_reg))
     });
@@ -25,11 +24,11 @@ pub fn list() -> io::Result<Vec<Game>> {
 
     let (launcher_executable, launcher_reg) = launcher_info.unwrap();
 
-    let steam_path_default = PathBuf::from(
-        launcher_reg
+    let steam_path_default = PathBuf::from(fix_path(
+        &launcher_reg
             .get_value::<String, &str>("InstallPath")
             .unwrap(),
-    )
+    ))
     .join("steamapps");
 
     if !launcher_executable.exists() || !steam_path_default.exists() {
