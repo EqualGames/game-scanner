@@ -12,5 +12,13 @@
 ### Start game
 
 `{Executable} origin2://game/launch?offerIds=<Manifest.id>`
+`{Executable} origin2://game/launch?offerIds=<Manifest.id>&autoDownload=true`### Start game
+
+### Install game
+`origin2://game/download?offerId=<Manifest.id>`
+
+### Close launcher
+
+`{Executable} origin://quit`
 
 

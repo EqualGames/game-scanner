@@ -1,10 +1,9 @@
-use std::io;
-use std::path::PathBuf;
-
 use crate::origin::mfst;
 use crate::prelude::Game;
 use crate::util::io::*;
 use crate::util::registry::*;
+use std::io;
+use std::path::PathBuf;
 
 pub fn list() -> io::Result<Vec<Game>> {
     let mut games = Vec::new();

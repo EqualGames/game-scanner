@@ -1,8 +1,7 @@
-use std::io;
-use std::path::{Path, PathBuf};
-
 use crate::prelude::Game;
 use crate::util::registry::*;
+use std::io;
+use std::path::{Path, PathBuf};
 
 pub fn list() -> io::Result<Vec<Game>> {
     let mut games = Vec::new();
@@ -51,8 +50,7 @@ pub fn list() -> io::Result<Vec<Game>> {
             id: game_id.clone(),
             name: game_name,
             path: game_path.clone(),
-            launch_command: make_launch_command(&launcher_executable, &game_id, &game_path)
-                .unwrap(),
+            launch_command: make_launch_command(&launcher_executable, &game_id, &game_path),
         };
 
         games.push(game);
@@ -61,9 +59,13 @@ pub fn list() -> io::Result<Vec<Game>> {
     return Ok(games);
 }
 
-fn make_launch_command(launcher_executable: &Path, id: &String, path: &String) -> Option<String> {
-    return launcher_executable
-        .clone()
-        .to_str()
-        .map(|command| format!("{} /command=runGame /gameId={} /path={}", command, id, path));
+fn make_launch_command(launcher_executable: &Path, id: &String, path: &String) -> Vec<String> {
+    let mut command = Vec::new();
+
+    command.push(launcher_executable.display().to_string());
+    command.push(String::from("/command=runGame"));
+    command.push(format!("/gameId={}", id));
+    command.push(format!("/path={}", path));
+
+    return command;
 }

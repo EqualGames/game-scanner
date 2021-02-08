@@ -3,6 +3,9 @@ target
 index.node
 artifacts.json
 
+# Log
+*.log
+
 # Bench
 .criterion
 

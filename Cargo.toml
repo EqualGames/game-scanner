@@ -6,7 +6,7 @@ edition = "2018"
 publish = false
 
 [lib]
-name = "libgamescanner"
+name = "gamescanner"
 bench = true
 doc = true
 crate-type = ["rlib", "cdylib"]
@@ -16,10 +16,11 @@ name = "list"
 harness = false
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = { version = "1.0" }
+serde = { version = "1.0.123", features = ["derive"] }
+serde_json = { version = "1.0.62" }
 url = { version = "2.2.0" }
 rusqlite = { version = "0.24.2", features = ["bundled"] }
+sysinfo = { version = "0.16.1" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 case = { version = "1.0.0" }
@@ -27,4 +28,4 @@ directories = { version = "3.0.1" }
 winreg = { version = "0.8.0" }
 
 [dev-dependencies]
-criterion = "0.3.4"
+criterion = { version = "0.3.4" }

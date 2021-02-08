@@ -1,11 +1,10 @@
-use std::path::Path;
-
-use rusqlite::{params, Connection, OpenFlags};
-
 use crate::prelude::Game;
 use crate::util::error::make_io_error;
+use rusqlite::{params, Connection, OpenFlags};
+use std::io;
+use std::path::Path;
 
-pub fn read(file: &Path, launcher_path: &Path) -> std::io::Result<Vec<Game>> {
+pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Vec<Game>> {
     let conn = Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY)
         .map_err(|_error| make_io_error("invalid amazon launcher database"))
         .unwrap();
@@ -24,7 +23,7 @@ pub fn read(file: &Path, launcher_path: &Path) -> std::io::Result<Vec<Game>> {
                 id: id.clone(),
                 name: row.get(1).unwrap(),
                 path: row.get(2).unwrap(),
-                launch_command: make_launch_command(&launcher_path, &id).unwrap(),
+                launch_command: make_launch_command(&launcher_path, &id),
             });
         })
         .map_err(|_error| make_io_error("error to read the games from the amazon launcher"))
@@ -39,11 +38,17 @@ pub fn read(file: &Path, launcher_path: &Path) -> std::io::Result<Vec<Game>> {
     return Ok(games);
 }
 
-fn make_launch_command(launcher_path: &Path, id: &String) -> Option<String> {
-    return launcher_path
-        .clone()
-        .join("App")
-        .join("Amazon Games.exe")
-        .to_str()
-        .map(|command| format!("{} amazon-games://play/{}", command, id));
+fn make_launch_command(launcher_path: &Path, id: &String) -> Vec<String> {
+    let mut command = Vec::new();
+
+    command.push(
+        launcher_path
+            .join("App")
+            .join("Amazon Games.exe")
+            .display()
+            .to_string(),
+    );
+    command.push(format!("amazon-games://play/{}", id));
+
+    return command;
 }

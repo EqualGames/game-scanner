@@ -1,8 +1,7 @@
-use std::io;
-use std::path::{Path, PathBuf};
-
 use crate::prelude::Game;
 use crate::util::error::make_io_error;
+use std::io;
+use std::path::{Path, PathBuf};
 
 struct Manifest {
     id: String,
@@ -10,7 +9,7 @@ struct Manifest {
     previousstate: String,
 }
 
-pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Game> {
+pub fn read(file: &Path, launcher_executable: &Path) -> io::Result<Game> {
     let file_data = std::fs::read_to_string(&file).unwrap();
 
     let manifest = String::from("http://mock/") + &file_data;
@@ -54,7 +53,7 @@ pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Game> {
         id: manifest.id.clone(),
         name: get_game_name(file).unwrap(),
         path: manifest.dipinstallpath,
-        launch_command: make_launch_command(&launcher_path, &manifest.id).unwrap(),
+        launch_command: make_launch_command(&launcher_executable, &manifest.id),
     };
 
     return Ok(game);
@@ -77,8 +76,11 @@ fn get_game_name(file: &Path) -> Option<String> {
         .map(|path| path.to_string());
 }
 
-fn make_launch_command(launcher_path: &Path, id: &String) -> Option<String> {
-    return launcher_path
-        .to_str()
-        .map(|command| format!("{} origin2://game/launch?offerIds={}", command, id));
+fn make_launch_command(launcher_executable: &Path, id: &String) -> Vec<String> {
+    let mut command = Vec::new();
+
+    command.push(launcher_executable.display().to_string());
+    command.push(format!("origin2://game/launch?offerIds={}", id));
+
+    return command;
 }

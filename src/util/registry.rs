@@ -1,5 +1,4 @@
 use std::{env, io};
-
 use winreg;
 
 pub fn get_local_machine_reg_key(sub_key: &str) -> io::Result<winreg::RegKey> {

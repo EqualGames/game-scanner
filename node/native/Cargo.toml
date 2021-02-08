@@ -12,8 +12,8 @@ name = "libnode"
 crate-type = ["cdylib"]
 
 [build-dependencies]
-neon-build = "0.6.0"
+neon-build = { version = "0.7.1" }
 
 [dependencies]
-neon = "0.6.0"
+neon = { version = "0.7.1" }
 game-scanner = { version = "0.1.0", path = "../../", features = [] }
