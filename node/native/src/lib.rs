@@ -1,43 +1,10 @@
+use crate::utils::{from_js_game, make_js_game};
 use neon::prelude::*;
-
-use libgamescanner::*;
-
-use crate::utils::make_js_game;
 
 mod utils;
 
 fn games(mut cx: FunctionContext) -> JsResult<JsArray> {
-    let mut games = Vec::new();
-
-    match amazon::games::list() {
-        Ok(items) => games.extend(items),
-        Err(_e) => {}
-    }
-
-    match epicgames::games::list() {
-        Ok(items) => games.extend(items),
-        Err(_e) => {}
-    }
-
-    match gog::games::list() {
-        Ok(items) => games.extend(items),
-        Err(_e) => {}
-    }
-
-    match origin::games::list() {
-        Ok(items) => games.extend(items),
-        Err(_e) => {}
-    }
-
-    match steam::games::list() {
-        Ok(items) => games.extend(items),
-        Err(_e) => {}
-    }
-
-    match ubisoft::games::list() {
-        Ok(items) => games.extend(items),
-        Err(_e) => {}
-    }
+    let games = gamescanner::games();
 
     let js_array = JsArray::new(&mut cx, games.len() as u32);
 
@@ -50,4 +17,30 @@ fn games(mut cx: FunctionContext) -> JsResult<JsArray> {
     return Ok(js_array);
 }
 
-register_module!(mut m, { m.export_function("games", games) });
+fn launch_game(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let object = cx.argument::<JsObject>(0).unwrap();
+
+    let game = from_js_game(&mut cx, &object).unwrap();
+
+    gamescanner::manager::launch_game(&game).unwrap();
+
+    return Ok(cx.undefined());
+}
+
+fn close_game(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let object = cx.argument::<JsObject>(0).unwrap();
+
+    let game = from_js_game(&mut cx, &object).unwrap();
+
+    gamescanner::manager::close_game(&game).unwrap();
+
+    return Ok(cx.undefined());
+}
+
+register_module!(mut m, {
+    m.export_function("games", games)?;
+    m.export_function("launch_game", launch_game)?;
+    m.export_function("close_game", close_game)?;
+
+    Ok(())
+});

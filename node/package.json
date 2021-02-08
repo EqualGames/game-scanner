@@ -24,7 +24,8 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "neon build --release",
-    "test": "node examples/list.js"
+    "test:list": "node examples/list.js",
+    "test:launch-close": "node examples/launch_and_close.js"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,6 @@
     "url": "https://github.com/EqualSoftware/game-scanner/issues"
   },
   "devDependencies": {
-    "neon-cli": "^0.7.0"
+    "neon-cli": "^0.7.1"
   }
 }

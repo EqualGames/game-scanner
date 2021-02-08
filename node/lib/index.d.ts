@@ -7,3 +7,5 @@ export interface Game {
 }
 
 export declare function games(): Array<Game>;
+export declare function launch_game(game: Game): void;
+export declare function close_game(game: Game): void;

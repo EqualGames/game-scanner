@@ -1,7 +1,6 @@
+use crate::util::string::remove_quotes;
 use std::io;
 use std::path::{Path, PathBuf};
-
-use crate::util::string::remove_quotes;
 
 pub fn read_library_folders(file: &Path) -> io::Result<Vec<PathBuf>> {
     let file_content = std::fs::read_to_string(&file).unwrap();

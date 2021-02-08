@@ -1,9 +1,7 @@
-use std::path::Path;
-
-use serde::{Deserialize, Serialize};
-
 use crate::prelude::Game;
 use crate::util::error::make_io_error;
+use serde::{Deserialize, Serialize};
+use std::path::Path;
 
 #[derive(Serialize, Deserialize)]
 struct Manifest {
@@ -19,7 +17,7 @@ struct Manifest {
     launch_executable: String,
 }
 
-pub fn read(file: &Path, launcher_path: &Path) -> std::io::Result<Game> {
+pub fn read(file: &Path, launcher_executable: &Path) -> std::io::Result<Game> {
     let file_data = std::fs::read_to_string(&file).unwrap();
     let manifest: Manifest = serde_json::from_str(&file_data).unwrap();
 
@@ -32,12 +30,20 @@ pub fn read(file: &Path, launcher_path: &Path) -> std::io::Result<Game> {
         id: manifest.catalog_item_id,
         name: manifest.display_name,
         path: manifest.install_location,
-        launch_command: format!(
-            "{} com.epicgames.launcher://apps/{}?action=launch&silent=true",
-            launcher_path.display().to_string(),
-            &manifest.app_name
-        ),
+        launch_command: make_launch_command(&launcher_executable, &manifest.app_name),
     };
 
     return Ok(game);
+}
+
+fn make_launch_command(launcher_executable: &Path, id: &String) -> Vec<String> {
+    let mut command = Vec::new();
+
+    command.push(launcher_executable.display().to_string());
+    command.push(format!(
+        "com.epicgames.launcher://apps/{}?action=launch&silent=true",
+        id
+    ));
+
+    return command;
 }
