@@ -18,7 +18,7 @@ Game Scanner for any launcher and OS.
 | Epic Games | ❌                                        | ✅       | ❌     | ❌     |
 | GOG        | ❌                                        | ✅       | ❌     | ❌     |
 | Origin     | ❌                                        | ✅       | ❌     | ❌     |
-| Rio Games  | ❓                                        | ✅       | ❌     | ❌     |
+| Riot Games  | ❓                                        | ✅       | ❌     | ❌     |
 | Steam      | ✅                                        | ✅       | ❌     | ❌     |
 | Ubisoft    | ❌                                        | ✅       | ❌     | ❌     |
 
