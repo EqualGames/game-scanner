@@ -50,7 +50,16 @@ pub fn list() -> io::Result<Vec<Game>> {
     for path in library_paths {
         match get_files(&path, get_manifest_predicate) {
             Ok(list) => library_manifests.push((path, list)),
-            Err(_e) => {}
+            Err(error) => {
+                return Err(io::Error::new(
+                    error.kind(),
+                    format!(
+                        "Error on read the steam library path ({}): {}",
+                        path.display().to_string(),
+                        error.to_string()
+                    ),
+                ))
+            }
         }
     }
 
@@ -60,7 +69,16 @@ pub fn list() -> io::Result<Vec<Game>> {
         for manifest in manifests {
             match acf::read(&manifest, &launcher_executable, &library_path) {
                 Ok(g) => games.push(g),
-                Err(_e) => {}
+                Err(error) => {
+                    return Err(io::Error::new(
+                        error.kind(),
+                        format!(
+                            "Error on read the steam manifest ({}): {}",
+                            manifest.display().to_string(),
+                            error.to_string()
+                        ),
+                    ))
+                }
             }
         }
     }

@@ -50,7 +50,14 @@ pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Game> {
         .map(PathBuf::from);
 
     if launcher_executable.is_none() {
-        return Err(make_io_error("invalid game of riot games"));
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!(
+                "The game {} is not installed completely",
+                &product.get_name()
+            )
+            .as_str(),
+        ));
     }
 
     let mut game_install_path = PathBuf::from(&game_path);

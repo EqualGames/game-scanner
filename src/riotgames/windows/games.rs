@@ -6,7 +6,10 @@ use std::path::PathBuf;
 
 pub fn list() -> io::Result<Vec<Game>> {
     let mut games = Vec::new();
-    let launcher_path = PathBuf::from("C:\\ProgramData\\Riot Games");
+    let launcher_path = PathBuf::from("C:")
+        .join(std::path::MAIN_SEPARATOR.to_string())
+        .join("ProgramData")
+        .join("Riot Games");
     let launcher_manifests_path = launcher_path.join("Metadata");
 
     let manifests = get_files_recursive(&launcher_manifests_path, get_manifest_predicate).unwrap();
@@ -14,7 +17,16 @@ pub fn list() -> io::Result<Vec<Game>> {
     for manifest in manifests {
         match yaml::read(&manifest, &launcher_path) {
             Ok(g) => games.push(g),
-            Err(_e) => {}
+            Err(error) => {
+                return Err(io::Error::new(
+                    error.kind(),
+                    format!(
+                        "Error on read the riot games manifest ({}): {}",
+                        manifest.display().to_string(),
+                        error.to_string()
+                    ),
+                ))
+            }
         }
     }
 

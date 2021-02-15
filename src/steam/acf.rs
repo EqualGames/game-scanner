@@ -1,5 +1,4 @@
 use crate::prelude::Game;
-use crate::util::error::make_io_error;
 use crate::util::string::remove_quotes;
 use std::io;
 use std::path::{Path, PathBuf};
@@ -39,7 +38,10 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> io:
     }
 
     if game.id == "228980" {
-        return Err(make_io_error("invalid steam game"));
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!("invalid steam game: ({}){}", game.id, game.name).as_str(),
+        ));
     }
 
     game.launch_command = vec![

@@ -44,6 +44,8 @@ jobs:
         with:
           command: test
           args: --package game-scanner
+        env:
+          RUST_BACKTRACE: 1
 
       - name: cargo build
         uses: actions-rs/cargo@v1
