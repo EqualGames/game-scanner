@@ -11,14 +11,16 @@ Game Scanner for any launcher and OS.
 
 ## Launchers Support
 
-| Launcher   | Multi-directories[¹](#multi-directories) | Windows | Linux | MacOS |  
-|------------|-------------------|---------|-------|-------|
-| Amazon     | ✅                 | ✅      | ❌    | ❌     |
-| Epic Games | ❌                 | ✅      | ❌    | ❌     |
-| GOG        | ❌                 | ✅      | ❌    | ❌     |
-| Origin     | ❌                 | ✅      | ❌    | ❌     |
-| Steam      | ✅                 | ✅      | ❌    | ❌     |
-| Ubisoft    | ❌                 | ✅      | ❌    | ❌     |
+| Launcher   | Multi-directories[¹](#multi-directories) | Windows | Linux | MacOS |
+| ---------- | ---------------------------------------- | ------- | ----- | ----- |
+| Amazon     | ✅                                        | ✅       | ❌     | ❌     |
+| Blizzard   | ❓                                        | ✅       | ❌     | ❌     |
+| Epic Games | ❌                                        | ✅       | ❌     | ❌     |
+| GOG        | ❌                                        | ✅       | ❌     | ❌     |
+| Origin     | ❌                                        | ✅       | ❌     | ❌     |
+| Rio Games  | ❓                                        | ✅       | ❌     | ❌     |
+| Steam      | ✅                                        | ✅       | ❌     | ❌     |
+| Ubisoft    | ❌                                        | ✅       | ❌     | ❌     |
 
 <a name="multi-directories"></a>[1]: **Multi-directories**: is different game install locations (e.g., folders, and
 drivers).
@@ -27,9 +29,16 @@ drivers).
 
 ### Requirements
 
+- [Visual Studio](https://visualstudio.microsoft.com/) >= 2019
+    - Desktop Development with C++
+        - MSVC >= v142
+        - Windows 10 SDK >= 10.0.18362.0
 - [Node](https://nodejs.org)
     - node \>= 12.20.0
     - npm \>= 6.14.8
+- [windows-build-tools](https://neon-bindings.com/docs/getting-started#install-node-build-tools) >= 5.2.2
+    - `npm config set msvs_version 2019`
+    - `npm config set python python2.7`
 
 ### Resources
 

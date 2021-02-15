@@ -1,11 +1,13 @@
 use crate::prelude::Game;
 
 mod amazon;
+mod blizzard;
 mod epicgames;
 mod gog;
 pub mod manager;
 mod origin;
 pub mod prelude;
+mod riotgames;
 mod steam;
 mod ubisoft;
 mod util;
@@ -16,6 +18,11 @@ pub fn games() -> Vec<Game> {
     match amazon::games::list() {
         Ok(data) => games.extend(data),
         Err(error) => println!("[Error] gamescanner::amazon::games \n{:#?}", error),
+    }
+
+    match blizzard::games::list() {
+        Ok(data) => games.extend(data),
+        Err(error) => println!("[Error] gamescanner::blizzard::games \n{:#?}", error),
     }
 
     match epicgames::games::list() {
@@ -33,10 +40,16 @@ pub fn games() -> Vec<Game> {
         Err(error) => println!("[Error] gamescanner::origin::games \n{:#?}", error),
     }
 
+    match riotgames::games::list() {
+        Ok(data) => games.extend(data),
+        Err(error) => println!("[Error] gamescanner::riotgames::games \n{:#?}", error),
+    }
+
     match steam::games::list() {
         Ok(data) => games.extend(data),
         Err(error) => println!("[Error] gamescanner::steam::games \n{:#?}", error),
     }
+
     match ubisoft::games::list() {
         Ok(data) => games.extend(data),
         Err(error) => println!("[Error] gamescanner::ubisoft::games \n{:#?}", error),

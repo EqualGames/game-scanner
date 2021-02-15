@@ -4,15 +4,26 @@
 
 ### Launcher Info
 
-- Executable
+- LAUNCHER_EXECUTABLE
   `HKEY_CURRENT_USER\SOFTWARE\Epic Games\EOS\ModSdkCommand`
-- Path:
+- LAUNCHER_PATH:
   `HKEY_CURRENT_USER\SOFTWARE\Epic Games\EpicGamesLauncher\AppDataPath`
-- Manifests:
-  `{Path}\Manifests\*.item`
+
+### Games
+
+- LAUNCHER_MANIFESTS:
+  ```
+  LAUNCHER_PATH\Manifests\*.item
+  ```
 
 ### Start game
 
-`{Executable} com.epicgames.launcher://apps/{Manifest.AppName}?action=launch&silent=true`
+```commandline
+LAUNCHER_EXECUTABLE com.epicgames.launcher://apps/MANIFEST_APP_NAME?action=launch&silent=true
+```
 
+### Show library
 
+```commandline
+LAUNCHER_EXECUTABLE com.epicgames.launcher://store/library
+```

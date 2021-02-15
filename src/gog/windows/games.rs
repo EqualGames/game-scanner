@@ -1,7 +1,7 @@
 use crate::prelude::Game;
 use crate::util::registry::*;
 use std::io;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 pub fn list() -> io::Result<Vec<Game>> {
     let mut games = Vec::new();
@@ -50,22 +50,16 @@ pub fn list() -> io::Result<Vec<Game>> {
             id: game_id.clone(),
             name: game_name,
             path: game_path.clone(),
-            launch_command: make_launch_command(&launcher_executable, &game_id, &game_path),
+            launch_command: vec![
+                launcher_executable.display().to_string(),
+                String::from("/command=runGame"),
+                format!("/gameId={}", &game_id),
+                format!("/path={}", &game_path),
+            ],
         };
 
         games.push(game);
     }
 
     return Ok(games);
-}
-
-fn make_launch_command(launcher_executable: &Path, id: &String, path: &String) -> Vec<String> {
-    let mut command = Vec::new();
-
-    command.push(launcher_executable.display().to_string());
-    command.push(String::from("/command=runGame"));
-    command.push(format!("/gameId={}", id));
-    command.push(format!("/path={}", path));
-
-    return command;
 }

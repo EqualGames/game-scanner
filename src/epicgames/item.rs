@@ -3,7 +3,7 @@ use crate::util::error::make_io_error;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct Manifest {
     #[serde(rename(deserialize = "AppName"))]
     app_name: String,
@@ -18,8 +18,11 @@ struct Manifest {
 }
 
 pub fn read(file: &Path, launcher_executable: &Path) -> std::io::Result<Game> {
-    let file_data = std::fs::read_to_string(&file).unwrap();
-    let manifest: Manifest = serde_json::from_str(&file_data).unwrap();
+    let manifest: Manifest = std::fs::read_to_string(&file)
+        .and_then(|data| {
+            serde_json::from_str(data.as_str()).map_err(|error| make_io_error(&error.to_string()))
+        })
+        .unwrap();
 
     if manifest.display_name.contains("Unreal Engine") {
         return Err(make_io_error("invalid game"));
@@ -27,23 +30,17 @@ pub fn read(file: &Path, launcher_executable: &Path) -> std::io::Result<Game> {
 
     let game = Game {
         _type: String::from("epicgames"),
-        id: manifest.catalog_item_id,
-        name: manifest.display_name,
-        path: manifest.install_location,
-        launch_command: make_launch_command(&launcher_executable, &manifest.app_name),
+        id: manifest.catalog_item_id.clone(),
+        name: manifest.display_name.clone(),
+        path: manifest.install_location.clone(),
+        launch_command: vec![
+            launcher_executable.display().to_string(),
+            format!(
+                "com.epicgames.launcher://apps/{}?action=launch&silent=true",
+                &manifest.catalog_item_id
+            ),
+        ],
     };
 
     return Ok(game);
-}
-
-fn make_launch_command(launcher_executable: &Path, id: &String) -> Vec<String> {
-    let mut command = Vec::new();
-
-    command.push(launcher_executable.display().to_string());
-    command.push(format!(
-        "com.epicgames.launcher://apps/{}?action=launch&silent=true",
-        id
-    ));
-
-    return command;
 }

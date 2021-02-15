@@ -1,7 +1,7 @@
 use crate::prelude::Game;
 use crate::util::registry::*;
 use std::io;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 pub fn list() -> io::Result<Vec<Game>> {
     let mut games = Vec::new();
@@ -49,10 +49,13 @@ pub fn list() -> io::Result<Vec<Game>> {
 
         let game = Game {
             _type: String::from("ubisoft"),
-            id: String::from(&id),
+            id: id.clone(),
             name: game_name,
             path: game_path,
-            launch_command: make_launch_command(&launcher_executable, &id),
+            launch_command: vec![
+                launcher_executable.display().to_string(),
+                format!("uplay://launch/{}/0", &id),
+            ],
         };
 
         games.push(game)
@@ -62,14 +65,8 @@ pub fn list() -> io::Result<Vec<Game>> {
 }
 
 fn get_game_reg_path(id: &String) -> String {
-    return String::from("Microsoft\\Windows\\CurrentVersion\\Uninstall\\Uplay Install ") + id;
-}
-
-fn make_launch_command(launcher_executable: &Path, id: &String) -> Vec<String> {
-    let mut command = Vec::new();
-
-    command.push(launcher_executable.display().to_string());
-    command.push(format!("uplay://launch/{}", id));
-
-    return command;
+    return format!(
+        "Microsoft\\Windows\\CurrentVersion\\Uninstall\\Uplay Install {}",
+        id
+    );
 }

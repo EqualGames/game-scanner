@@ -4,13 +4,33 @@
 
 ### Launcher info
 
-- Path:
-  `HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\GOG.com\GalaxyClient\paths\client`
-- Executable:
-  `HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\GOG.com\GalaxyClient\clientExecutable`
-- Games:
-  `HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\GOG.com\Games`
-  
+- LAUNCHER_PATH:
+  ```
+  HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\GOG.com\GalaxyClient\paths\client
+  ```
+- LAUNCHER_EXECUTABLE:
+  ```
+  HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\GOG.com\GalaxyClient\clientExecutable
+  ```
+- LAUNCHER_GAMES:
+  ```
+  HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\GOG.com\Games
+  ```
+
 ### Start game
 
-`{Executable} /command=runGame /gameId={id} /path={game_install_location}`
+```commandline
+LAUNCHER_EXECUTABLE /command=runGame /gameId=GAME_ID /path=GAME_INSTALL_LOCATION
+```
+
+### Game view
+
+```commandline
+LAUNCHER_EXECUTABLE goggalaxy://openGameView/GAME_ID
+```
+
+### Shutdown
+
+```commandline
+LAUNCHER_EXECUTABLE /command=shutdown
+```
