@@ -7,8 +7,17 @@ name: Release
 
 jobs:
 
+  cancel_duplicated_workflows:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: styfle/cancel-workflow-action@0.8.0
+        with:
+          access_token: ${{ github.token }}
+
   github:
     runs-on: ubuntu-latest
+
     outputs:
       sha8: ${{ steps.sha8.outputs.value }}
 

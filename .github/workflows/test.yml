@@ -8,6 +8,14 @@ name: Test
 
 jobs:
 
+  cancel_duplicated_workflows:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: styfle/cancel-workflow-action@0.8.0
+        with:
+          access_token: ${{ github.token }}
+
   cargo_test:
     runs-on: ${{ matrix.config.os }}
 
