@@ -1,6 +1,7 @@
 use crate::prelude::Game;
 use crate::riotgames::types::RiotGamesProducts;
-use crate::riotgames::utils::fix_path;
+#[cfg(target_os = "windows")]
+use crate::riotgames::windows::utils::fix_path;
 use crate::util::error::make_io_error;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -53,15 +54,25 @@ pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Game> {
         return Err(make_io_error("invalid game of riot games"));
     }
 
+    let mut game_install_path = PathBuf::from(&game_path);
+
+    if cfg!(windows) {
+        game_install_path = fix_path(&game_install_path);
+    }
+
+    let mut launcher_executable_path = launcher_executable.unwrap();
+
+    if cfg!(windows) {
+        launcher_executable_path = fix_path(&launcher_executable_path)
+    }
+
     let game = Game {
         _type: String::from("riotgames"),
         id: product.get_code().to_string(),
         name: product.get_name().to_string(),
-        path: fix_path(Path::new(&game_path)).display().to_string(),
+        path: game_install_path.display().to_string(),
         launch_command: vec![
-            fix_path(&launcher_executable.unwrap())
-                .display()
-                .to_string(),
+            launcher_executable_path.display().to_string(),
             format!("--launch-product={}", product.get_code()),
             format!("--launch-patchline={}", product.get_server()),
         ],
