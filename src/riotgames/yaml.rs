@@ -1,7 +1,6 @@
 use crate::prelude::Game;
 use crate::riotgames::types::RiotGamesProducts;
-#[cfg(target_os = "windows")]
-use crate::riotgames::windows::utils::fix_path;
+use crate::riotgames::utils::fix_path;
 use crate::util::error::make_io_error;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -56,13 +55,15 @@ pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Game> {
 
     let mut game_install_path = PathBuf::from(&game_path);
 
-    #[cfg(target_os = "windows")]
-    game_install_path = fix_path(&game_install_path);
+    if cfg!(windows) {
+        game_install_path = fix_path(&game_install_path);
+    }
 
     let mut launcher_executable_path = launcher_executable.unwrap();
-    #[cfg(target_os = "windows")]
-    launcher_executable_path = fix_path(&launcher_executable_path)
 
+    if cfg!(windows) {
+        launcher_executable_path = fix_path(&launcher_executable_path);
+    }
 
     let game = Game {
         _type: String::from("riotgames"),
