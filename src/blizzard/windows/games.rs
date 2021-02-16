@@ -17,7 +17,7 @@ pub fn list() -> Result<Vec<Game>> {
                 Error::new(
                     ErrorKind::LauncherNotFound,
                     format!(
-                        "Invalid Amazon Games path, maybe this launcher is not installed: {}",
+                        "Invalid Blizzard path, maybe this launcher is not installed: {}",
                         error.to_string()
                     ),
                 )
@@ -28,7 +28,7 @@ pub fn list() -> Result<Vec<Game>> {
         return Err(Error::new(
             ErrorKind::LauncherNotFound,
             format!(
-                "Invalid Amazon Games path, maybe this launcher is not installed: {}",
+                "Invalid Blizzard path, maybe this launcher is not installed: {}",
                 launcher_executable.display().to_string()
             ),
         ));

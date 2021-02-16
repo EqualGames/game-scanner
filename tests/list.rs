@@ -1,5 +1,4 @@
 use std::any::type_name;
-use std::io;
 
 mod list_games {
     use super::*;
