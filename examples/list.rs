@@ -1,6 +1,4 @@
-use std::io;
-
-fn main() -> io::Result<()> {
+fn main() -> gamescanner::error::Result<()> {
     let games = gamescanner::games();
 
     println!("{:#?}", games);

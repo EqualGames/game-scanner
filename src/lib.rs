@@ -5,7 +5,7 @@ use crate::prelude::Game;
 mod amazon;
 mod blizzard;
 mod epicgames;
-pub(crate) mod error;
+pub mod error;
 mod gog;
 pub mod manager;
 mod origin;
