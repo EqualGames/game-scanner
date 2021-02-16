@@ -8,14 +8,22 @@ name: Test
 
 jobs:
 
+  cancel_duplicated_workflows:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: styfle/cancel-workflow-action@0.8.0
+        with:
+          access_token: ${{ github.token }}
+
   cargo_test:
     runs-on: ${{ matrix.config.os }}
 
     strategy:
       matrix:
         config:
-          - os: ubuntu-latest
-          - os: macos-latest
+          #          - os: ubuntu-latest
+          #          - os: macos-latest
           - os: windows-latest
 
     steps:
@@ -36,6 +44,8 @@ jobs:
         with:
           command: test
           args: --package game-scanner
+        env:
+          RUST_BACKTRACE: 1
 
       - name: cargo build
         uses: actions-rs/cargo@v1
@@ -50,8 +60,8 @@ jobs:
     strategy:
       matrix:
         config:
-          - os: ubuntu-latest
-          - os: macos-latest
+          #          - os: ubuntu-latest
+          #          - os: macos-latest
           - os: windows-latest
 
     steps:

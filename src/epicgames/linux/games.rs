@@ -1,6 +1,6 @@
+use crate::error::Result;
 use crate::prelude::Game;
-use std::io;
 
-pub fn list() -> io::Result<Vec<Game>> {
+pub fn list() -> Result<Vec<Game>> {
     Ok(Vec::new())
 }

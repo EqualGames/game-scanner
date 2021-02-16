@@ -4,8 +4,11 @@
 
 ### Launcher Info
 
-- Executable:
+- LAUNCHER_PATH:
   `HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Ubisoft\Launcher\InstallDir`
+
+### Game
+
 - Games:
   `HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Ubisoft\Launcher\Installs`
 - Game Name:
@@ -15,13 +18,24 @@
 
 ### Start game
 
-`{Executable}\upc.exe uplay://launch/<install_reg_name>`
-`{Executable}\upc.exe uplay://open/game/<install_reg_name>`
+```commandline
+LAUNCHER_PATH\upc.exe uplay://launch/GAME_ID/0
+```
+
+### Game view
+
+```commandline
+LAUNCHER_PATH\upc.exe uplay://open/game/GAME_ID/0
+```
 
 ### Install game
 
-`{Executable}\upc.exe uplay://install/<install_reg_name>`
+```commandline
+LAUNCHER_PATH\upc.exe uplay://install/GAME_ID
+```
 
 ### Uninstall game
 
-`{Executable}\upc.exe uplay://uninstall/<install_reg_name>`
+```commandline
+LAUNCHER_PATH\upc.exe uplay://uninstall/GAME_ID
+```

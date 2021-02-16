@@ -1,54 +1,72 @@
-use crate::prelude::Game;
-use crate::util::error::make_io_error;
-use rusqlite::{params, Connection, OpenFlags};
-use std::io;
+use crate::error::{Error, ErrorKind, Result};
+use crate::prelude::{Game, GameType};
+use rusqlite::{Connection, OpenFlags, NO_PARAMS};
 use std::path::Path;
 
-pub fn read(file: &Path, launcher_path: &Path) -> io::Result<Vec<Game>> {
+pub fn read(file: &Path, launcher_path: &Path) -> Result<Vec<Game>> {
     let conn = Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY)
-        .map_err(|_error| make_io_error("invalid amazon launcher database"))
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::InvalidManifest,
+                format!("Invalid Amazon Games manifest: {}", error.to_string()),
+            )
+        })
         .unwrap();
 
     let mut stmt = conn
         .prepare("SELECT id, ProductTitle, InstallDirectory FROM DbSet WHERE Installed = 1;")
-        .map_err(|_error| make_io_error("error to read the amazon launcher database"))
-        .unwrap();
-
-    let game_itr = stmt
-        .query_map(params![], |row| {
-            let id: String = row.get(0).unwrap();
-
-            return Ok(Game {
-                _type: String::from("amazon"),
-                id: id.clone(),
-                name: row.get(1).unwrap(),
-                path: row.get(2).unwrap(),
-                launch_command: make_launch_command(&launcher_path, &id),
-            });
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::InvalidManifest,
+                format!(
+                    "Error to read the Amazon Games manifest: {}",
+                    error.to_string()
+                ),
+            )
         })
-        .map_err(|_error| make_io_error("error to read the games from the amazon launcher"))
         .unwrap();
 
-    let mut games = Vec::new();
+    let games_iter = stmt
+        .query_map(NO_PARAMS, |row| {
+            let id = row.get::<usize, String>(0).unwrap();
+            let name = row.get::<usize, String>(1).unwrap();
+            let path = row.get::<usize, String>(2).unwrap();
 
-    for game in game_itr {
+            return Ok(make_game(id, name, path, &launcher_path));
+        })
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::InvalidManifest,
+                format!(
+                    "Error to read the Amazon Games manifest: {}",
+                    error.to_string()
+                ),
+            )
+        })
+        .unwrap();
+
+    let mut games = Vec::<Game>::new();
+
+    for game in games_iter {
         games.push(game.unwrap());
     }
 
     return Ok(games);
 }
 
-fn make_launch_command(launcher_path: &Path, id: &String) -> Vec<String> {
-    let mut command = Vec::new();
-
-    command.push(
-        launcher_path
-            .join("App")
-            .join("Amazon Games.exe")
-            .display()
-            .to_string(),
-    );
-    command.push(format!("amazon-games://play/{}", id));
-
-    return command;
+fn make_game(id: String, name: String, path: String, launcher_path: &Path) -> Game {
+    return Game {
+        _type: GameType::AmazonGames.to_string(),
+        id: id.clone(),
+        name,
+        path,
+        launch_command: vec![
+            launcher_path
+                .join("App")
+                .join("Amazon Games.exe")
+                .display()
+                .to_string(),
+            format!("amazon-games://play/{}", id),
+        ],
+    };
 }

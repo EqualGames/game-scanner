@@ -1,62 +1,108 @@
-use crate::prelude::Game;
-use crate::util::error::make_io_error;
-use std::io;
+use crate::error::{Error, ErrorKind, Result};
+use crate::prelude::{Game, GameType};
 use std::path::{Path, PathBuf};
 
+#[derive(Default)]
 struct Manifest {
     id: String,
     dipinstallpath: String,
     previousstate: String,
 }
 
-pub fn read(file: &Path, launcher_executable: &Path) -> io::Result<Game> {
-    let file_data = std::fs::read_to_string(&file).unwrap();
+pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
+    let manifest_data = std::fs::read_to_string(&file).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Invalid Origin manifest: {} {}",
+                file.display().to_string(),
+                error.to_string()
+            ),
+        )
+    });
 
-    let manifest = String::from("http://mock/") + &file_data;
+    if manifest_data.is_err() {
+        return Err(manifest_data.err().unwrap());
+    }
 
-    let manifest_url = url::Url::parse(&manifest)
-        .map_err(|_error| make_io_error("error to read the games from the origin launcher"))
-        .unwrap();
+    let manifest = String::from("http://mock/") + &manifest_data.unwrap();
 
-    let manifest_data = manifest_url
+    let manifest_url = url::Url::parse(&manifest).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Error on read the Origin manifest: {} {}",
+                file.display().to_string(),
+                error.to_string()
+            ),
+        )
+    });
+
+    if manifest_url.is_err() {
+        return Err(manifest_url.err().unwrap());
+    }
+
+    let manifest_url = manifest_url.unwrap();
+
+    let manifest_lines = manifest_url
         .query()
         .map(|data| data.split("&").collect::<Vec<&str>>())
-        .ok_or_else(|| make_io_error("error to read the game from the origin launcher"))
-        .unwrap();
+        .ok_or_else(|| {
+            Error::new(
+                ErrorKind::InvalidManifest,
+                format!(
+                    "Error on read the Origin manifest: {}",
+                    file.display().to_string(),
+                ),
+            )
+        });
 
-    let mut manifest = Manifest {
-        id: String::new(),
-        dipinstallpath: String::new(),
-        previousstate: String::new(),
-    };
+    if manifest_lines.is_err() {
+        return Err(manifest_lines.err().unwrap());
+    }
 
-    for manifest_line in manifest_data {
+    let mut manifest = Manifest::default();
+
+    for manifest_line in manifest_lines.unwrap() {
         let pair = manifest_line.split("=").collect::<Vec<&str>>();
 
         let attr = pair.get(0).unwrap().to_string();
         let value = pair.get(1).unwrap().to_string();
 
         match attr.as_str() {
-            "id" => manifest.id = value,
-            "dipinstallpath" => manifest.dipinstallpath = make_dip_install_path(&value).unwrap(),
-            "previousstate" => manifest.previousstate = value,
+            "id" => {
+                manifest.id = value;
+            }
+            "dipinstallpath" => {
+                manifest.dipinstallpath =
+                    make_dip_install_path(&value).map_or(String::new(), |value| value);
+            }
+            "previousstate" => {
+                manifest.previousstate = value;
+            }
             _ => {}
         }
     }
 
+    let name = get_game_name(file).map_or(String::from("Unknown"), |value| value);
+
     if manifest.previousstate != "kCompleted" {
-        return Err(make_io_error("invalid origin game"));
+        return Err(Error::new(
+            ErrorKind::IgnoredApp,
+            format!("({}) {} is an invalid game", &manifest.id, &name),
+        ));
     }
 
-    let game = Game {
-        _type: String::from("origin"),
+    return Ok(Game {
+        _type: GameType::Origin.to_string(),
         id: manifest.id.clone(),
         name: get_game_name(file).unwrap(),
         path: manifest.dipinstallpath,
-        launch_command: make_launch_command(&launcher_executable, &manifest.id),
-    };
-
-    return Ok(game);
+        launch_command: vec![
+            launcher_executable.display().to_string(),
+            format!("origin2://game/launch?offerIds={}", &manifest.id),
+        ],
+    });
 }
 
 fn make_dip_install_path(value: &String) -> Option<String> {
@@ -74,13 +120,4 @@ fn get_game_name(file: &Path) -> Option<String> {
         .and_then(|path| path.file_name())
         .and_then(|path| path.to_str())
         .map(|path| path.to_string());
-}
-
-fn make_launch_command(launcher_executable: &Path, id: &String) -> Vec<String> {
-    let mut command = Vec::new();
-
-    command.push(launcher_executable.display().to_string());
-    command.push(format!("origin2://game/launch?offerIds={}", id));
-
-    return command;
 }

@@ -1,11 +1,11 @@
 use std::any::type_name;
-use std::io;
 
 mod list_games {
     use super::*;
+    use gamescanner::error;
 
     #[test]
-    fn get_games() -> io::Result<()> {
+    fn get_games() -> error::Result<()> {
         let games = gamescanner::games();
 
         assert_eq!(GAME_LIST_TYPE, type_of(&games));
