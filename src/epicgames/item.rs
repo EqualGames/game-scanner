@@ -1,9 +1,10 @@
-use crate::prelude::Game;
-use crate::util::error::make_io_error;
+use crate::error::{Error, ErrorKind, Result};
+use crate::prelude::{Game, GameType};
 use serde::{Deserialize, Serialize};
+use std::fs;
 use std::path::Path;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct Manifest {
     #[serde(rename(deserialize = "AppName"))]
     app_name: String,
@@ -17,33 +18,62 @@ struct Manifest {
     launch_executable: String,
 }
 
-pub fn read(file: &Path, launcher_executable: &Path) -> std::io::Result<Game> {
-    let file_data = std::fs::read_to_string(&file).unwrap();
-    let manifest: Manifest = serde_json::from_str(&file_data).unwrap();
+pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
+    let manifest_data = fs::read_to_string(&file).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Invalid Epic Games manifest: {} {}",
+                file.display().to_string(),
+                error.to_string()
+            ),
+        )
+    });
 
-    if manifest.display_name.contains("Unreal Engine") {
-        return Err(make_io_error("invalid game"));
+    if manifest_data.is_err() {
+        return Err(manifest_data.err().unwrap());
     }
 
-    let game = Game {
-        _type: String::from("epicgames"),
-        id: manifest.catalog_item_id,
-        name: manifest.display_name,
-        path: manifest.install_location,
-        launch_command: make_launch_command(&launcher_executable, &manifest.app_name),
-    };
+    let manifest_data = manifest_data.unwrap();
 
-    return Ok(game);
-}
+    let manifest = serde_json::from_str::<Manifest>(manifest_data.as_str()).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Error on read the Epic Games manifest: {} {}",
+                file.display().to_string(),
+                error.to_string()
+            ),
+        )
+    });
 
-fn make_launch_command(launcher_executable: &Path, id: &String) -> Vec<String> {
-    let mut command = Vec::new();
+    if manifest.is_err() {
+        return Err(manifest.err().unwrap());
+    }
 
-    command.push(launcher_executable.display().to_string());
-    command.push(format!(
-        "com.epicgames.launcher://apps/{}?action=launch&silent=true",
-        id
-    ));
+    let manifest = manifest.unwrap();
 
-    return command;
+    if manifest.display_name.contains("Unreal Engine") {
+        return Err(Error::new(
+            ErrorKind::IgnoredApp,
+            format!(
+                "({}) {} is an invalid game",
+                &manifest.catalog_item_id, &manifest.display_name
+            ),
+        ));
+    }
+
+    return Ok(Game {
+        _type: GameType::EpicGames.to_string(),
+        id: manifest.catalog_item_id.clone(),
+        name: manifest.display_name.clone(),
+        path: manifest.install_location.clone(),
+        launch_command: vec![
+            launcher_executable.display().to_string(),
+            format!(
+                "com.epicgames.launcher://apps/{}?action=launch&silent=true",
+                &manifest.catalog_item_id
+            ),
+        ],
+    });
 }

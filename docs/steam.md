@@ -4,28 +4,46 @@
 
 ### Launcher Info
 
-- Executable:
+- LAUNCHER_EXECUTABLE:
   `HKEY_CURRENT_USER\SOFTWARE\Valve\Steam\SteamExe`
-- InstallPath:
+- LAUNCHER_PATH:
   `HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam`
-- Path:
-  `HKEY_CURRENT_USER\SOFTWARE\Valve\Steam\SteamPath`
+
+### Games
+
 - Manifests:
-  `{Path|InstallPath}\steamapps\*.acf`
+  `LAUNCHER_PATH\steamapps\*.acf`
 
 ### Start game
 
-`{Executable} -silent steam://run/<Manifest.appid>`
-`{Executable} -silent steam://launch/<Manifest.appid>`
+```commandline
+LAUNCHER_EXECUTABLE -silent steam://run/GAME_ID
+```
+
+```commandline
+LAUNCHER_EXECUTABLE -silent steam://rungameid/GAME_ID
+```
+
+```commandline
+LAUNCHER_EXECUTABLE -silent steam://launch/GAME_ID
+```
 
 ### Close launcher
 
-`{Executable} -shutdown`
+Closes too the game
+
+```commandline
+LAUNCHER_EXECUTABLE -shutdown
+```
 
 ### Install game
 
-`{Executable} -silent steam://install/<Manifest.appid>`
+```commandline
+LAUNCHER_EXECUTABLE -silent steam://install/GAME_ID
+```
 
 ### Uninstall game
 
-`{Executable} -silent steam://uninstall/<Manifest.appid>`
+```commandline
+LAUNCHER_EXECUTABLE -silent steam://uninstall/GAME_ID
+```

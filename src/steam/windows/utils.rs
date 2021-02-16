@@ -1,8 +1,9 @@
 use case::CaseExt;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
-pub fn fix_path(path: &String) -> PathBuf {
-    let words = path.split("/").collect::<Vec<&str>>();
+pub fn fix_path(path: &Path) -> PathBuf {
+    let path_string = path.display().to_string();
+    let words = path_string.split("/").collect::<Vec<&str>>();
     let mut result_path = PathBuf::new();
 
     for word in words {
