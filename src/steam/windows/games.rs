@@ -1,38 +1,72 @@
+use crate::error::{Error, ErrorKind, Result};
 use crate::prelude::Game;
 use crate::steam::acf;
 use crate::steam::vdf;
 use crate::steam::windows::utils::fix_path;
 use crate::util::io::*;
 use crate::util::registry::*;
-use std::io;
 use std::path::PathBuf;
 
-pub fn list() -> io::Result<Vec<Game>> {
+pub fn list() -> Result<Vec<Game>> {
     let mut games = Vec::new();
 
-    let launcher_info = get_local_machine_reg_key("Valve\\Steam").and_then(|launcher_reg| {
-        get_current_user_reg_key("Valve\\Steam")
-            .and_then(|user_launcher_reg| user_launcher_reg.get_value::<String, &str>("SteamExe"))
-            .map(|path| fix_path(&path))
-            .map(PathBuf::from)
-            .map(|launcher_executable| (launcher_executable, launcher_reg))
-    });
+    let (launcher_executable, launcher_reg) = get_local_machine_reg_key("Valve\\Steam")
+        .and_then(|launcher_reg| {
+            get_current_user_reg_key("Valve\\Steam")
+                .and_then(|user_launcher_reg| {
+                    user_launcher_reg
+                        .get_value::<String, &str>("SteamExe")
+                        .map_err(Error::from)
+                })
+                .map(|path| fix_path(&path))
+                .map(PathBuf::from)
+                .map(|launcher_executable| (launcher_executable, launcher_reg))
+        })
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::LauncherNotFound,
+                format!(
+                    "Invalid Steam path, maybe this launcher is not installed: {}",
+                    error.to_string()
+                ),
+            )
+        })
+        .unwrap();
 
-    if launcher_info.is_err() {
-        return Ok(games);
+    if !launcher_executable.exists() {
+        return Err(Error::new(
+            ErrorKind::LauncherNotFound,
+            format!(
+                "Invalid Steam path, maybe this launcher is not installed: {}",
+                launcher_executable.display().to_string()
+            ),
+        ));
     }
-
-    let (launcher_executable, launcher_reg) = launcher_info.unwrap();
 
     let steam_path_default = PathBuf::from(fix_path(
         &launcher_reg
             .get_value::<String, &str>("InstallPath")
+            .map_err(|error| {
+                Error::new(
+                    ErrorKind::LauncherNotFound,
+                    format!(
+                        "Invalid Steam path, maybe this launcher is not installed: {}",
+                        error.to_string()
+                    ),
+                )
+            })
             .unwrap(),
     ))
     .join("steamapps");
 
-    if !launcher_executable.exists() || !steam_path_default.exists() {
-        return Ok(games);
+    if !steam_path_default.exists() {
+        return Err(Error::new(
+            ErrorKind::LauncherNotFound,
+            format!(
+                "Invalid Steam path, maybe this launcher is not installed: {}",
+                steam_path_default.display().to_string()
+            ),
+        ));
     }
 
     let mut library_paths = Vec::new();
@@ -51,14 +85,15 @@ pub fn list() -> io::Result<Vec<Game>> {
         match get_files(&path, get_manifest_predicate) {
             Ok(list) => library_manifests.push((path, list)),
             Err(error) => {
-                return Err(io::Error::new(
-                    error.kind(),
+                Error::new(
+                    ErrorKind::LauncherLibraryNotFound,
                     format!(
-                        "Error on read the steam library path ({}): {}",
-                        path.display().to_string(),
+                        "Invalid Steam library path, maybe this launcher is not installed: {} {}",
+                        steam_path_default.display().to_string(),
                         error.to_string()
                     ),
-                ))
+                )
+                .print();
             }
         }
     }
@@ -70,14 +105,9 @@ pub fn list() -> io::Result<Vec<Game>> {
             match acf::read(&manifest, &launcher_executable, &library_path) {
                 Ok(g) => games.push(g),
                 Err(error) => {
-                    return Err(io::Error::new(
-                        error.kind(),
-                        format!(
-                            "Error on read the steam manifest ({}): {}",
-                            manifest.display().to_string(),
-                            error.to_string()
-                        ),
-                    ))
+                    if error.kind().ne(&ErrorKind::IgnoredApp) {
+                        return Err(error);
+                    }
                 }
             }
         }

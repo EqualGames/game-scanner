@@ -1,9 +1,11 @@
+use error::print_error;
+
 use crate::prelude::Game;
-use crate::util::error::print_error;
 
 mod amazon;
 mod blizzard;
 mod epicgames;
+pub(crate) mod error;
 mod gog;
 pub mod manager;
 mod origin;

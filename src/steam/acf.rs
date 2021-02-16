@@ -1,16 +1,28 @@
+use crate::error::{Error, ErrorKind, Result};
 use crate::prelude::Game;
 use crate::util::string::remove_quotes;
-use std::io;
 use std::path::{Path, PathBuf};
 
-pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> io::Result<Game> {
-    let file_content = std::fs::read_to_string(&file).unwrap();
-    let file_data = file_content.split("\n").collect::<Vec<&str>>();
+pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Result<Game> {
+    let manifest_file = std::fs::read_to_string(&file)
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::InvalidLauncher,
+                format!(
+                    "Error on read the Steam manifest: {} {}",
+                    file.display().to_string(),
+                    error.to_string()
+                ),
+            )
+        })
+        .unwrap();
+
+    let manifest = manifest_file.split("\n").collect::<Vec<&str>>();
 
     let mut game = Game::default();
     game._type = String::from("steam");
 
-    for file_line in file_data {
+    for file_line in manifest {
         let line = file_line
             .split("\t")
             .filter(|str| !str.trim().is_empty())
@@ -20,8 +32,32 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> io:
             continue;
         }
 
-        let attr = remove_quotes(line.get(0).unwrap());
-        let value = remove_quotes(line.get(1).unwrap());
+        let attr = remove_quotes(
+            line.get(0)
+                .ok_or_else(|| {
+                    Error::new(
+                        ErrorKind::InvalidLauncher,
+                        format!(
+                            "Error on read the Steam manifest: {}",
+                            file.display().to_string()
+                        ),
+                    )
+                })
+                .unwrap(),
+        );
+        let value = remove_quotes(
+            line.get(1)
+                .ok_or_else(|| {
+                    Error::new(
+                        ErrorKind::InvalidLauncher,
+                        format!(
+                            "Error on read the Steam manifest: {}",
+                            file.display().to_string(),
+                        ),
+                    )
+                })
+                .unwrap(),
+        );
 
         match attr.as_str() {
             "appid" => game.id = value,
@@ -38,9 +74,9 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> io:
     }
 
     if game.id == "228980" {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidData,
-            format!("invalid steam game: ({}){}", game.id, game.name).as_str(),
+        return Err(Error::new(
+            ErrorKind::IgnoredApp,
+            format!("({}) {} is an invalid game", &game.id, &game.name),
         ));
     }
 

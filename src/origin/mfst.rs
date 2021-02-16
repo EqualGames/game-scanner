@@ -1,6 +1,5 @@
+use crate::error::{Error, ErrorKind, Result};
 use crate::prelude::Game;
-use crate::util::error::make_io_error;
-use std::io;
 use std::path::{Path, PathBuf};
 
 #[derive(Default)]
@@ -10,19 +9,47 @@ struct Manifest {
     previousstate: String,
 }
 
-pub fn read(file: &Path, launcher_executable: &Path) -> io::Result<Game> {
-    let file_data = std::fs::read_to_string(&file).unwrap();
+pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
+    let file_data = std::fs::read_to_string(&file)
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::InvalidLauncher,
+                format!(
+                    "Invalid Origin manifest: {} {}",
+                    file.display().to_string(),
+                    error.to_string()
+                ),
+            )
+        })
+        .unwrap();
 
     let manifest = String::from("http://mock/") + &file_data;
 
     let manifest_url = url::Url::parse(&manifest)
-        .map_err(|_error| make_io_error("error to read the games from the origin launcher"))
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::InvalidLauncher,
+                format!(
+                    "Error on read the Origin manifest: {} {}",
+                    file.display().to_string(),
+                    error.to_string()
+                ),
+            )
+        })
         .unwrap();
 
     let manifest_data = manifest_url
         .query()
         .map(|data| data.split("&").collect::<Vec<&str>>())
-        .ok_or_else(|| make_io_error("error to read the game from the origin launcher"))
+        .ok_or_else(|| {
+            Error::new(
+                ErrorKind::InvalidLauncher,
+                format!(
+                    "Error on read the Origin manifest: {}",
+                    file.display().to_string(),
+                ),
+            )
+        })
         .unwrap();
 
     let mut manifest = Manifest::default();
@@ -41,8 +68,13 @@ pub fn read(file: &Path, launcher_executable: &Path) -> io::Result<Game> {
         }
     }
 
+    let name = get_game_name(file).map_or(String::from("Unknown"), |value| value);
+
     if manifest.previousstate != "kCompleted" {
-        return Err(make_io_error("invalid origin game"));
+        return Err(Error::new(
+            ErrorKind::IgnoredApp,
+            format!("({}) {} is an invalid game", &manifest.id, &name),
+        ));
     }
 
     let game = Game {

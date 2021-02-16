@@ -1,13 +1,13 @@
-use crate::util::error::make_io_error;
+use crate::error::{Error, ErrorKind, Result};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub fn get_files(
-    path: &Path,
-    predicate: fn(item: &PathBuf) -> bool,
-) -> std::io::Result<Vec<PathBuf>> {
+pub fn get_files(path: &Path, predicate: fn(item: &PathBuf) -> bool) -> Result<Vec<PathBuf>> {
     if !path.exists() {
-        return Err(make_io_error("invalid path"));
+        return Err(Error::new(
+            ErrorKind::IO,
+            format!("invalid path {}", path.display().to_string()).as_str(),
+        ));
     }
 
     let mut files = Vec::new();
@@ -28,9 +28,12 @@ pub fn get_files(
 pub fn get_files_recursive(
     path: &Path,
     predicate: fn(item: &PathBuf) -> bool,
-) -> std::io::Result<Vec<PathBuf>> {
+) -> Result<Vec<PathBuf>> {
     if !path.exists() {
-        return Err(make_io_error("invalid path"));
+        return Err(Error::new(
+            ErrorKind::IO,
+            format!("invalid path {}", path.display().to_string()).as_str(),
+        ));
     }
 
     let mut files = Vec::new();

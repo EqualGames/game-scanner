@@ -10,7 +10,6 @@ mod linux;
 #[cfg(target_os = "macos")]
 mod macos;
 mod types;
-pub mod utils;
 #[cfg(target_os = "windows")]
 mod windows;
 mod yaml;

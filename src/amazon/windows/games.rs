@@ -1,10 +1,10 @@
 use crate::amazon::sqlite;
+use crate::error::{Error, ErrorKind, Result};
 use crate::prelude::Game;
 use directories::BaseDirs;
-use std::io;
 use std::path::PathBuf;
 
-pub fn list() -> io::Result<Vec<Game>> {
+pub fn list() -> Result<Vec<Game>> {
     let launcher_path = BaseDirs::new()
         .map(|base_dirs| PathBuf::from(base_dirs.data_local_dir()))
         .map(|path| path.join("Amazon Games"))
@@ -17,7 +17,13 @@ pub fn list() -> io::Result<Vec<Game>> {
         .join("GameInstallInfo.sqlite");
 
     if !launcher_path.exists() || !launcher_database_path.exists() {
-        return Ok(Vec::new());
+        return Err(Error::new(
+            ErrorKind::LauncherNotFound,
+            format!(
+                "Invalid Amazon Games path, maybe this launcher is not installed: {}",
+                launcher_path.display().to_string()
+            ),
+        ));
     }
 
     return sqlite::read(&launcher_database_path, &launcher_path);

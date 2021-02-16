@@ -1,7 +1,8 @@
-use std::{env, io};
+use crate::error::{Error, Result};
+use std::env;
 use winreg;
 
-pub fn get_local_machine_reg_key(sub_key: &str) -> io::Result<winreg::RegKey> {
+pub fn get_local_machine_reg_key(sub_key: &str) -> Result<winreg::RegKey> {
     let reg = winreg::RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE);
 
     let key = match env::consts::ARCH {
@@ -9,10 +10,10 @@ pub fn get_local_machine_reg_key(sub_key: &str) -> io::Result<winreg::RegKey> {
         _ => String::from("SOFTWARE\\") + sub_key,
     };
 
-    return reg.open_subkey(key);
+    return reg.open_subkey(key).map_err(Error::from);
 }
 
-pub fn get_current_user_reg_key(sub_key: &str) -> io::Result<winreg::RegKey> {
+pub fn get_current_user_reg_key(sub_key: &str) -> Result<winreg::RegKey> {
     let reg = winreg::RegKey::predef(winreg::enums::HKEY_CURRENT_USER);
 
     let key = match env::consts::ARCH {
@@ -20,5 +21,5 @@ pub fn get_current_user_reg_key(sub_key: &str) -> io::Result<winreg::RegKey> {
         _ => String::from("SOFTWARE\\") + sub_key,
     };
 
-    return reg.open_subkey(key);
+    return reg.open_subkey(key).map_err(Error::from);
 }

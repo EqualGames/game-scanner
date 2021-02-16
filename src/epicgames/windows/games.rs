@@ -1,41 +1,92 @@
 use crate::epicgames::item;
+use crate::error::{Error, ErrorKind, Result};
 use crate::prelude::Game;
 use crate::util::io::*;
+use crate::util::path::fix_path_separator;
 use crate::util::registry::*;
-use std::io;
 use std::path::PathBuf;
 
-pub fn list() -> io::Result<Vec<Game>> {
+pub fn list() -> Result<Vec<Game>> {
     let mut games = Vec::new();
 
-    let launcher_info = get_local_machine_reg_key("Epic Games\\EpicGamesLauncher")
-        .and_then(|launcher_reg| launcher_reg.get_value::<String, &str>("AppDataPath"))
+    let launcher_data_path = get_local_machine_reg_key("Epic Games\\EpicGamesLauncher")
+        .and_then(|launcher_reg| {
+            launcher_reg
+                .get_value::<String, &str>("AppDataPath")
+                .map_err(Error::from)
+        })
         .map(PathBuf::from)
-        .and_then(|app_data_path| {
-            get_current_user_reg_key("Epic Games\\EOS")
-                .and_then(|eos_reg| eos_reg.get_value::<String, &str>("ModSdkCommand"))
-                .map(|path| path.replace("/", &std::path::MAIN_SEPARATOR.to_string()))
-                .map(PathBuf::from)
-                .map(|mod_sdk_command| (app_data_path, mod_sdk_command))
-        });
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::LauncherNotFound,
+                format!(
+                    "Invalid Epic Games path, maybe this launcher is not installed: {}",
+                    error.to_string()
+                ),
+            )
+        })
+        .unwrap();
 
-    if launcher_info.is_err() {
-        return Ok(games);
+    if !launcher_data_path.exists() {
+        return Err(Error::new(
+            ErrorKind::LauncherNotFound,
+            format!(
+                "Invalid Epic Games path, maybe this launcher is not installed: {}",
+                launcher_data_path.display().to_string()
+            ),
+        ));
     }
 
-    let (app_data_path, mod_sdk_command) = launcher_info.unwrap();
-    let manifests_path = app_data_path.join("Manifests");
+    let launcher_executable = get_current_user_reg_key("Epic Games\\EOS")
+        .and_then(|eos_reg| {
+            eos_reg
+                .get_value::<String, &str>("ModSdkCommand")
+                .map_err(Error::from)
+        })
+        .map(|path| fix_path_separator(path.as_ref()))
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::LauncherNotFound,
+                format!(
+                    "Invalid Epic Games path, maybe this launcher is not installed: {}",
+                    error.to_string()
+                ),
+            )
+        })
+        .unwrap();
 
-    if !manifests_path.exists() || !app_data_path.exists() || !mod_sdk_command.exists() {
-        return Ok(games);
+    if !launcher_executable.exists() {
+        return Err(Error::new(
+            ErrorKind::LauncherNotFound,
+            format!(
+                "Invalid Epic Games path, maybe this launcher is not installed: {}",
+                launcher_executable.display().to_string()
+            ),
+        ));
     }
 
-    let manifests = get_files(&manifests_path, get_manifest_predicate).unwrap();
+    let manifests_path = launcher_data_path.join("Manifests");
+
+    let manifests = get_files(&manifests_path, get_manifest_predicate)
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::LauncherNotFound,
+                format!(
+                    "Invalid Epic Games path, maybe this launcher is not installed: {}",
+                    error.to_string()
+                ),
+            )
+        })
+        .unwrap();
 
     for manifest in manifests {
-        match item::read(&manifest, &mod_sdk_command) {
+        match item::read(&manifest, &launcher_executable) {
             Ok(g) => games.push(g),
-            Err(_e) => {}
+            Err(error) => {
+                if error.kind().ne(&ErrorKind::IgnoredApp) {
+                    return Err(error);
+                }
+            }
         }
     }
 

@@ -1,20 +1,28 @@
+use crate::error::{Error, ErrorKind, Result};
 use crate::origin::mfst;
 use crate::prelude::Game;
 use crate::util::io::*;
 use crate::util::registry::*;
-use std::io;
 use std::path::PathBuf;
 
-pub fn list() -> io::Result<Vec<Game>> {
+pub fn list() -> Result<Vec<Game>> {
     let mut games = Vec::new();
 
     let launcher_info = get_local_machine_reg_key("Origin")
-        .and_then(|launcher_reg| launcher_reg.get_value::<String, &str>("ClientPath"))
+        .and_then(|launcher_reg| {
+            launcher_reg
+                .get_value::<String, &str>("ClientPath")
+                .map_err(Error::from)
+        })
         .map(PathBuf::from);
 
     if launcher_info.is_err() {
-        return Ok(games);
+        return Err(Error::new(
+            ErrorKind::LauncherNotFound,
+            "Invalid Origin path, maybe this launcher is not installed",
+        ));
     }
+
     let launcher_executable = launcher_info.unwrap();
 
     let manifests_path = PathBuf::from("C:")
@@ -23,18 +31,37 @@ pub fn list() -> io::Result<Vec<Game>> {
         .join("Origin")
         .join("LocalContent");
 
-    if !launcher_executable.exists() || !manifests_path.exists() {
-        return Ok(games);
+    if !launcher_executable.exists() {
+        return Err(Error::new(
+            ErrorKind::LauncherNotFound,
+            format!(
+                "Invalid GOG path, maybe this launcher is not installed: {}",
+                launcher_executable.display().to_string()
+            ),
+        ));
     }
 
-    let manifests = get_files_recursive(&manifests_path, get_manifest_predicate).unwrap();
+    let manifests = get_files_recursive(&manifests_path, get_manifest_predicate)
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::LauncherNotFound,
+                format!(
+                    "Invalid GOG path, maybe this launcher is not installed: {} {}",
+                    manifests_path.display().to_string(),
+                    error.to_string()
+                ),
+            )
+        })
+        .unwrap();
 
     for manifest in manifests {
-        let game = mfst::read(&manifest, &launcher_executable);
-
-        match game {
+        match mfst::read(&manifest, &launcher_executable) {
             Ok(g) => games.push(g),
-            Err(_e) => {}
+            Err(error) => {
+                if error.kind().ne(&ErrorKind::IgnoredApp) {
+                    return Err(error);
+                }
+            }
         }
     }
 

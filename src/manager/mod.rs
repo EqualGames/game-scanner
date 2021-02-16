@@ -1,10 +1,10 @@
+use crate::error::Result;
 use crate::prelude::Game;
-use std::io;
 use std::path::Path;
 use std::process::{Command, Stdio};
 use sysinfo::{ProcessExt, System, SystemExt};
 
-pub fn launch_game(app: &Game) -> io::Result<()> {
+pub fn launch_game(app: &Game) -> Result<()> {
     let mut command: Command = Command::new("");
 
     for (index, arg) in app.launch_command.iter().enumerate() {
@@ -28,14 +28,16 @@ pub fn launch_game(app: &Game) -> io::Result<()> {
     Ok(())
 }
 
-pub fn close_game(app: &Game) -> io::Result<()> {
+pub fn close_game(app: &Game) -> Result<()> {
     let sys = System::new_all();
 
     let launcher_folder = match app._type.as_str() {
         "amazon" => "\\Amazon Games\\",
+        "blizzard" => "\\Battle.net\\",
         "epicgames" => "\\Epic Games\\",
         "gog" => "\\GOG Galaxy\\",
         "origin" => "\\Origin\\",
+        "riotgames" => "\\Riot Games\\",
         "steam" => "\\Steam\\",
         "ubisoft" => "\\Ubisoft\\",
         _ => panic!("Invalid game"),

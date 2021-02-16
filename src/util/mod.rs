@@ -1,5 +1,5 @@
-pub(crate) mod error;
-pub(crate) mod io;
+pub mod io;
+pub mod path;
 #[cfg(target_os = "windows")]
-pub(crate) mod registry;
-pub(crate) mod string;
+pub mod registry;
+pub mod string;

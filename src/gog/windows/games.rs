@@ -1,17 +1,25 @@
+use crate::error::{Error, ErrorKind, Result};
 use crate::prelude::Game;
 use crate::util::registry::*;
-use std::io;
 use std::path::PathBuf;
 
-pub fn list() -> io::Result<Vec<Game>> {
+pub fn list() -> Result<Vec<Game>> {
     let mut games = Vec::new();
 
     let launcher_info = get_local_machine_reg_key("GOG.com\\GalaxyClient\\paths")
-        .and_then(|launcher_paths_reg| launcher_paths_reg.get_value::<String, &str>("client"))
+        .and_then(|launcher_paths_reg| {
+            launcher_paths_reg
+                .get_value::<String, &str>("client")
+                .map_err(Error::from)
+        })
         .map(PathBuf::from)
         .and_then(|launcher_path| {
             get_local_machine_reg_key("GOG.com\\GalaxyClient")
-                .and_then(|launcher_reg| launcher_reg.get_value::<String, &str>("clientExecutable"))
+                .and_then(|launcher_reg| {
+                    launcher_reg
+                        .get_value::<String, &str>("clientExecutable")
+                        .map_err(Error::from)
+                })
                 .map(|launcher_filename| launcher_path.join(launcher_filename))
         })
         .and_then(|launcher_executable| {
@@ -20,13 +28,22 @@ pub fn list() -> io::Result<Vec<Game>> {
         });
 
     if launcher_info.is_err() {
-        return Ok(games);
+        return Err(Error::new(
+            ErrorKind::LauncherNotFound,
+            "Invalid GOG path, maybe this launcher is not installed",
+        ));
     }
 
     let (launcher_executable, launcher_games) = launcher_info.unwrap();
 
     if !launcher_executable.exists() {
-        return Ok(games);
+        return Err(Error::new(
+            ErrorKind::LauncherNotFound,
+            format!(
+                "Invalid GOG path, maybe this launcher is not installed: {}",
+                launcher_executable.display().to_string()
+            ),
+        ));
     }
 
     let launcher_games_ids = launcher_games.enum_keys().map(|key| key.unwrap());
@@ -42,6 +59,16 @@ pub fn list() -> io::Result<Vec<Game>> {
                             .get_value::<String, &str>("path")
                             .map(|game_path| (game_name, game_path))
                     })
+            })
+            .map_err(|error| {
+                Error::new(
+                    ErrorKind::InvalidApp,
+                    format!(
+                        "Error on read the GOG manifest: {} {}",
+                        game_id,
+                        error.to_string()
+                    ),
+                )
             })
             .unwrap();
 

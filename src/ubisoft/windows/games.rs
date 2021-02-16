@@ -1,31 +1,45 @@
+use crate::error::{Error, ErrorKind, Result};
 use crate::prelude::Game;
+use crate::util::path::fix_path_separator;
 use crate::util::registry::*;
-use std::io;
 use std::path::PathBuf;
 
-pub fn list() -> io::Result<Vec<Game>> {
+pub fn list() -> Result<Vec<Game>> {
     let mut games = Vec::new();
 
-    let launcher_info = get_local_machine_reg_key("Ubisoft\\Launcher").and_then(|launcher_reg| {
-        launcher_reg
-            .get_value::<String, &str>("InstallDir")
-            .map(PathBuf::from)
-            .map(|path| path.join("upc.exe"))
-            .and_then(|launcher_executable| {
-                launcher_reg
-                    .open_subkey("Installs")
-                    .map(|launcher_games| (launcher_executable, launcher_games))
-            })
-    });
-
-    if launcher_info.is_err() {
-        return Ok(games);
-    }
-
-    let (launcher_executable, launcher_games) = launcher_info.unwrap();
+    let (launcher_executable, launcher_games) = get_local_machine_reg_key("Ubisoft\\Launcher")
+        .and_then(|launcher_reg| {
+            launcher_reg
+                .get_value::<String, &str>("InstallDir")
+                .map_err(Error::from)
+                .map(PathBuf::from)
+                .map(|path| path.join("upc.exe"))
+                .and_then(|launcher_executable| {
+                    launcher_reg
+                        .open_subkey("Installs")
+                        .map_err(Error::from)
+                        .map(|launcher_games| (launcher_executable, launcher_games))
+                })
+        })
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::LauncherNotFound,
+                format!(
+                    "Invalid Ubisoft path, maybe this launcher is not installed: {}",
+                    error.to_string()
+                ),
+            )
+        })
+        .unwrap();
 
     if !launcher_executable.exists() {
-        return Ok(games);
+        return Err(Error::new(
+            ErrorKind::LauncherNotFound,
+            format!(
+                "Invalid Ubisoft path, maybe this launcher is not installed: {}",
+                launcher_executable.display().to_string()
+            ),
+        ));
     }
 
     let game_ids = launcher_games
@@ -38,12 +52,20 @@ pub fn list() -> io::Result<Vec<Game>> {
             .and_then(|game_reg| {
                 game_reg
                     .get_value::<String, &str>("DisplayName")
+                    .map_err(Error::from)
                     .and_then(|game_name| {
                         game_reg
                             .get_value::<String, &str>("InstallLocation")
-                            .map(|value| value.replace("/", &std::path::MAIN_SEPARATOR.to_string()))
+                            .map_err(Error::from)
+                            .map(|value| fix_path_separator(value.as_ref()).display().to_string())
                             .map(|game_path| (game_name, game_path))
                     })
+            })
+            .map_err(|error| {
+                Error::new(
+                    ErrorKind::InvalidApp,
+                    format!("Error on read the Ubisoft manifest: {}", error.to_string()),
+                )
             })
             .unwrap();
 
