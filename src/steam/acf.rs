@@ -4,20 +4,22 @@ use crate::util::string::remove_quotes;
 use std::path::{Path, PathBuf};
 
 pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Result<Game> {
-    let manifest_file = std::fs::read_to_string(&file)
-        .map_err(|error| {
-            Error::new(
-                ErrorKind::InvalidLauncher,
-                format!(
-                    "Error on read the Steam manifest: {} {}",
-                    file.display().to_string(),
-                    error.to_string()
-                ),
-            )
-        })
-        .unwrap();
+    let manifest_data = std::fs::read_to_string(&file);
 
-    let manifest = manifest_file.split("\n").collect::<Vec<&str>>();
+    if manifest_data.is_err() {
+        return Err(Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Error on read the Steam manifest: {} {}",
+                file.display().to_string(),
+                manifest_data.err().unwrap().to_string()
+            ),
+        ));
+    }
+
+    let manifest_data = manifest_data.unwrap();
+
+    let manifest = manifest_data.split("\n").collect::<Vec<&str>>();
 
     let mut game = Game::default();
     game._type = String::from("steam");
@@ -32,32 +34,8 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Res
             continue;
         }
 
-        let attr = remove_quotes(
-            line.get(0)
-                .ok_or_else(|| {
-                    Error::new(
-                        ErrorKind::InvalidLauncher,
-                        format!(
-                            "Error on read the Steam manifest: {}",
-                            file.display().to_string()
-                        ),
-                    )
-                })
-                .unwrap(),
-        );
-        let value = remove_quotes(
-            line.get(1)
-                .ok_or_else(|| {
-                    Error::new(
-                        ErrorKind::InvalidLauncher,
-                        format!(
-                            "Error on read the Steam manifest: {}",
-                            file.display().to_string(),
-                        ),
-                    )
-                })
-                .unwrap(),
-        );
+        let attr = remove_quotes(line.get(0).unwrap());
+        let value = remove_quotes(line.get(1).unwrap());
 
         match attr.as_str() {
             "appid" => game.id = value,

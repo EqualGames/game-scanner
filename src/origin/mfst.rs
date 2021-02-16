@@ -1,5 +1,5 @@
 use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::Game;
+use crate::prelude::{Game, GameType};
 use std::path::{Path, PathBuf};
 
 #[derive(Default)]
@@ -10,60 +10,76 @@ struct Manifest {
 }
 
 pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
-    let file_data = std::fs::read_to_string(&file)
-        .map_err(|error| {
-            Error::new(
-                ErrorKind::InvalidLauncher,
-                format!(
-                    "Invalid Origin manifest: {} {}",
-                    file.display().to_string(),
-                    error.to_string()
-                ),
-            )
-        })
-        .unwrap();
+    let manifest_data = std::fs::read_to_string(&file).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Invalid Origin manifest: {} {}",
+                file.display().to_string(),
+                error.to_string()
+            ),
+        )
+    });
 
-    let manifest = String::from("http://mock/") + &file_data;
+    if manifest_data.is_err() {
+        return Err(manifest_data.err().unwrap());
+    }
 
-    let manifest_url = url::Url::parse(&manifest)
-        .map_err(|error| {
-            Error::new(
-                ErrorKind::InvalidLauncher,
-                format!(
-                    "Error on read the Origin manifest: {} {}",
-                    file.display().to_string(),
-                    error.to_string()
-                ),
-            )
-        })
-        .unwrap();
+    let manifest = String::from("http://mock/") + &manifest_data.unwrap();
 
-    let manifest_data = manifest_url
+    let manifest_url = url::Url::parse(&manifest).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Error on read the Origin manifest: {} {}",
+                file.display().to_string(),
+                error.to_string()
+            ),
+        )
+    });
+
+    if manifest_url.is_err() {
+        return Err(manifest_url.err().unwrap());
+    }
+
+    let manifest_url = manifest_url.unwrap();
+
+    let manifest_lines = manifest_url
         .query()
         .map(|data| data.split("&").collect::<Vec<&str>>())
         .ok_or_else(|| {
             Error::new(
-                ErrorKind::InvalidLauncher,
+                ErrorKind::InvalidManifest,
                 format!(
                     "Error on read the Origin manifest: {}",
                     file.display().to_string(),
                 ),
             )
-        })
-        .unwrap();
+        });
+
+    if manifest_lines.is_err() {
+        return Err(manifest_lines.err().unwrap());
+    }
 
     let mut manifest = Manifest::default();
 
-    for manifest_line in manifest_data {
+    for manifest_line in manifest_lines.unwrap() {
         let pair = manifest_line.split("=").collect::<Vec<&str>>();
 
         let attr = pair.get(0).unwrap().to_string();
         let value = pair.get(1).unwrap().to_string();
 
         match attr.as_str() {
-            "id" => manifest.id = value,
-            "dipinstallpath" => manifest.dipinstallpath = make_dip_install_path(&value).unwrap(),
-            "previousstate" => manifest.previousstate = value,
+            "id" => {
+                manifest.id = value;
+            }
+            "dipinstallpath" => {
+                manifest.dipinstallpath =
+                    make_dip_install_path(&value).map_or(String::new(), |value| value);
+            }
+            "previousstate" => {
+                manifest.previousstate = value;
+            }
             _ => {}
         }
     }
@@ -77,8 +93,8 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
         ));
     }
 
-    let game = Game {
-        _type: String::from("origin"),
+    return Ok(Game {
+        _type: GameType::Origin.to_string(),
         id: manifest.id.clone(),
         name: get_game_name(file).unwrap(),
         path: manifest.dipinstallpath,
@@ -86,9 +102,7 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
             launcher_executable.display().to_string(),
             format!("origin2://game/launch?offerIds={}", &manifest.id),
         ],
-    };
-
-    return Ok(game);
+    });
 }
 
 fn make_dip_install_path(value: &String) -> Option<String> {

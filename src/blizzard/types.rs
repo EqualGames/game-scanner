@@ -1,4 +1,4 @@
-pub enum BlizzardProducts {
+pub enum BlizzardGames {
     StarCraft,
     StarCraftII,
     WorldOfWarcraft,
@@ -15,7 +15,7 @@ pub enum BlizzardProducts {
     Unknown,
 }
 
-impl BlizzardProducts {
+impl BlizzardGames {
     pub fn get_code(&self) -> &'static str {
         match self {
             Self::StarCraft => "S1",
@@ -35,7 +35,7 @@ impl BlizzardProducts {
         }
     }
 
-    pub fn from_uid(uid: &str) -> BlizzardProducts {
+    pub fn from_uid(uid: &str) -> BlizzardGames {
         match uid {
             "s1" => Self::StarCraft,
             "s2" => Self::StarCraftII,

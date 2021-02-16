@@ -40,7 +40,7 @@ pub fn close_game(app: &Game) -> Result<()> {
         "riotgames" => "\\Riot Games\\",
         "steam" => "\\Steam\\",
         "ubisoft" => "\\Ubisoft\\",
-        _ => panic!("Invalid game"),
+        _ => panic!("invalid game"),
     };
 
     let str_array_contains =

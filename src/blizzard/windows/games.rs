@@ -1,18 +1,27 @@
 use crate::blizzard::db;
 use crate::error::{Error, ErrorKind, Result};
 use crate::prelude::Game;
-use crate::util::registry::get_local_machine_reg_key;
-use std::path::{Path, PathBuf};
+use crate::util::registry;
+use std::path::PathBuf;
 
 pub fn list() -> Result<Vec<Game>> {
-    let launcher_info =
-        get_local_machine_reg_key("Microsoft\\Windows\\CurrentVersion\\Uninstall\\Battle.net")
-            .and_then(|launcher_reg| {
-                launcher_reg
-                    .get_value::<String, &str>("DisplayIcon")
-                    .map_err(Error::from)
-            })
-            .map(PathBuf::from);
+    let manifests_path = PathBuf::from("C:\\ProgramData\\Battle.net\\Agent\\product.db");
+
+    let games = get_launcher_executable()
+        .and_then(|launcher_executable| db::read(&manifests_path, &launcher_executable));
+
+    return match games {
+        Ok(data) => Ok(data),
+        Err(error) => Err(error),
+    };
+}
+
+fn get_launcher_executable() -> Result<PathBuf> {
+    let launcher_info = registry::get_local_machine_reg_key(
+        "Microsoft\\Windows\\CurrentVersion\\Uninstall\\Battle.net",
+    )
+    .and_then(|launcher_reg| registry::get_value(&launcher_reg, "DisplayIcon"))
+    .map(PathBuf::from);
 
     if launcher_info.is_err() {
         return Err(Error::new(
@@ -33,8 +42,5 @@ pub fn list() -> Result<Vec<Game>> {
         ));
     }
 
-    return db::read(
-        Path::new("C:\\ProgramData\\Battle.net\\Agent\\product.db"),
-        &launcher_executable,
-    );
+    return Ok(launcher_executable);
 }

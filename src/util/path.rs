@@ -9,5 +9,11 @@ pub fn fix_path_separator(path: &Path) -> PathBuf {
 }
 
 pub fn get_filename(path: &Path) -> String {
-    return String::from(path.file_name().unwrap().to_str().unwrap());
+    return String::from(
+        path.display()
+            .to_string()
+            .split(std::path::MAIN_SEPARATOR)
+            .last()
+            .unwrap_or(""),
+    );
 }

@@ -79,31 +79,16 @@ pub enum ErrorKind {
     IgnoredApp,
     InvalidApp,
     InvalidLauncher,
+    InvalidManifest,
+    InvalidLibrary,
     LauncherNotFound,
-    LauncherLibraryNotFound,
+    LibraryNotFound,
     IO,
     SQLite,
     JSON,
     YAML,
+    WinReg,
     Other,
-}
-
-impl ErrorKind {
-    #[allow(dead_code)]
-    fn as_str(&self) -> &str {
-        match self {
-            Self::IgnoredApp => "ignored app",
-            Self::InvalidApp => "invalid app",
-            Self::InvalidLauncher => "invalid launcher",
-            Self::LauncherNotFound => "launcher not found",
-            Self::LauncherLibraryNotFound => "launcher library not found",
-            Self::IO => "io error",
-            Self::SQLite => "sqlite error",
-            Self::JSON => "json error",
-            Self::YAML => "yaml error",
-            Self::Other => "other error",
-        }
-    }
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
