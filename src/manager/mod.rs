@@ -1,23 +1,25 @@
 use crate::error::Result;
-use crate::prelude::Game;
+use crate::prelude::{Game, GameType};
 use std::path::Path;
-use std::process::{Command, Stdio};
+use std::process;
 use sysinfo::{ProcessExt, System, SystemExt};
 
 pub fn launch_game(app: &Game) -> Result<()> {
-    let mut command: Command = Command::new("");
+    let mut command = process::Command::new("");
 
     for (index, arg) in app.launch_command.iter().enumerate() {
         if index == 0 {
-            command = Command::new(arg);
+            command = process::Command::new(arg);
         } else {
             command.arg(arg);
         }
     }
 
+    println!("Executing the command: {:?}", command);
+
     let process = command
-        .stdin(Stdio::null())
-        .stdout(Stdio::null())
+        .stdin(process::Stdio::null())
+        .stdout(process::Stdio::null())
         .spawn()
         .expect(&format!("Couldn't run {}", app.name));
 
@@ -31,16 +33,15 @@ pub fn launch_game(app: &Game) -> Result<()> {
 pub fn close_game(app: &Game) -> Result<()> {
     let sys = System::new_all();
 
-    let launcher_folder = match app._type.as_str() {
-        "amazon" => "\\Amazon Games\\",
-        "blizzard" => "\\Battle.net\\",
-        "epicgames" => "\\Epic Games\\",
-        "gog" => "\\GOG Galaxy\\",
-        "origin" => "\\Origin\\",
-        "riotgames" => "\\Riot Games\\",
-        "steam" => "\\Steam\\",
-        "ubisoft" => "\\Ubisoft\\",
-        _ => panic!("invalid game"),
+    let launcher_folder = match GameType::from(app._type.clone()) {
+        GameType::AmazonGames => "\\Amazon Games\\",
+        GameType::Blizzard => "\\Battle.net\\",
+        GameType::EpicGames => "\\Epic Games\\",
+        GameType::GOG => "\\GOG Galaxy\\",
+        GameType::Origin => "\\Origin\\",
+        GameType::RiotGames => "\\Riot Games\\",
+        GameType::Steam => "\\Steam\\",
+        GameType::Ubisoft => "\\Ubisoft\\",
     };
 
     let str_array_contains =

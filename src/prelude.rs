@@ -36,3 +36,19 @@ impl GameType {
         .to_string()
     }
 }
+
+impl From<String> for GameType {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "amazongames" => Self::AmazonGames,
+            "blizzard" => Self::Blizzard,
+            "epicgames" => Self::EpicGames,
+            "gog" => Self::GOG,
+            "origin" => Self::Origin,
+            "riotgames" => Self::RiotGames,
+            "steam" => Self::Steam,
+            "ubisoft" => Self::Ubisoft,
+            _ => panic!("invalid game type"),
+        }
+    }
+}

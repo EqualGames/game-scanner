@@ -44,7 +44,8 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
             path: game_path.display().to_string(),
             launch_command: vec![
                 launcher_executable.display().to_string(),
-                format!("--exec=\"launch {}\"", launch_code),
+                String::from("--exec"),
+                format!("launch {}", launch_code),
             ],
         })
     }

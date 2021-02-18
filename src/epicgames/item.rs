@@ -8,8 +8,6 @@ use std::path::Path;
 struct Manifest {
     #[serde(rename(deserialize = "AppName"))]
     app_name: String,
-    #[serde(rename(deserialize = "CatalogItemId"))]
-    catalog_item_id: String,
     #[serde(rename(deserialize = "DisplayName"))]
     display_name: String,
     #[serde(rename(deserialize = "InstallLocation"))]
@@ -58,21 +56,21 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
             ErrorKind::IgnoredApp,
             format!(
                 "({}) {} is an invalid game",
-                &manifest.catalog_item_id, &manifest.display_name
+                &manifest.app_name, &manifest.display_name
             ),
         ));
     }
 
     return Ok(Game {
         _type: GameType::EpicGames.to_string(),
-        id: manifest.catalog_item_id.clone(),
+        id: manifest.app_name.clone(),
         name: manifest.display_name.clone(),
         path: manifest.install_location.clone(),
         launch_command: vec![
             launcher_executable.display().to_string(),
             format!(
                 "com.epicgames.launcher://apps/{}?action=launch&silent=true",
-                &manifest.catalog_item_id
+                &manifest.app_name
             ),
         ],
     });
