@@ -20,7 +20,7 @@ harness = false
 serde = { version = "1.0.123", features = ["derive"] }
 serde_json = { version = "1.0.62" }
 serde_yaml = { version = "0.8.17" }
-url = { version = "2.2.0" }
+url = { version = "2.2.1" }
 rusqlite = { version = "0.24.2", features = ["bundled"] }
 sysinfo = { version = "0.16.1" }
 prost = { version = "0.7.0" }
