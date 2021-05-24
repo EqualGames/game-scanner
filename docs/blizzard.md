@@ -39,6 +39,12 @@ the [scheme](../src/blizzard/proto/product_db.proto).
 LAUNCHER_EXECUTABLE --exec="launch GAME_CODE"
 ```
 
+### Uninstall game
+
+```commandline
+Blizzard Uninstaller.exe --lang=LANG --uid=UID --displayname=NAME
+```
+
 ### Close launcher
 
 Closes only the launcher, the game continues running.
@@ -46,6 +52,7 @@ Closes only the launcher, the game continues running.
 ```commandline
 LAUNCHER_EXECUTABLE --exec=shutdown
 ```
+
 
 ### Uninstall launcher
 

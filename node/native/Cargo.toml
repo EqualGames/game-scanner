@@ -3,7 +3,6 @@ name = "node"
 version = "0.1.0"
 authors = ["Matheus Albino <matheusalbino@users.noreply.github.com>"]
 edition = "2018"
-build = "build.rs"
 exclude = ["artifacts.json", "index.node"]
 publish = false
 
@@ -11,9 +10,6 @@ publish = false
 name = "libnode"
 crate-type = ["cdylib"]
 
-[build-dependencies]
-neon-build = { version = "0.7.1" }
-
 [dependencies]
-neon = { version = "0.7.1" }
-game-scanner = { version = "0.1.0", path = "../../", features = [] }
+neon = { version = "0.8.2", default-features = false, features = ["napi-6"] }
+game-scanner = { version = "0.1.0", path = "../../" }

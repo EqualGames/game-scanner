@@ -1,15 +1,8 @@
-#[cfg(target_os = "linux")]
-pub use self::linux::*;
-#[cfg(target_os = "macos")]
-pub use self::macos::*;
 #[cfg(target_os = "windows")]
-pub use self::windows::*;
+pub use self::windows::games;
 
 mod acf;
-#[cfg(target_os = "linux")]
-mod linux;
-#[cfg(target_os = "macos")]
-mod macos;
+mod types;
 mod vdf;
 #[cfg(target_os = "windows")]
 mod windows;

@@ -12,6 +12,8 @@ pub enum BlizzardGames {
     CallOfDutyModernWarfare,
     CallOfDutyMW2CampaignRemastered,
     CallOfDutyBlackOpsColdWar,
+    BlizzardArcadeCollection,
+    CrashBandicoot4ItsAboutTime,
     Unknown,
 }
 
@@ -31,6 +33,8 @@ impl BlizzardGames {
             Self::CallOfDutyModernWarfare => "ODIN",
             Self::CallOfDutyMW2CampaignRemastered => "LAZR",
             Self::CallOfDutyBlackOpsColdWar => "ZEUS",
+            Self::BlizzardArcadeCollection => "RTRO",
+            Self::CrashBandicoot4ItsAboutTime => "CB4",
             Self::Unknown => "unknown",
         }
     }
@@ -50,6 +54,8 @@ impl BlizzardGames {
             "odin" => Self::CallOfDutyModernWarfare,
             "lazarus" => Self::CallOfDutyMW2CampaignRemastered,
             "zeus" => Self::CallOfDutyBlackOpsColdWar,
+            "rtro" => Self::BlizzardArcadeCollection,
+            "cb4" => Self::CrashBandicoot4ItsAboutTime,
             _ => Self::Unknown,
         }
     }

@@ -1,5 +1,7 @@
-fn main() -> gamescanner::error::Result<()> {
-    let games = gamescanner::games();
+use std::io::Error;
+
+fn main() -> Result<(), Error> {
+    let games = gamescanner::amazon::games().unwrap();
 
     println!("{:#?}", games);
 
