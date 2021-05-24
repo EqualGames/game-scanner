@@ -1,6 +1,9 @@
-use crate::error::{Error, ErrorKind, Result};
-use crate::util::string::remove_quotes;
 use std::path::{Path, PathBuf};
+
+use crate::{
+    error::{Error, ErrorKind, Result},
+    util::string::remove_quotes,
+};
 
 pub fn read_library_folders(file: &Path) -> Result<Vec<PathBuf>> {
     let library_data = std::fs::read_to_string(&file);

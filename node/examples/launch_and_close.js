@@ -12,21 +12,21 @@ const gamescanner = require("../lib");
 
 async function main() {
     performance.mark('start');
-    const games = gamescanner.games();
+    const games = gamescanner.steam.games();
     performance.mark('end');
     performance.measure("games", "start", "end");
 
     const game = games[0];
 
     performance.mark('start');
-    gamescanner.launch_game(game);
+    gamescanner.manager.launch_game(game);
     performance.mark('end');
     performance.measure("launch_game", "start", "end");
 
     await delay();
 
     performance.mark('start');
-    gamescanner.close_game(game);
+    gamescanner.manager.close_game(game);
     performance.mark('end');
     performance.measure("close_game", "start", "end");
 }

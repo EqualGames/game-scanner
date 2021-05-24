@@ -1,10 +1,11 @@
+use std::path::{Path, PathBuf};
+
 use crate::blizzard::proto::product::ProductInstall;
 use crate::blizzard::proto::{product, read_product};
 use crate::blizzard::types::BlizzardGames;
 use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::{Game, GameType};
+use crate::prelude::{Game, GameCommands, GameState, GameType};
 use crate::util::path::{fix_path_separator, get_filename};
-use std::path::{Path, PathBuf};
 
 pub fn read(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
     let manifests = read_product(file)
@@ -42,11 +43,22 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
             id: String::from(&manifest.uid),
             name: get_filename(&game_path),
             path: game_path.display().to_string(),
-            launch_command: vec![
-                launcher_executable.display().to_string(),
-                String::from("--exec"),
-                format!("launch {}", launch_code),
-            ],
+            commands: GameCommands {
+                install: None,
+                launch: vec![
+                    launcher_executable.display().to_string(),
+                    String::from("--exec"),
+                    format!("launch {}", launch_code),
+                ],
+                uninstall: None,
+            },
+            state: GameState {
+                installed: true,
+                needs_update: false,
+                downloading: false,
+                total_bytes: None,
+                received_bytes: None,
+            },
         })
     }
 

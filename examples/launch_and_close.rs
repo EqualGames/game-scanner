@@ -1,16 +1,20 @@
+use std::io::Error;
 use std::thread;
 use std::time;
 
-fn main() -> gamescanner::error::Result<()> {
-    let games = gamescanner::games();
+fn main() -> Result<(), Error> {
+    let game = gamescanner::steam::games()
+        .unwrap()
+        .iter()
+        .find(|app| app.state.installed)
+        .map(|app| app.clone())
+        .unwrap();
 
-    let game = &games[0];
-
-    gamescanner::manager::launch_game(game).unwrap();
+    gamescanner::manager::launch_game(&game).unwrap();
 
     thread::sleep(time::Duration::from_secs(30));
 
-    gamescanner::manager::close_game(game).unwrap();
+    gamescanner::manager::close_game(&game).unwrap();
 
     Ok(())
 }

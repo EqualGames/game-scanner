@@ -1,11 +1,15 @@
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::{Game, GameType};
-use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
 
+use serde::{Deserialize, Serialize};
+
+use crate::error::{Error, ErrorKind, Result};
+use crate::prelude::{Game, GameCommands, GameState, GameType};
+
 #[derive(Serialize, Deserialize, Debug)]
 struct Manifest {
+    #[serde(rename(deserialize = "bIsIncompleteInstall"))]
+    is_incomplete_install: bool,
     #[serde(rename(deserialize = "AppName"))]
     app_name: String,
     #[serde(rename(deserialize = "DisplayName"))]
@@ -17,39 +21,31 @@ struct Manifest {
 }
 
 pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
-    let manifest_data = fs::read_to_string(&file).map_err(|error| {
-        Error::new(
-            ErrorKind::InvalidManifest,
-            format!(
-                "Invalid Epic Games manifest: {} {}",
-                file.display().to_string(),
-                error.to_string()
-            ),
-        )
-    });
+    let manifest_data = fs::read_to_string(&file)
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::InvalidManifest,
+                format!(
+                    "Invalid Epic Games manifest: {} {}",
+                    file.display().to_string(),
+                    error.to_string()
+                ),
+            )
+        })
+        .unwrap();
 
-    if manifest_data.is_err() {
-        return Err(manifest_data.err().unwrap());
-    }
-
-    let manifest_data = manifest_data.unwrap();
-
-    let manifest = serde_json::from_str::<Manifest>(manifest_data.as_str()).map_err(|error| {
-        Error::new(
-            ErrorKind::InvalidManifest,
-            format!(
-                "Error on read the Epic Games manifest: {} {}",
-                file.display().to_string(),
-                error.to_string()
-            ),
-        )
-    });
-
-    if manifest.is_err() {
-        return Err(manifest.err().unwrap());
-    }
-
-    let manifest = manifest.unwrap();
+    let manifest = serde_json::from_str::<Manifest>(manifest_data.as_str())
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::InvalidManifest,
+                format!(
+                    "Error on read the Epic Games manifest: {} {}",
+                    file.display().to_string(),
+                    error.to_string()
+                ),
+            )
+        })
+        .unwrap();
 
     if manifest.display_name.contains("Unreal Engine") {
         return Err(Error::new(
@@ -66,12 +62,23 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
         id: manifest.app_name.clone(),
         name: manifest.display_name.clone(),
         path: manifest.install_location.clone(),
-        launch_command: vec![
-            launcher_executable.display().to_string(),
-            format!(
-                "com.epicgames.launcher://apps/{}?action=launch&silent=true",
-                &manifest.app_name
-            ),
-        ],
+        commands: GameCommands {
+            install: None,
+            launch: vec![
+                launcher_executable.display().to_string(),
+                format!(
+                    "com.epicgames.launcher://apps/{}?action=launch&silent=true",
+                    &manifest.app_name
+                ),
+            ],
+            uninstall: None,
+        },
+        state: GameState {
+            installed: !manifest.is_incomplete_install,
+            needs_update: false,
+            downloading: false,
+            total_bytes: None,
+            received_bytes: None,
+        },
     });
 }

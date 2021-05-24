@@ -1,7 +1,11 @@
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::Game;
-use crate::util::string::remove_quotes;
 use std::path::{Path, PathBuf};
+
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::Game,
+    steam::types::SteamAppState,
+    util::string::remove_quotes,
+};
 
 pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Result<Game> {
     let manifest_data = std::fs::read_to_string(&file);
@@ -40,6 +44,20 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Res
         match attr.as_str() {
             "appid" => game.id = value,
             "name" => game.name = value,
+            "StateFlags" => {
+                let state = value.parse::<i32>().unwrap();
+
+                game.state.installed = has_app_state(state, SteamAppState::FullyInstalled);
+
+                game.state.needs_update = has_app_state(state, SteamAppState::UpdateRequired)
+                    || has_app_state(state, SteamAppState::UpdateStarted);
+
+                game.state.downloading = has_app_state(state, SteamAppState::PreAllocating)
+                    || has_app_state(state, SteamAppState::Downloading)
+                    || has_app_state(state, SteamAppState::UpdateRunning);
+            }
+            "BytesToDownload" => game.state.total_bytes = value.parse::<i32>().ok(),
+            "BytesDownloaded" => game.state.received_bytes = value.parse::<i32>().ok(),
             "installdir" => {
                 game.path = PathBuf::from(library_path)
                     .join("common")
@@ -58,11 +76,27 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Res
         ));
     }
 
-    game.launch_command = vec![
+    game.commands.install = Some(vec![
+        launcher_executable.display().to_string(),
+        String::from("-silent"),
+        format!("steam://install/{}", &game.id),
+    ]);
+
+    game.commands.launch = vec![
         launcher_executable.display().to_string(),
         String::from("-silent"),
         format!("steam://run/{}", &game.id),
     ];
 
+    game.commands.uninstall = Some(vec![
+        launcher_executable.display().to_string(),
+        String::from("-silent"),
+        format!("steam://uninstall/{}", &game.id),
+    ]);
+
     return Ok(game);
+}
+
+fn has_app_state(state: i32, flag: SteamAppState) -> bool {
+    (state & flag.get_code()) == state
 }

@@ -1,46 +1,36 @@
-use crate::utils::{from_js_game, make_js_game};
 use neon::prelude::*;
 
+use crate::{
+    manager::{close_game, launch_game},
+    types::{amazon, blizzard, epicgames, gog, origin, riotgames, steam, ubisoft},
+};
+
+mod manager;
+mod types;
 mod utils;
 
-fn games(mut cx: FunctionContext) -> JsResult<JsArray> {
-    let games = gamescanner::games();
+#[neon::main]
+fn main(mut ctx: ModuleContext) -> NeonResult<()> {
+    let manager = JsObject::new(&mut ctx);
 
-    let js_array = JsArray::new(&mut cx, games.len() as u32);
+    let fn_launch_game = JsFunction::new(&mut ctx, launch_game).unwrap();
+    manager
+        .set(&mut ctx, "launch_game", fn_launch_game)
+        .unwrap();
 
-    for (i, game) in games.iter().enumerate() {
-        let js_game = make_js_game(&mut cx, game);
+    let fn_close_game = JsFunction::new(&mut ctx, close_game).unwrap();
+    manager.set(&mut ctx, "close_game", fn_close_game).unwrap();
 
-        js_array.set(&mut cx, i as u32, js_game).unwrap();
-    }
+    ctx.export_value("manager", manager).unwrap();
 
-    return Ok(js_array);
-}
-
-fn launch_game(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let object = cx.argument::<JsObject>(0).unwrap();
-
-    let game = from_js_game(&mut cx, &object).unwrap();
-
-    gamescanner::manager::launch_game(&game).unwrap();
-
-    return Ok(cx.undefined());
-}
-
-fn close_game(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let object = cx.argument::<JsObject>(0).unwrap();
-
-    let game = from_js_game(&mut cx, &object).unwrap();
-
-    gamescanner::manager::close_game(&game).unwrap();
-
-    return Ok(cx.undefined());
-}
-
-register_module!(mut m, {
-    m.export_function("games", games)?;
-    m.export_function("launch_game", launch_game)?;
-    m.export_function("close_game", close_game)?;
+    amazon::init(&mut ctx);
+    blizzard::init(&mut ctx);
+    epicgames::init(&mut ctx);
+    gog::init(&mut ctx);
+    origin::init(&mut ctx);
+    riotgames::init(&mut ctx);
+    steam::init(&mut ctx);
+    ubisoft::init(&mut ctx);
 
     Ok(())
-});
+}

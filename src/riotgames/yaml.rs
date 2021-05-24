@@ -1,10 +1,12 @@
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::{Game, GameType};
-use crate::riotgames::types::RiotGamesProducts;
-use crate::util::path::fix_path_separator;
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+
+use serde::{Deserialize, Serialize};
+
+use crate::error::{Error, ErrorKind, Result};
+use crate::prelude::{Game, GameCommands, GameState, GameType};
+use crate::riotgames::types::RiotGamesProducts;
+use crate::util::path::fix_path_separator;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ProductSettings {
@@ -134,10 +136,25 @@ pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
         id: product.get_code().to_string(),
         name: product.get_name().to_string(),
         path: game_install_path.display().to_string(),
-        launch_command: vec![
-            launcher_executable_path.display().to_string(),
-            format!("--launch-product={}", product.get_code()),
-            format!("--launch-patchline={}", product.get_server()),
-        ],
+        commands: GameCommands {
+            install: None,
+            launch: vec![
+                launcher_executable_path.display().to_string(),
+                format!("--launch-product={}", product.get_code()),
+                format!("--launch-patchline={}", product.get_server()),
+            ],
+            uninstall: Some(vec![
+                launcher_executable_path.display().to_string(),
+                format!("--uninstall-product={}", product.get_code()),
+                format!("--uninstall-patchline={}", product.get_server()),
+            ]),
+        },
+        state: GameState {
+            installed: true,
+            needs_update: false,
+            downloading: false,
+            total_bytes: None,
+            received_bytes: None,
+        },
     });
 }

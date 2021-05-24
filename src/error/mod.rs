@@ -100,6 +100,7 @@ pub fn can_logger(error: &Error) -> bool {
         || cfg!(test);
 }
 
+#[allow(unused)]
 pub fn print_error(error: &Error) {
     if can_logger(error) {
         println!(

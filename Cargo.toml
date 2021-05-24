@@ -17,12 +17,12 @@ name = "list"
 harness = false
 
 [dependencies]
-serde = { version = "1.0.123", features = ["derive"] }
-serde_json = { version = "1.0.62" }
+serde = { version = "1.0.126", features = ["derive"] }
+serde_json = { version = "1.0.64" }
 serde_yaml = { version = "0.8.17" }
-url = { version = "2.2.1" }
-rusqlite = { version = "0.24.2", features = ["bundled"] }
-sysinfo = { version = "0.16.3" }
+url = { version = "2.2.2" }
+rusqlite = { version = "0.25.3", features = ["bundled"] }
+sysinfo = { version = "0.17.5" }
 prost = { version = "0.7.0" }
 prost-types = { version = "0.7.0" }
 bytes = { version = "1.0.1" }
@@ -30,7 +30,7 @@ chrono = { version = "0.4.19" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 case = { version = "1.0.0" }
-directories = { version = "3.0.1" }
+directories = { version = "3.0.2" }
 winreg = { version = "0.8.0" }
 
 [dev-dependencies]

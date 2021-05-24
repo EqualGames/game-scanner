@@ -1,6 +1,7 @@
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::{Game, GameType};
 use std::path::{Path, PathBuf};
+
+use crate::error::{Error, ErrorKind, Result};
+use crate::prelude::{Game, GameCommands, GameState, GameType};
 
 #[derive(Default)]
 struct Manifest {
@@ -98,10 +99,24 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
         id: manifest.id.clone(),
         name: get_game_name(file).unwrap(),
         path: manifest.dipinstallpath,
-        launch_command: vec![
-            launcher_executable.display().to_string(),
-            format!("origin2://game/launch?offerIds={}", &manifest.id),
-        ],
+        commands: GameCommands {
+            install: Some(vec![
+                launcher_executable.display().to_string(),
+                format!("origin2://game/download?offerId={}", &manifest.id),
+            ]),
+            launch: vec![
+                launcher_executable.display().to_string(),
+                format!("origin2://game/launch?offerIds={}", &manifest.id),
+            ],
+            uninstall: None,
+        },
+        state: GameState {
+            installed: true,
+            needs_update: false,
+            downloading: false,
+            total_bytes: None,
+            received_bytes: None,
+        },
     });
 }
 
