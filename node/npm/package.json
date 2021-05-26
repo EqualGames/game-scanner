@@ -1,7 +1,8 @@
 {
   "name": "@equalgames/game-scanner",
   "version": "0.0.0",
-  "description": "game scanner",
+  "description": "Game Scanner for any launcher and OS",
+  "homepage": "https://github.com/EqualGames/game-scanner",
   "author": "Matheus Albino <matheusalbino@users.noreply.github.com>",
   "license": "MIT",
   "keywords": [
@@ -23,11 +24,18 @@
     "native/linux.node"
   ],
   "main": "index.js",
+  "os": [
+    "win32"
+  ],
+  "cpu": ["x64"],
+  "engines": {
+    "node": ">=12"
+  },
   "repository": {
     "type": "git",
-    "url": "ssh://git@github.com:EqualSoftware/game-scanner.git"
+    "url": "ssh://git@github.com:EqualGames/game-scanner.git"
   },
   "bugs": {
-    "url": "https://github.com/EqualSoftware/game-scanner/issues"
+    "url": "https://github.com/EqualGames/game-scanner/issues"
   }
 }
