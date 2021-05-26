@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ASSET_NAME: ${{ needs.github.outputs.version }}-${{ runner.os }}).node
+          ASSET_NAME: ${{ runner.os }}-${{ needs.github.outputs.version }}.node
         with:
           name: ${{ env.ASSET_NAME }}
           path: node/native/index.node
@@ -73,7 +73,7 @@ jobs:
       - name: Download windows asset
         uses: actions/download-artifact@v2
         with:
-          name: ${{ needs.github.outputs.version }}-windows-latest.node
+          name: Windows-${{ needs.github.outputs.version }}.node
           path: node/npm/native
 
       - name: Rename windows asset
