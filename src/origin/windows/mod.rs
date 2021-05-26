@@ -2,7 +2,7 @@ use crate::{
     error::{Error, ErrorKind, Result},
     origin::{
         mfst,
-        windows::utils::{get_launcher_executable, get_manifest_predicate, get_manifests_path},
+        windows::utils::{get_launcher_executable, get_manifests_path},
     },
     prelude::Game,
     util::io::get_files_recursive,
@@ -13,17 +13,18 @@ mod utils;
 pub fn games() -> Result<Vec<Game>> {
     let launcher_executable = get_launcher_executable().unwrap();
     let manifests_path = get_manifests_path().unwrap();
-    let manifests = get_files_recursive(&manifests_path, get_manifest_predicate)
-        .map_err(|error| {
-            Error::new(
-                ErrorKind::LauncherNotFound,
-                format!(
-                    "Invalid Origin path, maybe this launcher is not installed: {}",
-                    error.to_string()
-                ),
-            )
-        })
-        .unwrap();
+    let manifests =
+        get_files_recursive(&manifests_path, |file| file.extension().unwrap().eq("mfst"))
+            .map_err(|error| {
+                Error::new(
+                    ErrorKind::LauncherNotFound,
+                    format!(
+                        "Invalid Origin path, maybe this launcher is not installed: {}",
+                        error.to_string()
+                    ),
+                )
+            })
+            .unwrap();
 
     let mut games = Vec::new();
 

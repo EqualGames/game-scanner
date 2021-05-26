@@ -81,6 +81,7 @@ pub enum ErrorKind {
     InvalidLauncher,
     InvalidManifest,
     InvalidLibrary,
+    AppNotFound,
     LauncherNotFound,
     LibraryNotFound,
     IO,

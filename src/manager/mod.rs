@@ -1,5 +1,4 @@
-use std::path::Path;
-use std::process;
+use std::{path::Path, process};
 
 use sysinfo::{ProcessExt, System, SystemExt};
 

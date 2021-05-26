@@ -1,10 +1,12 @@
-use crate::epicgames::{
-    item,
-    windows::utils::{get_launcher_executable, get_manifest_predicate, get_manifests_path},
+use crate::{
+    epicgames::{
+        item,
+        windows::utils::{get_launcher_executable, get_manifests_path},
+    },
+    error::{Error, ErrorKind, Result},
+    prelude::Game,
+    util::io::get_files,
 };
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::Game;
-use crate::util::io::get_files;
 
 mod utils;
 
@@ -13,7 +15,7 @@ pub fn games() -> Result<Vec<Game>> {
 
     let manifests_path = get_manifests_path().unwrap();
 
-    let manifests = get_files(&manifests_path, get_manifest_predicate)
+    let manifests = get_files(&manifests_path, |file| file.extension().unwrap().eq("item"))
         .map_err(|error| {
             Error::new(
                 ErrorKind::LauncherNotFound,
