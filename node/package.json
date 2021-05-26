@@ -1,40 +1,9 @@
 {
-  "name": "@equalgames/game-scanner",
-  "version": "1.0.0",
-  "description": "game scanner",
-  "private": true,
-  "author": "Matheus Albino <matheusalbino@users.noreply.github.com>",
-  "license": "MIT",
-  "keywords": [
-    "nodejs",
-    "game",
-    "rust",
-    "games",
-    "scanner",
-    "launcher",
-    "rust-library",
-    "game-launcher",
-    "game-scanner"
-  ],
-  "files": [
-    "examples/",
-    "lib/",
-    "native/index.node"
-  ],
   "main": "lib/index.js",
   "scripts": {
-    "build": "neon build --release",
-    "test:list": "node examples/list.js",
-    "test:launch-close": "node examples/launch_and_close.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "ssh://git@github.com:EqualSoftware/game-scanner.git"
-  },
-  "bugs": {
-    "url": "https://github.com/EqualSoftware/game-scanner/issues"
+    "build": "neon build --release"
   },
   "devDependencies": {
-    "neon-cli": "^0.8.1"
+    "neon-cli": "^0.8.2"
   }
 }

@@ -1,92 +1,95 @@
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
 
 name: Release
 
 jobs:
 
-  cancel_duplicated_workflows:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: styfle/cancel-workflow-action@0.8.0
-        with:
-          access_token: ${{ github.token }}
-
   github:
     runs-on: ubuntu-latest
 
     outputs:
-      sha8: ${{ steps.sha8.outputs.value }}
+      version: ${{ steps.version.outputs.value }}
 
     steps:
-      - name: Get SHA8
-        id: sha8
-        run: echo "::set-output name=value::$(echo ${{ github.sha }} | cut -c1-8)"
+      - name: Get version
+        id: version
+        run: echo ::set-output name=value::${GITHUB_REF#refs/*/v*}
 
-  create_release:
-    needs: github
-    runs-on: ubuntu-latest
-
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ needs.github.outputs.sha8 }}
-        with:
-          tag_name: ${{ env.VERSION }}
-          release_name: ${{ env.VERSION }}
-          draft: true
-          prerelease: false
-
-  release_assets:
-    needs: [ github, create_release ]
-    runs-on: ${{ matrix.config.os }}
+  build_assets:
+    needs: [ github ]
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        config:
-#          - os: ubuntu-latest
-#          - os: macos-latest
-          - os: windows-latest
+        os:
+          - windows-latest
+        architecture:
+          - x64
 
     steps:
       - uses: actions/checkout@v2
+
       - uses: actions/setup-node@v2.1.4
         with:
           node-version: 12.x
+          architecture: ${{ matrix.architecture }}
 
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
 
-      - run: |
-          cd node
-          npm ci
+      - run: npm ci
+        working-directory: node
 
-      - run: |
-          cd node
-          npm run build
-
-      - run: |
-          cd node
-          tar -a -c -f out.zip native/index.node lib/* package.json examples/*
+      - run: npm run build
+        working-directory: node
 
       - name: Upload release assets
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-artifact@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ASSET_NAME: game-scan.${{ needs.github.outputs.sha8 }}-${{ runner.os }}).zip
+          ASSET_NAME: ${{ needs.github.outputs.version }}-${{ runner.os }}).node
         with:
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_name: ${{ env.ASSET_NAME }}
-          asset_path: node/out.zip
-          asset_content_type: application/octet-stream
+          name: ${{ env.ASSET_NAME }}
+          path: node/native/index.node
+          if-no-files-found: error
+
+  publish:
+    needs: [ github, build_assets ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2.1.4
+        with:
+          registry-url: 'https://npm.pkg.github.com'
+          node-version: 12.x
+          architecture: x64
+
+      - name: Download windows asset
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ needs.github.outputs.version }}-windows-latest.node
+          path: node/npm/native
+
+      - name: Rename windows asset
+        run: mv index.node windows.node
+        working-directory: node/npm/native
+
+      - name: Update version on package.json
+        run: npm version ${{ needs.github.outputs.version }}
+        working-directory: node/npm
+
+      - name: Copy library files
+        run: |
+          cp ./lib/index.d.ts ./npm/index.d.ts
+        working-directory: node
+
+      - run: npm publish
+        working-directory: node/npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
