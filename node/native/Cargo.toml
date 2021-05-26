@@ -3,7 +3,6 @@ name = "node"
 version = "0.1.0"
 authors = ["Matheus Albino <matheusalbino@users.noreply.github.com>"]
 edition = "2018"
-exclude = ["artifacts.json", "index.node"]
 publish = false
 
 [lib]

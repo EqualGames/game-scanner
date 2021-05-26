@@ -1,3 +1,1 @@
-const gamescanner = require("../native/index.node");
-
-module.exports = gamescanner;
+module.exports = require("../native/index.node");
