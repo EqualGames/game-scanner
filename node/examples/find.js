@@ -8,13 +8,13 @@ const perfObserver = new PerformanceObserver((items) => {
 
 perfObserver.observe({entryTypes: ["measure"], buffered: true})
 
-const gamescanner = require("../lib");
+const game_scanner = require("../lib");
 
 let games;
 
 {
     performance.mark('start');
-    games = gamescanner.steam.games();
+    games = game_scanner.steam.games();
     performance.mark('end');
     console.log(games);
     performance.measure("games", "start", "end");
@@ -22,7 +22,7 @@ let games;
 
 {
     performance.mark('start');
-    const game = gamescanner.steam.find(games[0].id);
+    const game = game_scanner.steam.find(games[0].id);
     performance.mark('end');
     console.log(game);
     performance.measure("find", "start", "end");

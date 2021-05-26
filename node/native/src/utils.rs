@@ -3,7 +3,7 @@ use std::io;
 use neon::prelude::*;
 use neon::types::JsObject;
 
-use gamescanner::prelude::{Game, GameCommands, GameState};
+use game_scanner::prelude::{Game, GameCommands, GameState};
 
 pub fn from_rust<'a>(ctx: &mut FunctionContext<'a>, game: &Game) -> Handle<'a, JsObject> {
     let game_object = JsObject::new(ctx);

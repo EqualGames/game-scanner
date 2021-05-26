@@ -1,6 +1,6 @@
 # Build
-target/
-node/native/target/
+target
+node/native/target
 *.node
 artifacts.json
 
@@ -11,7 +11,7 @@ artifacts.json
 .criterion
 
 # Dependencies
-node/node_modules/
+node/node_modules
 
 # IDE & Editors
 .idea

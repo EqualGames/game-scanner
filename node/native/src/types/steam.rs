@@ -1,6 +1,6 @@
 use neon::prelude::*;
 
-use gamescanner::steam;
+use game_scanner::steam;
 
 use crate::utils::from_rust;
 

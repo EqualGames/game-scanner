@@ -1,6 +1,6 @@
 use neon::prelude::*;
 
-use gamescanner::blizzard;
+use game_scanner::blizzard;
 
 use crate::utils::from_rust;
 

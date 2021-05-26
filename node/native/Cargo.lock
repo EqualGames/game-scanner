@@ -191,7 +191,7 @@ dependencies = [
 
 [[package]]
 name = "game-scanner"
-version = "0.1.0"
+version = "1.0.1"
 dependencies = [
  "bytes",
  "case",
@@ -207,6 +207,14 @@ dependencies = [
  "sysinfo",
  "url",
  "winreg",
+]
+
+[[package]]
+name = "game-scanner-node"
+version = "0.0.0"
+dependencies = [
+ "game-scanner",
+ "neon",
 ]
 
 [[package]]
@@ -412,14 +420,6 @@ dependencies = [
  "cfg-if",
  "libloading",
  "smallvec",
-]
-
-[[package]]
-name = "node"
-version = "0.1.0"
-dependencies = [
- "game-scanner",
- "neon",
 ]
 
 [[package]]
