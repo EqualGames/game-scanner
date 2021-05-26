@@ -2,12 +2,6 @@ use std::path::{Path, PathBuf};
 
 use crate::error::{Error, ErrorKind, Result};
 
-pub fn get_manifest_predicate(file: &PathBuf) -> bool {
-    file.display()
-        .to_string()
-        .ends_with(".product_settings.yaml")
-}
-
 pub fn get_launcher_path() -> Result<PathBuf> {
     let launcher_path = PathBuf::from("C:")
         .join(std::path::MAIN_SEPARATOR.to_string())

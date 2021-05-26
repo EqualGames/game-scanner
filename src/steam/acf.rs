@@ -8,20 +8,18 @@ use crate::{
 };
 
 pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Result<Game> {
-    let manifest_data = std::fs::read_to_string(&file);
-
-    if manifest_data.is_err() {
-        return Err(Error::new(
-            ErrorKind::InvalidManifest,
-            format!(
-                "Error on read the Steam manifest: {} {}",
-                file.display().to_string(),
-                manifest_data.err().unwrap().to_string()
-            ),
-        ));
-    }
-
-    let manifest_data = manifest_data.unwrap();
+    let manifest_data = std::fs::read_to_string(&file)
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::InvalidManifest,
+                format!(
+                    "Error on read the Steam manifest: {} {}",
+                    file.display().to_string(),
+                    error.to_string()
+                ),
+            )
+        })
+        .unwrap();
 
     let manifest = manifest_data.split("\n").collect::<Vec<&str>>();
 

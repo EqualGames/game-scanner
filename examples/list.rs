@@ -1,7 +1,7 @@
 use std::io::Error;
 
 fn main() -> Result<(), Error> {
-    let games = gamescanner::amazon::games().unwrap();
+    let games = gamescanner::steam::games().unwrap();
 
     println!("{:#?}", games);
 

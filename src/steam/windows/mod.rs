@@ -1,49 +1,18 @@
-use std::path::PathBuf;
-
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::Game,
     steam::{
-        acf, vdf,
-        windows::utils::{get_launcher_executable, get_manifest_predicate, get_manifests_path},
+        acf,
+        windows::utils::{get_launcher_executable, get_library_manifests},
     },
-    util::io::get_files,
 };
 
 mod utils;
 
 pub fn games() -> Result<Vec<Game>> {
     let launcher_executable = get_launcher_executable().unwrap();
-    let manifests_path = get_manifests_path().unwrap();
-
-    let mut library_paths = Vec::new();
-    library_paths.push(manifests_path.clone());
-
-    let library_folders =
-        vdf::read_library_folders(&manifests_path.join("libraryfolders.vdf")).unwrap();
-
-    for folder in library_folders {
-        library_paths.push(folder.join("steamapps"));
-    }
-
-    let mut library_manifests = Vec::<(PathBuf, Vec<PathBuf>)>::new();
-
-    for path in library_paths {
-        match get_files(&path, get_manifest_predicate) {
-            Ok(list) => library_manifests.push((path, list)),
-            Err(error) => {
-                Error::new(
-                    ErrorKind::LibraryNotFound,
-                    format!(
-                        "Invalid Steam library path, maybe this launcher is not installed: {} {}",
-                        manifests_path.display().to_string(),
-                        error.to_string()
-                    ),
-                )
-                .print();
-            }
-        }
-    }
+    let library_manifests =
+        get_library_manifests(|file| file.extension().unwrap().eq("acf")).unwrap();
 
     let mut games = Vec::new();
 
@@ -63,4 +32,25 @@ pub fn games() -> Result<Vec<Game>> {
     }
 
     return Ok(games);
+}
+
+pub fn find(id: &str) -> Result<Game> {
+    let launcher_executable = get_launcher_executable().unwrap();
+
+    let library_manifests =
+        get_library_manifests(|file| file.display().to_string().contains(&id)).unwrap();
+
+    let library_manifests = library_manifests.iter().find(|(_, list)| list.len() > 0);
+
+    if library_manifests.is_none() {
+        return Err(Error::new(
+            ErrorKind::AppNotFound,
+            format!("Steam game with id {} does not exist", id),
+        ));
+    }
+
+    let (library_path, manifests) = library_manifests.unwrap();
+    let manifest = manifests.get(0).unwrap();
+
+    return acf::read(&manifest, &launcher_executable, &library_path);
 }

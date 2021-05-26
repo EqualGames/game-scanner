@@ -1,8 +1,12 @@
-use crate::error::{Error, ErrorKind, Result};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-pub fn get_files(path: &Path, predicate: fn(item: &PathBuf) -> bool) -> Result<Vec<PathBuf>> {
+use crate::error::{Error, ErrorKind, Result};
+
+pub fn get_files<T>(path: &Path, predicate: T) -> Result<Vec<PathBuf>>
+where
+    T: Fn(&PathBuf) -> bool,
+{
     if !path.exists() {
         return Err(Error::new(
             ErrorKind::IO,
@@ -25,10 +29,10 @@ pub fn get_files(path: &Path, predicate: fn(item: &PathBuf) -> bool) -> Result<V
     return Ok(files);
 }
 
-pub fn get_files_recursive(
-    path: &Path,
-    predicate: fn(item: &PathBuf) -> bool,
-) -> Result<Vec<PathBuf>> {
+pub fn get_files_recursive<T>(path: &Path, predicate: T) -> Result<Vec<PathBuf>>
+where
+    T: Fn(&PathBuf) -> bool,
+{
     if !path.exists() {
         return Err(Error::new(
             ErrorKind::IO,
@@ -46,7 +50,7 @@ pub fn get_files_recursive(
                 files.push(entry_path);
             }
         } else if entry_path.is_dir() {
-            files.extend(get_files(&entry_path, predicate).unwrap());
+            files.extend(get_files(&entry_path, &predicate).unwrap());
         }
     }
 

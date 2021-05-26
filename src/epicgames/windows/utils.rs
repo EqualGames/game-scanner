@@ -4,10 +4,6 @@ use crate::error::{Error, ErrorKind, Result};
 use crate::util::path::fix_path_separator;
 use crate::util::registry;
 
-pub fn get_manifest_predicate(file: &PathBuf) -> bool {
-    return file.extension().unwrap().eq("item");
-}
-
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_executable = registry::get_current_user_reg_key("Epic Games\\EOS")
         .and_then(|eos_reg| registry::get_value(&eos_reg, "ModSdkCommand"))

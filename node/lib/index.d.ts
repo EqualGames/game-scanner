@@ -52,6 +52,8 @@ export declare namespace riotgames {
 }
 
 export declare namespace steam {
+    function find(id: string): Game | undefined;
+
     function games(): Array<Game>;
 }
 
