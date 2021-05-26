@@ -8,11 +8,11 @@ const perfObserver = new PerformanceObserver((items) => {
 
 perfObserver.observe({entryTypes: ["measure"], buffered: true})
 
-const gamescanner = require("../lib");
+const game_scanner = require("../lib");
 
 {
     performance.mark('start');
-    const games = gamescanner.amazon.games();
+    const games = game_scanner.amazon.games();
     performance.mark('end');
     console.log(JSON.stringify(games, null, 2));
     performance.measure("amazon", "start", "end");
@@ -20,7 +20,7 @@ const gamescanner = require("../lib");
 
 {
     performance.mark('start');
-    const games = gamescanner.blizzard.games();
+    const games = game_scanner.blizzard.games();
     performance.mark('end');
     console.log(games);
     performance.measure("blizzard", "start", "end");
@@ -28,7 +28,7 @@ const gamescanner = require("../lib");
 
 {
     performance.mark('start');
-    const games = gamescanner.epicgames.games();
+    const games = game_scanner.epicgames.games();
     performance.mark('end');
     console.log(games);
     performance.measure("epicgames", "start", "end");
@@ -36,7 +36,7 @@ const gamescanner = require("../lib");
 
 {
     performance.mark('start');
-    const games = gamescanner.gog.games();
+    const games = game_scanner.gog.games();
     performance.mark('end');
     console.log(games);
     performance.measure("gog", "start", "end");
@@ -44,7 +44,7 @@ const gamescanner = require("../lib");
 
 {
     performance.mark('start');
-    const games = gamescanner.origin.games();
+    const games = game_scanner.origin.games();
     performance.mark('end');
     console.log(games);
     performance.measure("origin", "start", "end");
@@ -52,7 +52,7 @@ const gamescanner = require("../lib");
 
 {
     performance.mark('start');
-    const games = gamescanner.riotgames.games();
+    const games = game_scanner.riotgames.games();
     performance.mark('end');
     console.log(games);
     performance.measure("riotgames", "start", "end");
@@ -60,7 +60,7 @@ const gamescanner = require("../lib");
 
 {
     performance.mark('start');
-    const games = gamescanner.steam.games();
+    const games = game_scanner.steam.games();
     performance.mark('end');
     console.log(games);
     performance.measure("steam", "start", "end");
@@ -68,7 +68,7 @@ const gamescanner = require("../lib");
 
 {
     performance.mark('start');
-    const games = gamescanner.ubisoft.games();
+    const games = game_scanner.ubisoft.games();
     performance.mark('end');
     console.log(games);
     performance.measure("ubisoft", "start", "end");

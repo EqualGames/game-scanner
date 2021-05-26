@@ -1,6 +1,6 @@
 use neon::prelude::*;
 
-use gamescanner::amazon;
+use game_scanner::amazon;
 
 use crate::utils::from_rust;
 

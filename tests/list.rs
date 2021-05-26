@@ -6,7 +6,7 @@ mod amazon {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = gamescanner::amazon::games().unwrap();
+        let games = game_scanner::amazon::games().unwrap();
 
         assert_eq!(GAME_LIST_TYPE, type_of(&games));
 
@@ -19,7 +19,7 @@ mod blizzard {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = gamescanner::blizzard::games().unwrap();
+        let games = game_scanner::blizzard::games().unwrap();
 
         assert_eq!(GAME_LIST_TYPE, type_of(&games));
 
@@ -32,7 +32,7 @@ mod epicgames {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = gamescanner::epicgames::games().unwrap();
+        let games = game_scanner::epicgames::games().unwrap();
 
         assert_eq!(GAME_LIST_TYPE, type_of(&games));
 
@@ -45,7 +45,7 @@ mod gog {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = gamescanner::gog::games().unwrap();
+        let games = game_scanner::gog::games().unwrap();
 
         assert_eq!(GAME_LIST_TYPE, type_of(&games));
 
@@ -58,7 +58,7 @@ mod origin {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = gamescanner::origin::games().unwrap();
+        let games = game_scanner::origin::games().unwrap();
 
         assert_eq!(GAME_LIST_TYPE, type_of(&games));
 
@@ -71,7 +71,7 @@ mod riotgames {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = gamescanner::riotgames::games().unwrap();
+        let games = game_scanner::riotgames::games().unwrap();
 
         assert_eq!(GAME_LIST_TYPE, type_of(&games));
 
@@ -84,7 +84,7 @@ mod steam {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = gamescanner::steam::games().unwrap();
+        let games = game_scanner::steam::games().unwrap();
 
         assert_eq!(GAME_LIST_TYPE, type_of(&games));
 
@@ -97,7 +97,7 @@ mod ubisoft {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = gamescanner::ubisoft::games().unwrap();
+        let games = game_scanner::ubisoft::games().unwrap();
 
         assert_eq!(GAME_LIST_TYPE, type_of(&games));
 
@@ -109,4 +109,4 @@ fn type_of<T>(_: T) -> &'static str {
     type_name::<T>()
 }
 
-const GAME_LIST_TYPE: &str = "&alloc::vec::Vec<gamescanner::prelude::Game>";
+const GAME_LIST_TYPE: &str = "&alloc::vec::Vec<game_scanner::prelude::Game>";

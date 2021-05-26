@@ -7,7 +7,7 @@ pub fn launch_game(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 
     let game = from_js(&mut cx, &object).unwrap();
 
-    gamescanner::manager::launch_game(&game).unwrap();
+    game_scanner::manager::launch_game(&game).unwrap();
 
     return Ok(cx.undefined());
 }
@@ -17,7 +17,7 @@ pub fn close_game(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 
     let game = from_js(&mut cx, &object).unwrap();
 
-    gamescanner::manager::close_game(&game).unwrap();
+    game_scanner::manager::close_game(&game).unwrap();
 
     return Ok(cx.undefined());
 }

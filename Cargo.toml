@@ -1,20 +1,27 @@
 [package]
-name = "game-scanner"
-version = "0.1.0"
-authors = ["Matheus Albino <matheusalbino@users.noreply.github.com>"]
 edition = "2018"
-publish = false
 build = "build.rs"
+name = "game-scanner"
+description = "Game Scanner for any launcher and OS"
+version = "1.0.1"
+authors = ["Matheus Albino <matheusalbino@users.noreply.github.com>"]
+license = "MIT"
+keywords = ["games", "api-bindings"]
+homepage = "https://github.com/EqualGames/game-scanner"
+repository = "https://github.com/EqualGames/game-scanner"
+readme = "README.md"
+include = [
+    "src/**/*.proto",
+    "src/**/*.rs",
+    "build.rs",
+    "Cargo.toml",
+]
 
 [lib]
-name = "gamescanner"
+name = "game_scanner"
 bench = true
 doc = true
 crate-type = ["rlib", "cdylib"]
-
-[[bench]]
-name = "list"
-harness = false
 
 [dependencies]
 serde = { version = "1.0.126", features = ["derive"] }
