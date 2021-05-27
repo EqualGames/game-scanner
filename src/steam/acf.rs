@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::Game,
-    steam::types::SteamAppState,
+    steam::types::{SteamAppState, SteamUpdateResult},
     util::string::remove_quotes,
 };
 
@@ -43,19 +43,24 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Res
             "appid" => game.id = value,
             "name" => game.name = value,
             "StateFlags" => {
-                let state = value.parse::<i32>().unwrap();
+                let state = value.parse::<i64>().unwrap();
 
                 game.state.installed = has_app_state(state, SteamAppState::FullyInstalled);
 
-                game.state.needs_update = has_app_state(state, SteamAppState::UpdateRequired)
-                    || has_app_state(state, SteamAppState::UpdateStarted);
+                game.state.needs_update = has_app_state(state, SteamAppState::UpdateRequired);
 
-                game.state.downloading = has_app_state(state, SteamAppState::PreAllocating)
-                    || has_app_state(state, SteamAppState::Downloading)
-                    || has_app_state(state, SteamAppState::UpdateRunning);
+                game.state.downloading = has_app_state(state, SteamAppState::Downloading);
             }
-            "BytesToDownload" => game.state.total_bytes = value.parse::<i32>().ok(),
-            "BytesDownloaded" => game.state.received_bytes = value.parse::<i32>().ok(),
+            "UpdateResult" => {
+                let state = value.parse::<i64>().unwrap();
+
+                if game.state.needs_update && !game.state.downloading {
+                    game.state.downloading =
+                        has_update_result(state, SteamUpdateResult::Downloading);
+                }
+            }
+            "BytesToDownload" => game.state.total_bytes = value.parse::<i64>().ok(),
+            "BytesDownloaded" => game.state.received_bytes = value.parse::<i64>().ok(),
             "installdir" => {
                 game.path = PathBuf::from(library_path)
                     .join("common")
@@ -95,6 +100,22 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Res
     return Ok(game);
 }
 
-fn has_app_state(state: i32, flag: SteamAppState) -> bool {
-    (state & flag.get_code()) == state
+fn has_app_state(state: i64, flag: SteamAppState) -> bool {
+    if flag == SteamAppState::Invalid {
+        return state == 0;
+    }
+
+    if flag == SteamAppState::Uninstalled {
+        return state == 1;
+    }
+
+    (state & flag.get_code()) == flag.get_code()
+}
+
+fn has_update_result(state: i64, flag: SteamUpdateResult) -> bool {
+    if flag == SteamUpdateResult::Downloading {
+        return state == 0;
+    }
+
+    (state & flag.get_code()) == flag.get_code()
 }

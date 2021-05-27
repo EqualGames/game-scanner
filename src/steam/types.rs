@@ -1,4 +1,5 @@
 #[allow(dead_code)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum SteamAppState {
     Invalid,
     Uninstalled,
@@ -25,7 +26,7 @@ pub enum SteamAppState {
 }
 
 impl SteamAppState {
-    pub fn get_code(&self) -> i32 {
+    pub fn get_code(&self) -> i64 {
         match self {
             Self::Invalid => 0,
             Self::Uninstalled => 1,
@@ -54,6 +55,7 @@ impl SteamAppState {
 }
 
 #[allow(dead_code)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum SteamUpdateResult {
     Downloading,
     Paused,
@@ -61,8 +63,7 @@ pub enum SteamUpdateResult {
 }
 
 impl SteamUpdateResult {
-    #[allow(unused)]
-    pub fn get_code(&self) -> i32 {
+    pub fn get_code(&self) -> i64 {
         match self {
             Self::Downloading => 0,
             Self::Paused => 1 << 1,
