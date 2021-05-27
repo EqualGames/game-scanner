@@ -22,8 +22,8 @@ pub struct GameState {
     pub installed: bool,
     pub needs_update: bool,
     pub downloading: bool,
-    pub total_bytes: Option<i32>,
-    pub received_bytes: Option<i32>,
+    pub total_bytes: Option<i64>,
+    pub received_bytes: Option<i64>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

@@ -14,7 +14,7 @@ const game_scanner = require("../lib");
     performance.mark('start');
     const games = game_scanner.amazon.games();
     performance.mark('end');
-    console.log(JSON.stringify(games, null, 2));
+    console.log(games);
     performance.measure("amazon", "start", "end");
 }
 
