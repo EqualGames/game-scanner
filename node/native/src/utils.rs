@@ -103,7 +103,7 @@ pub fn from_rust<'a>(ctx: &mut FunctionContext<'a>, game: &Game) -> Handle<'a, J
     return game_object;
 }
 
-pub fn make_array_of_string<'a>(
+fn make_array_of_string<'a>(
     ctx: &mut FunctionContext<'a>,
     list: &Vec<String>,
 ) -> Handle<'a, JsArray> {

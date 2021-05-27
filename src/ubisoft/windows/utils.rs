@@ -78,7 +78,7 @@ pub fn get_game_info(manifest_id: &String) -> Result<(String, String)> {
 
     if manifest.is_err() {
         return Err(Error::new(
-            ErrorKind::InvalidApp,
+            ErrorKind::InvalidGame,
             format!(
                 "Error on read the Ubisoft manifest: {}",
                 manifest.err().unwrap().to_string()

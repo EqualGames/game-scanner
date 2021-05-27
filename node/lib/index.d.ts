@@ -24,6 +24,8 @@ export declare interface GameState {
 export declare namespace manager {
     function launch_game(game: Game): void;
 
+    function get_processes(game: Game): Array<number> | undefined;
+
     function close_game(game: Game): void;
 }
 

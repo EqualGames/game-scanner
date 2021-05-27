@@ -1,7 +1,7 @@
 use neon::prelude::*;
 
 use crate::{
-    manager::{close_game, launch_game},
+    manager::{close_game, get_processes, launch_game},
     types::{amazon, blizzard, epicgames, gog, origin, riotgames, steam, ubisoft},
 };
 
@@ -16,6 +16,11 @@ fn main(mut ctx: ModuleContext) -> NeonResult<()> {
     let fn_launch_game = JsFunction::new(&mut ctx, launch_game).unwrap();
     manager
         .set(&mut ctx, "launch_game", fn_launch_game)
+        .unwrap();
+
+    let fn_get_processes = JsFunction::new(&mut ctx, get_processes).unwrap();
+    manager
+        .set(&mut ctx, "get_processes", fn_get_processes)
         .unwrap();
 
     let fn_close_game = JsFunction::new(&mut ctx, close_game).unwrap();
