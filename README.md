@@ -2,14 +2,18 @@
 
 Game Scanner for any launcher and OS.
 
-## Requirements
+- [Examples](./examples)
+- [Benches](./benches)
+- [Tests](./tests)
 
-- [Rust](https://www.rust-lang.org)
-    - cargo >= v1.49.0
-    - rustup >= v1.23.1
-    - rustc >= v1.49.0
+## Data structure
+
+You can find the Rust data structure in [prelude.rs](./src/prelude.rs), and the Javascript data structure
+in [index.d.ts](./node/lib/index.d.ts).
 
 ## Launchers Support
+
+### OS
 
 | Launcher   | Multi-directories[¹](#multi-directories) | Windows | Linux | MacOS |
 | ---------- | ---------------------------------------- | ------- | ----- | ----- |
@@ -18,14 +22,80 @@ Game Scanner for any launcher and OS.
 | Epic Games | ❌                                        | ✅       | ❌     | ❌     |
 | GOG        | ❌                                        | ✅       | ❌     | ❌     |
 | Origin     | ❌                                        | ✅       | ❌     | ❌     |
-| Riot Games  | ❓                                        | ✅       | ❌     | ❌     |
+| Riot Games | ❓                                        | ✅       | ❌     | ❌     |
 | Steam      | ✅                                        | ✅       | ❌     | ❌     |
 | Ubisoft    | ❌                                        | ✅       | ❌     | ❌     |
 
 <a name="multi-directories"></a>[1]: **Multi-directories**: is different game install locations (e.g., folders, and
 drivers).
 
+### Game Commands support
+
+| Launcher   | Install | Launch | Uninstall |
+| ---------- | ------- | ------ | --------- |
+| Amazon     | ❌       | ✅      | ❌         |
+| Blizzard   | ❌       | ✅      | ❌         |
+| Epic Games | ❌       | ✅      | ❌         |
+| GOG        | ❌       | ✅      | ❌         |
+| Origin     | ✅       | ✅      | ❌         |
+| Riot Games | ❌       | ✅      | ✅         |
+| Steam      | ✅       | ✅      | ✅         |
+| Ubisoft    | ✅       | ✅      | ✅         |
+
+### Game State support
+
+| Launcher   | Installed | Needs Update | Downloading | Total Bytes | Received Bytes |
+| ---------- | --------- | ------------ | ----------- | ----------- | -------------- |
+| Amazon     | ❌         | ❌            | ❌           | ❌           | ❌              |
+| Blizzard   | ❌         | ❌            | ❌           | ❌           | ❌              |
+| Epic Games | ❌         | ❌            | ❌           | ❌           | ❌              |
+| GOG        | ❌         | ❌            | ❌           | ❌           | ❌              |
+| Origin     | ❌         | ❌            | ❌           | ❌           | ❌              |
+| Riot Games | ❌         | ❌            | ❌           | ❌           | ❌              |
+| Steam      | ✅         | ✅            | ✅           | ✅           | ✅              |
+| Ubisoft    | ❌         | ❌            | ❌           | ❌           | ❌              |
+
+### Operations
+
+| Launcher   | List Games | Find Game[¹](#find-game) |
+| ---------- | ---------- | ------------------------ |
+| Amazon     | ✅          | ❌                        |
+| Blizzard   | ✅          | ❌                        |
+| Epic Games | ✅          | ❌                        |
+| GOG        | ✅          | ❌                        |
+| Origin     | ✅          | ❌                        |
+| Riot Games | ✅          | ❌                        |
+| Steam      | ✅          | ✅                        |
+| Ubisoft    | ✅          | ❌                        |
+
+<a name="find-game"></a>[1]: **Find Game**: you can find for a specific game passing only the `id`.
+
+### Management
+
+| Launcher   | Launch | Get Processes | Close |
+| ---------- | ------ | ------------- | ----- |
+| Amazon     | ✅      | ❓             | ❓     |
+| Blizzard   | ✅      | ❓             | ❓     |
+| Epic Games | ✅      | ❓             | ❓     |
+| GOG        | ✅      | ❓             | ❓     |
+| Origin     | ✅      | ❓             | ❓     |
+| Riot Games | ✅      | ❓             | ❓     |
+| Steam      | ✅      | ✅             | ✅     |
+| Ubisoft    | ✅      | ❓             | ❓     |
+
+<a name="get-processes"></a>[1]: **Game Processes**: return a list with all `Id` or `PID` of processes from a specific
+game.
+
+## Requirements
+
+- [Rust](https://www.rust-lang.org)
+    - cargo >= v1.49.0
+    - rustup >= v1.23.1
+    - rustc >= v1.49.0
+
 ## NodeJS Binding
+
+- [Examples](./node/examples)
 
 ### Requirements
 
