@@ -77,11 +77,12 @@ impl error::Error for Error {
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum ErrorKind {
     IgnoredApp,
-    InvalidApp,
+    InvalidGame,
     InvalidLauncher,
     InvalidManifest,
     InvalidLibrary,
-    AppNotFound,
+    GameNotFound,
+    GameProcessNotFound,
     LauncherNotFound,
     LibraryNotFound,
     IO,

@@ -2,12 +2,15 @@ use std::{path::Path, process};
 
 use sysinfo::{ProcessExt, System, SystemExt};
 
-use crate::{error::Result, prelude::Game};
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::Game,
+};
 
-pub fn launch_game(app: &Game) -> Result<()> {
+pub fn launch_game(game: &Game) -> Result<()> {
     let mut command = process::Command::new("");
 
-    for (index, arg) in app.commands.launch.iter().enumerate() {
+    for (index, arg) in game.commands.launch.iter().enumerate() {
         if index == 0 {
             command = process::Command::new(arg);
         } else {
@@ -23,49 +26,75 @@ pub fn launch_game(app: &Game) -> Result<()> {
         .stdin(process::Stdio::null())
         .stdout(process::Stdio::null())
         .spawn()
-        .expect(&format!("Couldn't run {}", app.name));
+        .expect(&format!("Couldn't run {}", game.name));
 
     if cfg!(debug_assertions) {
-        println!("Launching {} [{}]", app.name, process.id());
+        println!("Launching {} [{}]", game.name, process.id());
     }
 
     Ok(())
 }
 
-pub fn close_game(app: &Game) -> Result<()> {
+pub fn get_processes(game: &Game) -> Option<Vec<usize>> {
     let sys = System::new_all();
+    let processes = sys.get_processes();
 
     let str_array_contains =
         |path: &[String], value: &str| String::from(path.to_vec().join(" ")).contains(value);
     let path_contains = |path: &Path, value: &str| path.display().to_string().contains(value);
 
-    // Find all processes related to launcher and game
-    let processes = sys.get_processes();
+    let mut list = Vec::new();
 
-    if cfg!(debug_assertions) {
-        println!("Closing {}", app.name);
-    }
-
-    for (_pid, process) in processes {
-        let should_kill = path_contains(process.cwd(), &app.path)
-            || path_contains(process.exe(), &app.path)
-            || str_array_contains(process.cmd(), &app.path);
+    for (pid, process) in processes {
+        let should_kill = path_contains(process.cwd(), &game.path)
+            || path_contains(process.exe(), &game.path)
+            || str_array_contains(process.cmd(), &game.path);
 
         if !should_kill {
             continue;
         }
 
-        if cfg!(debug_assertions) {
-            println!(
-                "killing {:?} {:?} {:?} {:?}",
-                process.pid(),
-                process.name(),
-                process.exe(),
-                process.cwd()
-            );
-        }
+        list.push(pid.clone());
+    }
 
-        process.kill(sysinfo::Signal::Quit);
+    Some(list)
+}
+
+pub fn close_game(game: &Game) -> Result<()> {
+    let processes = get_processes(game)
+        .ok_or(Error::new(
+            ErrorKind::GameProcessNotFound,
+            format!("Could not found the process of {}", game.name),
+        ))
+        .unwrap();
+
+    let sys = System::new_all();
+
+    if cfg!(debug_assertions) {
+        println!("Closing {}", game.name);
+    }
+
+    for pid in processes {
+        match sys.get_process(pid) {
+            Some(process) => {
+                if cfg!(debug_assertions) {
+                    println!(
+                        "Killing the process {:?} {:?} {:?} {:?}",
+                        process.pid(),
+                        process.name(),
+                        process.exe(),
+                        process.cwd()
+                    );
+                }
+
+                process.kill(sysinfo::Signal::Quit);
+            }
+            None => {
+                if cfg!(debug_assertions) {
+                    println!("Could not kill the process: {}", pid);
+                }
+            }
+        }
     }
 
     Ok(())

@@ -44,7 +44,7 @@ pub fn find(id: &str) -> Result<Game> {
 
     if library_manifests.is_none() {
         return Err(Error::new(
-            ErrorKind::AppNotFound,
+            ErrorKind::GameNotFound,
             format!("Steam game with id {} does not exist", id),
         ));
     }
