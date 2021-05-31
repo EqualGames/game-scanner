@@ -69,6 +69,7 @@ jobs:
           node-version: 12.x
           architecture: x64
           scope: '@equal-games'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Download windows asset
         uses: actions/download-artifact@v2
