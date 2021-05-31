@@ -3,7 +3,7 @@ edition = "2018"
 build = "build.rs"
 name = "game-scanner"
 description = "Game Scanner for any launcher and OS"
-version = "1.0.2"
+version = "1.0.3"
 authors = ["Matheus Albino <matheusalbino@users.noreply.github.com>"]
 license = "MIT"
 keywords = ["games", "api-bindings"]
@@ -16,6 +16,9 @@ include = [
     "build.rs",
     "Cargo.toml",
 ]
+
+[package.metadata.docs.rs]
+default-target = "x86_64-pc-windows-msvc"
 
 [lib]
 name = "game_scanner"

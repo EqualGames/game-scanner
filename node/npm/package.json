@@ -1,20 +1,13 @@
 {
-  "name": "@equalgames/game-scanner",
+  "name": "@equal-games/game-scanner",
   "version": "0.0.0",
   "description": "Game Scanner for any launcher and OS",
   "homepage": "https://github.com/EqualGames/game-scanner",
   "author": "Matheus Albino <matheusalbino@users.noreply.github.com>",
   "license": "MIT",
   "keywords": [
-    "nodejs",
-    "game",
-    "rust",
     "games",
-    "scanner",
-    "launcher",
-    "rust-library",
-    "game-launcher",
-    "game-scanner"
+    "api-bindings"
   ],
   "files": [
     "index.d.ts",
@@ -25,15 +18,19 @@
   ],
   "main": "index.js",
   "os": [
-    "win32"
+    "win32",
+    "darwin",
+    "linux"
   ],
-  "cpu": ["x64"],
+  "cpu": [
+    "x64"
+  ],
   "engines": {
     "node": ">=12"
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@github.com:EqualGames/game-scanner.git"
+    "url": "https://github.com/EqualGames/game-scanner"
   },
   "bugs": {
     "url": "https://github.com/EqualGames/game-scanner/issues"
