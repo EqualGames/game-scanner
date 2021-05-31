@@ -85,9 +85,11 @@ jobs:
         run: npm version ${{ needs.github.outputs.version }}
         working-directory: node/npm
 
-      - name: Copy library files
+      - name: Copy files
         run: |
           cp ./lib/index.d.ts ./npm/index.d.ts
+          cp ../LICENSE.md ./npm/LICENSE
+          cp ../README.md ./npm/README.md
         working-directory: node
 
       - run: npm publish --access public
