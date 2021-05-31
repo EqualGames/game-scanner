@@ -1,9 +1,14 @@
-use std::io::Error;
+fn main() {
+    let games = game_scanner::steam::games();
 
-fn main() -> Result<(), Error> {
-    let games = game_scanner::steam::games().unwrap();
+    match games {
+        Ok(value) => {
+            println!("{:#?}", value);
+        }
+        Err(error) => {
+            println!("{:#?}", error);
+        }
+    }
 
-    println!("{:#?}", games);
-
-    Ok(())
+    ()
 }

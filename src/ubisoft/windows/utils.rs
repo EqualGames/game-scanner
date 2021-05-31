@@ -1,6 +1,7 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::error::{Error, ErrorKind, Result};
+use crate::prelude::{Game, GameCommands, GameState, GameType};
 use crate::util::path::fix_path_separator;
 use crate::util::registry;
 
@@ -61,7 +62,7 @@ pub fn get_manifest_ids() -> Result<Vec<String>> {
 }
 
 pub fn get_game_info(manifest_id: &String) -> Result<(String, String)> {
-    let manifest = registry::get_local_machine_reg_key(
+    registry::get_local_machine_reg_key(
         format!(
             "Microsoft\\Windows\\CurrentVersion\\Uninstall\\Uplay Install {}",
             manifest_id
@@ -74,19 +75,47 @@ pub fn get_game_info(manifest_id: &String) -> Result<(String, String)> {
                 .map(|value| fix_path_separator(value.as_ref()).display().to_string())
                 .map(|game_path| (game_name, game_path))
         })
-    });
-
-    if manifest.is_err() {
-        return Err(Error::new(
+    })
+    .map_err(|error| {
+        Error::new(
             ErrorKind::InvalidGame,
-            format!(
-                "Error on read the Ubisoft manifest: {}",
-                manifest.err().unwrap().to_string()
-            ),
-        ));
+            format!("Error on read the Ubisoft manifest: {}", error.to_string()),
+        )
+    })
+}
+
+pub fn parse_game_info(
+    id: &String,
+    game_info: &(String, String),
+    launcher_executable: &Path,
+) -> Game {
+    let (name, path) = game_info;
+
+    Game {
+        _type: GameType::Ubisoft.to_string(),
+        id: id.clone(),
+        name: name.clone(),
+        path: path.clone(),
+        commands: GameCommands {
+            install: Some(vec![
+                launcher_executable.display().to_string(),
+                format!("uplay://install/{}", &id),
+            ]),
+            launch: vec![
+                launcher_executable.display().to_string(),
+                format!("uplay://launch/{}/0", &id),
+            ],
+            uninstall: Some(vec![
+                launcher_executable.display().to_string(),
+                format!("uplay://uninstall/{}", &id),
+            ]),
+        },
+        state: GameState {
+            installed: true,
+            needs_update: false,
+            downloading: false,
+            total_bytes: None,
+            received_bytes: None,
+        },
     }
-
-    let manifest = manifest.unwrap();
-
-    return Ok(manifest);
 }

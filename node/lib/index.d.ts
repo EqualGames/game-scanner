@@ -30,26 +30,38 @@ export declare namespace manager {
 }
 
 export declare namespace amazon {
+    function find(id: string): Game | undefined;
+
     function games(): Array<Game>;
 }
 
 export declare namespace blizzard {
+    function find(id: string): Game | undefined;
+
     function games(): Array<Game>;
 }
 
 export declare namespace epicgames {
+    function find(id: string): Game | undefined;
+
     function games(): Array<Game>;
 }
 
 export declare namespace gog {
+    function find(id: string): Game | undefined;
+
     function games(): Array<Game>;
 }
 
 export declare namespace origin {
+    function find(id: string): Game | undefined;
+
     function games(): Array<Game>;
 }
 
 export declare namespace riotgames {
+    function find(id: string): Game | undefined;
+
     function games(): Array<Game>;
 }
 
@@ -60,5 +72,7 @@ export declare namespace steam {
 }
 
 export declare namespace ubisoft {
+    function find(id: string): Game | undefined;
+
     function games(): Array<Game>;
 }

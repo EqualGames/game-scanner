@@ -40,11 +40,8 @@ pub fn get_manifests_path(launcher_path: &Path) -> Result<PathBuf> {
 
     if !launcher_manifests_path.exists() {
         return Err(Error::new(
-            ErrorKind::LauncherNotFound,
-            format!(
-                "Invalid Amazon Games path, maybe this launcher is not installed: {}",
-                launcher_manifests_path.display().to_string()
-            ),
+            ErrorKind::LibraryNotFound,
+            format!("Amazon library could be empty"),
         ));
     }
 
