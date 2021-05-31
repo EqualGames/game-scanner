@@ -3,6 +3,10 @@ use std::path::PathBuf;
 use crate::error::{Error, ErrorKind, Result};
 use crate::util::registry;
 
+pub fn get_manifests_path() -> PathBuf {
+    PathBuf::from("C:\\ProgramData\\Battle.net\\Agent\\product.db")
+}
+
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_executable = registry::get_local_machine_reg_key(
         "Microsoft\\Windows\\CurrentVersion\\Uninstall\\Battle.net",

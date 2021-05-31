@@ -4,24 +4,40 @@ use game_scanner::riotgames;
 
 use crate::utils::from_rust;
 
-pub fn init(ctx: &mut ModuleContext) {
-    let launcher = JsObject::new(ctx);
+pub fn init(context: &mut ModuleContext) {
+    let launcher = JsObject::new(context);
 
-    let fn_games = JsFunction::new(ctx, games).unwrap();
-    launcher.set(ctx, "games", fn_games).unwrap();
+    let fn_find = JsFunction::new(context, find).unwrap();
+    launcher.set(context, "find", fn_find).unwrap();
 
-    ctx.export_value("riotgames", launcher).unwrap();
+    let fn_games = JsFunction::new(context, games).unwrap();
+    launcher.set(context, "games", fn_games).unwrap();
+
+    context.export_value("riotgames", launcher).unwrap();
 }
 
-fn games(mut cx: FunctionContext) -> JsResult<JsArray> {
+fn find(mut context: FunctionContext) -> JsResult<JsValue> {
+    let id: Handle<JsString> = context.argument(0).unwrap();
+    let id = id.to_string(&mut context).unwrap().value(&mut context);
+
+    let game = riotgames::find(id.as_str());
+
+    if game.is_err() {
+        return Ok(JsUndefined::new(&mut context).as_value(&mut context));
+    }
+
+    return Ok(from_rust(&mut context, &game.unwrap()).as_value(&mut context));
+}
+
+fn games(mut context: FunctionContext) -> JsResult<JsArray> {
     let games = riotgames::games().unwrap();
 
-    let array = JsArray::new(&mut cx, games.len() as u32);
+    let array = JsArray::new(&mut context, games.len() as u32);
 
     for (i, game) in games.iter().enumerate() {
-        let item = from_rust(&mut cx, game);
+        let item = from_rust(&mut context, game);
 
-        array.set(&mut cx, i as u32, item).unwrap();
+        array.set(&mut context, i as u32, item).unwrap();
     }
 
     return Ok(array);

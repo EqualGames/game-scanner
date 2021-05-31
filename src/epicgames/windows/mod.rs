@@ -42,3 +42,19 @@ pub fn games() -> Result<Vec<Game>> {
 
     return Ok(games);
 }
+
+pub fn find(id: &str) -> Result<Game> {
+    let manifests = games().unwrap();
+    let manifest = manifests.iter().find(|item| item.id == id);
+
+    if manifest.is_none() {
+        return Err(Error::new(
+            ErrorKind::GameNotFound,
+            format!("Epic Games game with id ({}) does not exist", id),
+        ));
+    }
+
+    let game = manifest.unwrap();
+
+    Ok(game.clone())
+}

@@ -1,5 +1,23 @@
-fn main() {
-    let game = game_scanner::steam::find("570").unwrap();
+use game_scanner::steam;
 
-    println!("{:#?}", game);
+fn main() {
+    let games = steam::games().unwrap();
+
+    match games.get(0) {
+        Some(game) => {
+            match steam::find(&game.id) {
+                Ok(game) => {
+                    println!("{:#?}", game);
+                }
+                Err(error) => {
+                    println!("{:#?}", error);
+                }
+            };
+        }
+        None => {
+            println!("Library is empty");
+        }
+    }
+
+    ()
 }
