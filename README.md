@@ -1,5 +1,9 @@
 # Game Scanner
 
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/EqualGames/game-scanner/Release)
+![Crates.io](https://img.shields.io/crates/v/game-scanner)
+![npm (scoped)](https://img.shields.io/npm/v/@equal-games/game-scanner)
+
 Game Scanner for any launcher and OS.
 
 - [Examples](./examples)
