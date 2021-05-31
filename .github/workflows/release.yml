@@ -88,7 +88,7 @@ jobs:
       - name: Copy files
         run: |
           cp ./lib/index.d.ts ./npm/index.d.ts
-          cp ../LICENSE.md ./npm/LICENSE
+          cp ../LICENSE ./npm/LICENSE
           cp ../README.md ./npm/README.md
         working-directory: node
 
