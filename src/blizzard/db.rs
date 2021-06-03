@@ -84,14 +84,14 @@ fn parse_manifest(manifest: &ProductInstall, launcher_executable: &Path) -> Game
         _type: GameType::Blizzard.to_string(),
         id: String::from(&manifest.uid),
         name: get_filename(&game_path),
-        path: game_path.display().to_string(),
+        path: Some(game_path),
         commands: GameCommands {
             install: None,
-            launch: vec![
+            launch: Some(vec![
                 launcher_executable.display().to_string(),
                 String::from("--exec"),
                 format!("launch {}", launch_code),
-            ],
+            ]),
             uninstall: None,
         },
         state: GameState {

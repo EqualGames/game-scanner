@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
@@ -61,16 +61,16 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
         _type: GameType::EpicGames.to_string(),
         id: manifest.app_name.clone(),
         name: manifest.display_name.clone(),
-        path: manifest.install_location.clone(),
+        path: Some(PathBuf::from(manifest.install_location)),
         commands: GameCommands {
             install: None,
-            launch: vec![
+            launch: Some(vec![
                 launcher_executable.display().to_string(),
                 format!(
                     "com.epicgames.launcher://apps/{}?action=launch&silent=true",
                     &manifest.app_name
                 ),
-            ],
+            ]),
             uninstall: None,
         },
         state: GameState {

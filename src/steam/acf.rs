@@ -62,11 +62,7 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Res
             "BytesToDownload" => game.state.total_bytes = value.parse::<i64>().ok(),
             "BytesDownloaded" => game.state.received_bytes = value.parse::<i64>().ok(),
             "installdir" => {
-                game.path = PathBuf::from(library_path)
-                    .join("common")
-                    .join(value)
-                    .display()
-                    .to_string()
+                game.path = Some(PathBuf::from(library_path).join("common").join(value))
             }
             _ => {}
         }
@@ -85,11 +81,11 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Res
         format!("steam://install/{}", &game.id),
     ]);
 
-    game.commands.launch = vec![
+    game.commands.launch = Some(vec![
         launcher_executable.display().to_string(),
         String::from("-silent"),
         format!("steam://run/{}", &game.id),
-    ];
+    ]);
 
     game.commands.uninstall = Some(vec![
         launcher_executable.display().to_string(),

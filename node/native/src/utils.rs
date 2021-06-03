@@ -1,7 +1,6 @@
-use std::io;
+use std::{io, path::PathBuf};
 
-use neon::prelude::*;
-use neon::types::JsObject;
+use neon::{prelude::*, types::JsObject};
 
 use game_scanner::prelude::{Game, GameCommands, GameState};
 
@@ -17,8 +16,16 @@ pub fn from_rust<'a>(ctx: &mut FunctionContext<'a>, game: &Game) -> Handle<'a, J
     let name = JsString::new(ctx, &game.name);
     game_object.set(ctx, "name", name).unwrap();
 
-    let path = JsString::new(ctx, &game.path);
-    game_object.set(ctx, "path", path).unwrap();
+    match &game.path {
+        Some(path) => {
+            let value = JsString::new(ctx, path.display().to_string());
+            game_object.set(ctx, "path", value).unwrap();
+        }
+        None => {
+            let value = JsUndefined::new(ctx);
+            game_object.set(ctx, "path", value).unwrap();
+        }
+    }
 
     // Commands
     let game_commands_object = JsObject::new(ctx);
@@ -26,31 +33,37 @@ pub fn from_rust<'a>(ctx: &mut FunctionContext<'a>, game: &Game) -> Handle<'a, J
     match &game.commands.install {
         Some(cmd) => {
             let value = make_array_of_string(ctx, cmd);
-            game_commands_object.set(ctx, "install", value)
+            game_commands_object.set(ctx, "install", value).unwrap();
         }
         None => {
             let value = JsUndefined::new(ctx);
-            game_commands_object.set(ctx, "install", value)
+            game_commands_object.set(ctx, "install", value).unwrap();
         }
-    }
-    .unwrap();
+    };
 
-    let launch_command = make_array_of_string(ctx, &game.commands.launch);
-    game_commands_object
-        .set(ctx, "launch", launch_command)
-        .unwrap();
+    match &game.commands.launch {
+        Some(cmd) => {
+            let launch_command = make_array_of_string(ctx, &cmd);
+            game_commands_object
+                .set(ctx, "launch", launch_command)
+                .unwrap();
+        }
+        None => {
+            let value = JsUndefined::new(ctx);
+            game_commands_object.set(ctx, "launch", value).unwrap();
+        }
+    };
 
     match &game.commands.uninstall {
         Some(cmd) => {
             let value = make_array_of_string(ctx, cmd);
-            game_commands_object.set(ctx, "uninstall", value)
+            game_commands_object.set(ctx, "uninstall", value).unwrap();
         }
         None => {
             let value = JsUndefined::new(ctx);
-            game_commands_object.set(ctx, "uninstall", value)
+            game_commands_object.set(ctx, "uninstall", value).unwrap();
         }
-    }
-    .unwrap();
+    };
 
     game_object
         .set(ctx, "commands", game_commands_object)
@@ -136,12 +149,12 @@ pub fn from_js<'a>(ctx: &mut FunctionContext<'a>, object: &JsObject) -> io::Resu
         .to_string(ctx)
         .unwrap()
         .value(ctx);
+
     let path = object
         .get(ctx, "path")
-        .unwrap()
-        .to_string(ctx)
-        .unwrap()
-        .value(ctx);
+        .ok()
+        .and_then(|value| value.to_string(ctx).ok())
+        .map(|value| PathBuf::from(value.value(ctx)));
 
     let commands = object
         .get(ctx, "commands")
@@ -162,14 +175,14 @@ pub fn from_js<'a>(ctx: &mut FunctionContext<'a>, object: &JsObject) -> io::Resu
 
     let launch_command = commands
         .get(ctx, "launch")
-        .unwrap()
-        .downcast::<JsArray, FunctionContext<'a>>(ctx)
-        .unwrap()
-        .to_vec(ctx)
-        .unwrap()
-        .iter()
-        .map(|value| value.to_string(ctx).unwrap().value(ctx))
-        .collect::<Vec<String>>();
+        .ok()
+        .and_then(|value| value.downcast::<JsArray, FunctionContext<'a>>(ctx).ok())
+        .and_then(|arr| arr.to_vec(ctx).ok())
+        .map(|list| {
+            list.iter()
+                .map(|value| value.to_string(ctx).unwrap().value(ctx))
+                .collect::<Vec<String>>()
+        });
 
     let uninstall_command = commands
         .get(ctx, "uninstall")

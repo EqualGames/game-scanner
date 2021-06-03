@@ -7,10 +7,93 @@ use crate::{
     prelude::Game,
 };
 
+pub fn install_game(game: &Game) -> Result<()> {
+    let mut command = process::Command::new("");
+
+    if game.commands.install.is_none() {
+        return Err(Error::new(
+            ErrorKind::InvalidGame,
+            "Error to install a game without install command",
+        ));
+    }
+
+    let launch_command = game.commands.install.as_ref().unwrap();
+
+    for (index, arg) in launch_command.iter().enumerate() {
+        if index == 0 {
+            command = process::Command::new(arg);
+        } else {
+            command.arg(arg);
+        }
+    }
+
+    if cfg!(debug_assertions) {
+        println!("Executing the command: {:?}", command);
+    }
+
+    let process = command
+        .stdin(process::Stdio::null())
+        .stdout(process::Stdio::null())
+        .spawn()
+        .expect(&format!("Couldn't install {}", game.name));
+
+    if cfg!(debug_assertions) {
+        println!("Installing {} [{}]", game.name, process.id());
+    }
+
+    Ok(())
+}
+
+pub fn uninstall_game(game: &Game) -> Result<()> {
+    let mut command = process::Command::new("");
+
+    if game.commands.uninstall.is_none() {
+        return Err(Error::new(
+            ErrorKind::InvalidGame,
+            "Error to uninstall a game without uninstall command",
+        ));
+    }
+
+    let launch_command = game.commands.uninstall.as_ref().unwrap();
+
+    for (index, arg) in launch_command.iter().enumerate() {
+        if index == 0 {
+            command = process::Command::new(arg);
+        } else {
+            command.arg(arg);
+        }
+    }
+
+    if cfg!(debug_assertions) {
+        println!("Executing the command: {:?}", command);
+    }
+
+    let process = command
+        .stdin(process::Stdio::null())
+        .stdout(process::Stdio::null())
+        .spawn()
+        .expect(&format!("Couldn't uninstall {}", game.name));
+
+    if cfg!(debug_assertions) {
+        println!("Uninstalling {} [{}]", game.name, process.id());
+    }
+
+    Ok(())
+}
+
 pub fn launch_game(game: &Game) -> Result<()> {
     let mut command = process::Command::new("");
 
-    for (index, arg) in game.commands.launch.iter().enumerate() {
+    if !game.state.installed || game.commands.launch.is_none() {
+        return Err(Error::new(
+            ErrorKind::InvalidGame,
+            "Error to launch a not installed game",
+        ));
+    }
+
+    let launch_command = game.commands.launch.as_ref().unwrap();
+
+    for (index, arg) in launch_command.iter().enumerate() {
         if index == 0 {
             command = process::Command::new(arg);
         } else {
@@ -45,10 +128,12 @@ pub fn get_processes(game: &Game) -> Option<Vec<usize>> {
 
     let mut list = Vec::new();
 
+    let path = game.path.as_ref().unwrap().display().to_string();
+
     for (pid, process) in processes {
-        let should_kill = path_contains(process.cwd(), &game.path)
-            || path_contains(process.exe(), &game.path)
-            || str_array_contains(process.cmd(), &game.path);
+        let should_kill = path_contains(process.cwd(), &path)
+            || path_contains(process.exe(), &path)
+            || str_array_contains(process.cmd(), &path);
 
         if !should_kill {
             continue;

@@ -135,14 +135,14 @@ pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
         _type: GameType::RiotGames.to_string(),
         id: product.get_code().to_string(),
         name: product.get_name().to_string(),
-        path: game_install_path.display().to_string(),
+        path: Some(game_install_path),
         commands: GameCommands {
             install: None,
-            launch: vec![
+            launch: Some(vec![
                 launcher_executable_path.display().to_string(),
                 format!("--launch-product={}", product.get_code()),
                 format!("--launch-patchline={}", product.get_server()),
-            ],
+            ]),
             uninstall: Some(vec![
                 launcher_executable_path.display().to_string(),
                 format!("--uninstall-product={}", product.get_code()),

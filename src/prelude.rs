@@ -1,11 +1,12 @@
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Game {
     pub _type: String,
     pub id: String,
     pub name: String,
-    pub path: String,
+    pub path: Option<PathBuf>,
     pub commands: GameCommands,
     pub state: GameState,
 }
@@ -13,7 +14,7 @@ pub struct Game {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct GameCommands {
     pub install: Option<Vec<String>>,
-    pub launch: Vec<String>,
+    pub launch: Option<Vec<String>>,
     pub uninstall: Option<Vec<String>>,
 }
 
