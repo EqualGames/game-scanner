@@ -6,7 +6,8 @@
 
 Game Scanner for any launcher and OS.
 
-- [Examples](./examples)
+- [Rust Examples](./examples)
+- [Node Examples](./node/examples)
 - [Benches](./benches)
 - [Tests](./tests)
 
@@ -90,7 +91,7 @@ drivers).
 <a name="get-processes"></a>[1]: **Game Processes**: return a list with all `Id` or `PID` of processes from a specific
 game.
 
-## Requirements
+### Requirements
 
 - [Rust](https://www.rust-lang.org)
     - cargo >= v1.49.0
@@ -99,7 +100,77 @@ game.
 
 ## NodeJS Binding
 
-- [Examples](./node/examples)
+### Usage
+
+#### List games
+```js
+const game_scanner = require("@equal-games/game-scanner");
+
+const games = game_scanner.steam.games();
+
+// [{
+//     _type: 'steam',
+//     id: '945360',
+//     name: 'Among Us',
+//     path: 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\Among Us',
+//     commands: { install: [Array], launch: [Array], uninstall: [Array] },
+//     state: {
+//         installed: true,
+//             needs_update: true,
+//             downloading: true,
+//             total_bytes: 39626416,
+//             received_bytes: 0
+//     }
+// }]
+
+```
+
+#### Find game
+```js
+const game_scanner = require("@equal-games/game-scanner");
+
+const games = game_scanner.steam.find('945360');
+
+// {
+//     _type: 'steam',
+//     id: '945360',
+//     name: 'Among Us',
+//     path: 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\Among Us',
+//     commands: { install: [Array], launch: [Array], uninstall: [Array] },
+//     state: {
+//         installed: true,
+//             needs_update: true,
+//             downloading: true,
+//             total_bytes: 39626416,
+//             received_bytes: 0
+//     }
+// }
+
+```
+
+#### Install/Uninstall game
+```js
+const game_scanner = require("@equal-games/game-scanner");
+
+const game = game_scanner.steam.games().find(game => !game.state.installed);
+
+game_scanner.mananger.install_game(game);
+
+game_scanner.mananger.uninstall_game(game);
+
+```
+
+#### Launch/Close game
+```js
+const game_scanner = require("@equal-games/game-scanner");
+
+const game = game_scanner.steam.games().find(game => game.state.installed);
+
+game_scanner.mananger.launch_game(game);
+// After 30 seconds
+game_scanner.mananger.close_game(game);
+
+```
 
 ### Requirements
 
