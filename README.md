@@ -116,10 +116,10 @@ const games = game_scanner.steam.games();
 //     commands: { install: [Array], launch: [Array], uninstall: [Array] },
 //     state: {
 //         installed: true,
-//             needs_update: true,
-//             downloading: true,
-//             total_bytes: 39626416,
-//             received_bytes: 0
+//         needs_update: true,
+//         downloading: true,
+//         total_bytes: 39626416,
+//         received_bytes: 0
 //     }
 // }]
 
@@ -139,10 +139,10 @@ const games = game_scanner.steam.find('945360');
 //     commands: { install: [Array], launch: [Array], uninstall: [Array] },
 //     state: {
 //         installed: true,
-//             needs_update: true,
-//             downloading: true,
-//             total_bytes: 39626416,
-//             received_bytes: 0
+//         needs_update: true,
+//         downloading: true,
+//         total_bytes: 39626416,
+//         received_bytes: 0
 //     }
 // }
 
