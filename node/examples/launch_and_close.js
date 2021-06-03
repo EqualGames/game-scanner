@@ -19,7 +19,7 @@ async function main() {
 
     performance.measure("games", "start", "end");
 
-    const game = games[0];
+    const game = games.find(game => game.state.installed);
 
     performance.mark('start');
     game_scanner.manager.launch_game(game);

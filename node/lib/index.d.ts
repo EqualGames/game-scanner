@@ -2,77 +2,80 @@ export declare interface Game {
     _type: string;
     id: string;
     name: string;
-    path: string;
+    path: string | undefined;
     commands: GameCommands;
     state: GameState;
 }
 
 export declare interface GameCommands {
-    install?: Array<string>;
-    launch: Array<string>;
-    uninstall?: Array<string>;
+    install: Array<string> | undefined;
+    launch: Array<string> | undefined;
+    uninstall: Array<string> | undefined;
 }
 
 export declare interface GameState {
     installed: boolean;
     needs_update: boolean;
     downloading: boolean;
-    total_bytes?: number;
-    received_bytes?: number;
+    total_bytes: number | undefined;
+    received_bytes: number | undefined;
 }
 
-export declare namespace manager {
-    function launch_game(game: Game): void;
 
-    function get_processes(game: Game): Array<number> | undefined;
+export declare const manager: {
+    install_game(game: Game): void;
 
-    function close_game(game: Game): void;
+    launch_game(game: Game): void;
+
+    get_processes(game: Game): Array<number> | undefined;
+
+    close_game(game: Game): void;
 }
 
-export declare namespace amazon {
-    function find(id: string): Game | undefined;
+export declare const amazon: {
+    find(id: string): Game | undefined;
 
-    function games(): Array<Game>;
+    games(): Array<Game>;
 }
 
-export declare namespace blizzard {
-    function find(id: string): Game | undefined;
+export declare const blizzard: {
+    find(id: string): Game | undefined;
 
-    function games(): Array<Game>;
+    games(): Array<Game>;
 }
 
-export declare namespace epicgames {
-    function find(id: string): Game | undefined;
+export declare const epicgames: {
+    find(id: string): Game | undefined;
 
-    function games(): Array<Game>;
+    games(): Array<Game>;
 }
 
-export declare namespace gog {
-    function find(id: string): Game | undefined;
+export declare const gog: {
+    find(id: string): Game | undefined;
 
-    function games(): Array<Game>;
+    games(): Array<Game>;
 }
 
-export declare namespace origin {
-    function find(id: string): Game | undefined;
+export declare const origin: {
+    find(id: string): Game | undefined;
 
-    function games(): Array<Game>;
+    games(): Array<Game>;
 }
 
-export declare namespace riotgames {
-    function find(id: string): Game | undefined;
+export declare const riotgames: {
+    find(id: string): Game | undefined;
 
-    function games(): Array<Game>;
+    games(): Array<Game>;
 }
 
-export declare namespace steam {
-    function find(id: string): Game | undefined;
+export declare const steam: {
+    find(id: string): Game | undefined;
 
-    function games(): Array<Game>;
+    games(): Array<Game>;
 }
 
-export declare namespace ubisoft {
-    function find(id: string): Game | undefined;
+export declare const ubisoft: {
+    find(id: string): Game | undefined;
 
-    function games(): Array<Game>;
+    games(): Array<Game>;
 }

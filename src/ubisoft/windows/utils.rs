@@ -61,7 +61,7 @@ pub fn get_manifest_ids() -> Result<Vec<String>> {
     return manifests;
 }
 
-pub fn get_game_info(manifest_id: &String) -> Result<(String, String)> {
+pub fn get_game_info(manifest_id: &String) -> Result<(String, PathBuf)> {
     registry::get_local_machine_reg_key(
         format!(
             "Microsoft\\Windows\\CurrentVersion\\Uninstall\\Uplay Install {}",
@@ -72,7 +72,7 @@ pub fn get_game_info(manifest_id: &String) -> Result<(String, String)> {
     .and_then(|game_reg| {
         registry::get_value(&game_reg, "DisplayName").and_then(|game_name| {
             registry::get_value(&game_reg, "InstallLocation")
-                .map(|value| fix_path_separator(value.as_ref()).display().to_string())
+                .map(|value| fix_path_separator(value.as_ref()))
                 .map(|game_path| (game_name, game_path))
         })
     })
@@ -86,7 +86,7 @@ pub fn get_game_info(manifest_id: &String) -> Result<(String, String)> {
 
 pub fn parse_game_info(
     id: &String,
-    game_info: &(String, String),
+    game_info: &(String, PathBuf),
     launcher_executable: &Path,
 ) -> Game {
     let (name, path) = game_info;
@@ -95,16 +95,16 @@ pub fn parse_game_info(
         _type: GameType::Ubisoft.to_string(),
         id: id.clone(),
         name: name.clone(),
-        path: path.clone(),
+        path: Some(path.clone()),
         commands: GameCommands {
             install: Some(vec![
                 launcher_executable.display().to_string(),
                 format!("uplay://install/{}", &id),
             ]),
-            launch: vec![
+            launch: Some(vec![
                 launcher_executable.display().to_string(),
                 format!("uplay://launch/{}/0", &id),
-            ],
+            ]),
             uninstall: Some(vec![
                 launcher_executable.display().to_string(),
                 format!("uplay://uninstall/{}", &id),

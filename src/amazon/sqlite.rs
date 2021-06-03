@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use rusqlite::{Connection, OpenFlags, Row};
 
@@ -108,7 +108,7 @@ fn parse_row(row: &Row, launcher_path: &Path) -> rusqlite::Result<Game> {
         match name {
             "Id" => game.id = row.get(col).unwrap(),
             "ProductTitle" => game.name = row.get(col).unwrap(),
-            "InstallDirectory" => game.path = row.get(col).unwrap(),
+            "InstallDirectory" => game.path = row.get::<_, String>(col).map(PathBuf::from).ok(),
             "Installed" => game.state.installed = row.get(col).unwrap(),
             _ => {}
         }
@@ -116,10 +116,10 @@ fn parse_row(row: &Row, launcher_path: &Path) -> rusqlite::Result<Game> {
 
     let launcher_executable = launcher_path.join("App").join("Amazon Games.exe");
 
-    game.commands.launch = vec![
+    game.commands.launch = Some(vec![
         launcher_executable.display().to_string(),
         format!("amazon-games://play/{}", game.id),
-    ];
+    ]);
 
     Ok(game)
 }

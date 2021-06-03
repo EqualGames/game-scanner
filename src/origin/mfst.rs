@@ -98,16 +98,16 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
         _type: GameType::Origin.to_string(),
         id: manifest.id.clone(),
         name: get_game_name(file).unwrap(),
-        path: manifest.dipinstallpath,
+        path: Some(PathBuf::from(manifest.dipinstallpath)),
         commands: GameCommands {
             install: Some(vec![
                 launcher_executable.display().to_string(),
                 format!("origin2://game/download?offerId={}", &manifest.id),
             ]),
-            launch: vec![
+            launch: Some(vec![
                 launcher_executable.display().to_string(),
                 format!("origin2://game/launch?offerIds={}", &manifest.id),
-            ],
+            ]),
             uninstall: None,
         },
         state: GameState {
