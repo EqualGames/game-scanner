@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use crate::{
     error::{Error, ErrorKind, Result},
-    util::registry,
+    utils::registry,
 };
 
 pub fn get_manifests_path() -> Result<PathBuf> {
