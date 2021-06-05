@@ -4,7 +4,7 @@ use crate::{
     error::{Error, ErrorKind, Result},
     prelude::Game,
     steam::types::{SteamAppState, SteamUpdateResult},
-    util::string::remove_quotes,
+    utils::string::remove_quotes,
 };
 
 pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Result<Game> {

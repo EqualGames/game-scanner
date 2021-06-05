@@ -38,10 +38,10 @@ prost = { version = "0.7.0" }
 prost-types = { version = "0.7.0" }
 bytes = { version = "1.0.1" }
 chrono = { version = "0.4.19" }
+directories = { version = "3.0.2" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 case = { version = "1.0.0" }
-directories = { version = "3.0.2" }
 winreg = { version = "0.9.0" }
 
 [dev-dependencies]

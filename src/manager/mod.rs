@@ -118,7 +118,12 @@ pub fn launch_game(game: &Game) -> Result<()> {
     Ok(())
 }
 
-pub fn get_processes(game: &Game) -> Option<Vec<usize>> {
+#[cfg(target_os = "macos")]
+type PID = i32;
+#[cfg(target_os = "windows")]
+type PID = usize;
+
+pub fn get_processes(game: &Game) -> Option<Vec<PID>> {
     let sys = System::new_all();
     let processes = sys.get_processes();
 

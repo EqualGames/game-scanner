@@ -1,13 +1,22 @@
 use std::path::{Path, PathBuf};
 
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::{Game, GameCommands, GameState, GameType};
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::{Game, GameCommands, GameState, GameType},
+};
 
 #[derive(Default)]
 struct Manifest {
     id: String,
     dipinstallpath: String,
     previousstate: String,
+    currentstate: String,
+    ddinstallalreadycompleted: bool,
+    downloading: bool,
+    paused: bool,
+    totaldownloadbytes: i64,
+    totalbytes: i64,
+    savedbytes: i64,
 }
 
 pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
@@ -78,8 +87,41 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
                 manifest.dipinstallpath =
                     make_dip_install_path(&value).map_or(String::new(), |value| value);
             }
+            "currentstate" => {
+                manifest.currentstate = value;
+            }
             "previousstate" => {
                 manifest.previousstate = value;
+            }
+            "totaldownloadbytes" => {
+                manifest.totaldownloadbytes = value.parse::<i64>().unwrap();
+            }
+            "totalbytes" => {
+                manifest.totalbytes = value.parse::<i64>().unwrap();
+            }
+            "savedbytes" => {
+                manifest.savedbytes = value.parse::<i64>().unwrap();
+            }
+            "ddinstallalreadycompleted" => {
+                if value == "1" {
+                    manifest.ddinstallalreadycompleted = true;
+                } else {
+                    manifest.ddinstallalreadycompleted = false;
+                }
+            }
+            "downloading" => {
+                if value == "1" {
+                    manifest.downloading = true;
+                } else {
+                    manifest.downloading = false;
+                }
+            }
+            "paused" => {
+                if value == "1" {
+                    manifest.paused = true;
+                } else {
+                    manifest.paused = false;
+                }
             }
             _ => {}
         }
@@ -87,17 +129,10 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
 
     let name = get_game_name(file).map_or(String::from("Unknown"), |value| value);
 
-    if manifest.previousstate != "kCompleted" {
-        return Err(Error::new(
-            ErrorKind::IgnoredApp,
-            format!("({}) {} is an invalid game", &manifest.id, &name),
-        ));
-    }
-
     return Ok(Game {
         _type: GameType::Origin.to_string(),
         id: manifest.id.clone(),
-        name: get_game_name(file).unwrap(),
+        name,
         path: Some(PathBuf::from(manifest.dipinstallpath)),
         commands: GameCommands {
             install: Some(vec![
@@ -111,11 +146,13 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
             uninstall: None,
         },
         state: GameState {
-            installed: true,
-            needs_update: false,
-            downloading: false,
-            total_bytes: None,
-            received_bytes: None,
+            installed: manifest.ddinstallalreadycompleted,
+            needs_update: manifest.ddinstallalreadycompleted
+                && (manifest.currentstate == "kTransferring"
+                    || manifest.currentstate == "kEnqueued"),
+            downloading: manifest.currentstate == "kTransferring" || manifest.downloading,
+            total_bytes: Some(manifest.totalbytes),
+            received_bytes: Some(manifest.savedbytes),
         },
     });
 }

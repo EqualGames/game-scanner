@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use crate::{
     error::{Error, ErrorKind, Result},
-    util::string::remove_quotes,
+    utils::string::remove_quotes,
 };
 
 pub fn read_library_folders(file: &Path) -> Result<Vec<PathBuf>> {
@@ -39,7 +39,7 @@ pub fn read_library_folders(file: &Path) -> Result<Vec<PathBuf>> {
 
         match attr.parse::<i32>() {
             Ok(_n) => {
-                if cfg!(windows) {
+                if cfg!(target_os = "windows") {
                     let double_separator = std::path::MAIN_SEPARATOR.to_string()
                         + &std::path::MAIN_SEPARATOR.to_string();
 

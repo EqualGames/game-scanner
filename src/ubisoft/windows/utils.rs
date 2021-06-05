@@ -2,8 +2,8 @@ use std::path::{Path, PathBuf};
 
 use crate::error::{Error, ErrorKind, Result};
 use crate::prelude::{Game, GameCommands, GameState, GameType};
-use crate::util::path::fix_path_separator;
-use crate::util::registry;
+use crate::utils::path::fix_path_separator;
+use crate::utils::registry;
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_executable =

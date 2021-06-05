@@ -5,7 +5,7 @@ use crate::blizzard::proto::{product, read_product};
 use crate::blizzard::types::BlizzardGames;
 use crate::error::{Error, ErrorKind, Result};
 use crate::prelude::{Game, GameCommands, GameState, GameType};
-use crate::util::path::{fix_path_separator, get_filename};
+use crate::utils::path::{fix_path_separator, get_filename};
 
 pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
     let manifests = read_product(file)
@@ -74,7 +74,7 @@ fn parse_manifest(manifest: &ProductInstall, launcher_executable: &Path) -> Game
         .map(|settings| settings.install_path)
         .map_or(PathBuf::new(), PathBuf::from);
 
-    if cfg!(windows) {
+    if cfg!(target_os = "windows") {
         game_path = fix_path_separator(&game_path);
     }
 

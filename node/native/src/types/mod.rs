@@ -1,8 +1,11 @@
+#[cfg(target_os = "windows")]
 pub mod amazon;
+#[cfg(target_os = "windows")]
 pub mod blizzard;
 pub mod epicgames;
 pub mod gog;
 pub mod origin;
 pub mod riotgames;
 pub mod steam;
+#[cfg(target_os = "windows")]
 pub mod ubisoft;

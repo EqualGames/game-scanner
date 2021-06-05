@@ -219,7 +219,7 @@ pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
                 format!("/path={}", &path.display().to_string()),
             ]);
 
-            if cfg!(windows) {
+            if cfg!(target_os = "windows") {
                 game.commands.uninstall =
                     Some(vec![path.join("unins000.exe").display().to_string()]);
             }

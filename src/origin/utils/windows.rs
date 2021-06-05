@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use crate::error::{Error, ErrorKind, Result};
-use crate::util::registry;
+use crate::utils::registry;
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_executable = registry::get_local_machine_reg_key("Origin")
@@ -21,7 +21,7 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
         return Err(Error::new(
             ErrorKind::LauncherNotFound,
             format!(
-                "Invalid GOG path, maybe this launcher is not installed: {}",
+                "Invalid Origin path, maybe this launcher is not installed: {}",
                 launcher_executable.display().to_string()
             ),
         ));
@@ -41,7 +41,7 @@ pub fn get_manifests_path() -> Result<PathBuf> {
         return Err(Error::new(
             ErrorKind::LauncherNotFound,
             format!(
-                "Invalid Epic Games path, maybe this launcher is not installed: {}",
+                "Invalid Origin path, maybe this launcher is not installed: {}",
                 manifests_path.display().to_string()
             ),
         ));

@@ -9,4 +9,4 @@ pub mod prelude;
 pub mod riotgames;
 pub mod steam;
 pub mod ubisoft;
-mod util;
+mod utils;

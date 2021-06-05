@@ -1,7 +1,79 @@
-#[cfg(target_os = "windows")]
-pub use self::windows::*;
+use self::utils::{get_launcher_path, get_manifests_path};
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::Game,
+    utils::io::get_files_recursive,
+};
 
 mod types;
-#[cfg(target_os = "windows")]
-mod windows;
+#[cfg_attr(target_os = "windows", path = "utils/windows.rs")]
+#[cfg_attr(target_os = "macos", path = "utils/macos.rs")]
+mod utils;
 mod yaml;
+
+pub fn games() -> Result<Vec<Game>> {
+    let launcher_path = get_launcher_path().unwrap();
+    let manifests_path = get_manifests_path(&launcher_path).unwrap();
+    let manifests = get_files_recursive(&manifests_path, |file| {
+        file.display()
+            .to_string()
+            .ends_with(".product_settings.yaml")
+    })
+    .map_err(|error| {
+        Error::new(
+            ErrorKind::LauncherNotFound,
+            format!(
+                "Invalid Riot Games path, maybe this launcher is not installed: {}",
+                error.to_string()
+            ),
+        )
+    })
+    .unwrap();
+
+    let mut games = Vec::new();
+
+    for manifest in manifests {
+        match yaml::read(&manifest, &launcher_path) {
+            Ok(g) => games.push(g),
+            Err(error) => {
+                if error.kind().ne(&ErrorKind::IgnoredApp) {
+                    return Err(error);
+                }
+            }
+        }
+    }
+
+    return Ok(games);
+}
+
+pub fn find(id: &str) -> Result<Game> {
+    let launcher_path = get_launcher_path().unwrap();
+    let manifests_path = get_manifests_path(&launcher_path).unwrap();
+    let manifests = get_files_recursive(&manifests_path, |file| {
+        file.display()
+            .to_string()
+            .ends_with(".product_settings.yaml")
+            && file.file_name().unwrap().to_str().unwrap().starts_with(&id)
+    })
+    .map_err(|error| {
+        Error::new(
+            ErrorKind::LauncherNotFound,
+            format!(
+                "Invalid Riot Games path, maybe this launcher is not installed: {}",
+                error.to_string()
+            ),
+        )
+    })
+    .unwrap();
+
+    if manifests.len() == 0 {
+        return Err(Error::new(
+            ErrorKind::GameNotFound,
+            format!("Riot Games game with id ({}) does not exist", id),
+        ));
+    }
+
+    let manifest = manifests.get(0).unwrap();
+
+    return yaml::read(&manifest, &launcher_path);
+}
