@@ -1,6 +1,7 @@
 use std::any::type_name;
 use std::io::Error;
 
+#[cfg(target_os = "windows")]
 mod amazon {
     use super::*;
 
@@ -14,6 +15,7 @@ mod amazon {
     }
 }
 
+#[cfg(target_os = "windows")]
 mod blizzard {
     use super::*;
 
@@ -92,6 +94,7 @@ mod steam {
     }
 }
 
+#[cfg(target_os = "windows")]
 mod ubisoft {
     use super::*;
 
