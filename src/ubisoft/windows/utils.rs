@@ -7,24 +7,21 @@ use crate::{
 };
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
-    let launcher_executable =
-        registry::get_local_machine_reg_key("Ubisoft\\Launcher").and_then(|launcher_reg| {
+    let launcher_executable = registry::get_local_machine_reg_key("Ubisoft\\Launcher")
+        .and_then(|launcher_reg| {
             registry::get_value(&launcher_reg, "InstallDir")
                 .map(PathBuf::from)
                 .map(|path| path.join("upc.exe"))
-        });
-
-    if launcher_executable.is_err() {
-        return Err(Error::new(
-            ErrorKind::LauncherNotFound,
-            format!(
-                "Invalid Ubisoft path, maybe this launcher is not installed: {}",
-                launcher_executable.err()?.to_string()
-            ),
-        ));
-    }
-
-    let launcher_executable = launcher_executable?;
+        })
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::LauncherNotFound,
+                format!(
+                    "Invalid Ubisoft path, maybe this launcher is not installed: {}",
+                    error.to_string()
+                ),
+            )
+        })?;
 
     if !launcher_executable.exists() {
         return Err(Error::new(
