@@ -11,8 +11,8 @@ mod sqlite;
 mod utils;
 
 pub fn games() -> Result<Vec<Game>> {
-    let manifest_path = get_manifests_path().unwrap();
-    let launcher_executable = get_launcher_executable().unwrap();
+    let manifest_path = get_manifests_path()?;
+    let launcher_executable = get_launcher_executable()?;
 
     return sqlite::read_all(&manifest_path, &launcher_executable);
 }

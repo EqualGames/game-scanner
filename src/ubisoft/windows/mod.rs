@@ -8,13 +8,13 @@ use self::utils::{get_game_info, get_launcher_executable, get_manifest_ids, pars
 mod utils;
 
 pub fn games() -> Result<Vec<Game>> {
-    let launcher_executable = get_launcher_executable().unwrap();
-    let manifest_ids = get_manifest_ids().unwrap();
+    let launcher_executable = get_launcher_executable()?;
+    let manifest_ids = get_manifest_ids()?;
 
     let mut games = Vec::new();
 
     for manifest_id in manifest_ids {
-        let game_info = get_game_info(&manifest_id).unwrap();
+        let game_info = get_game_info(&manifest_id)?;
 
         games.push(parse_game_info(
             &manifest_id,
@@ -27,9 +27,9 @@ pub fn games() -> Result<Vec<Game>> {
 }
 
 pub fn find(id: &str) -> Result<Game> {
-    let launcher_executable = get_launcher_executable().unwrap();
+    let launcher_executable = get_launcher_executable()?;
 
-    let manifest_ids = get_manifest_ids().unwrap();
+    let manifest_ids = get_manifest_ids()?;
 
     let manifest_id = manifest_ids.iter().find(|item| item.as_str() == id);
 
@@ -40,8 +40,8 @@ pub fn find(id: &str) -> Result<Game> {
         ));
     }
 
-    let manifest_id = manifest_id.unwrap();
-    let game_info = get_game_info(&manifest_id).unwrap();
+    let manifest_id = manifest_id?;
+    let game_info = get_game_info(&manifest_id)?;
 
     Ok(parse_game_info(
         manifest_id,

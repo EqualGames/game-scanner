@@ -20,8 +20,7 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
                     error.to_string()
                 ),
             )
-        })
-        .unwrap();
+        })?;
 
     if !launcher_executable.exists() {
         return Err(Error::new(
@@ -47,12 +46,12 @@ pub fn get_manifests_path() -> Result<PathBuf> {
             ErrorKind::LauncherNotFound,
             format!(
                 "Invalid Steam path, maybe this launcher is not installed: {}",
-                manifests_path.err().unwrap().to_string()
+                manifests_path.err()?.to_string()
             ),
         ));
     }
 
-    let manifests_path = manifests_path.unwrap();
+    let manifests_path = manifests_path?;
 
     if !manifests_path.exists() {
         return Err(Error::new(

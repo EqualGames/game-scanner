@@ -12,21 +12,18 @@ use self::super::{
 };
 
 pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
-    let manifests = read_product(file)
-        .map(|data| data.product_installs)
-        .map(|product_installs| {
-            product_installs
-                .into_iter()
-                .filter(get_manifest_predicate)
-                .collect::<Vec<ProductInstall>>()
-        })
-        .map_err(|error| {
-            Error::new(
-                ErrorKind::InvalidManifest,
-                format!("Invalid Blizzard manifest: {}", error.to_string()),
-            )
-        })
-        .unwrap();
+    let database = read_product(file).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!("Invalid Blizzard manifest: {}", error.to_string()),
+        )
+    })?;
+
+    let manifests = database
+        .product_installs
+        .into_iter()
+        .filter(get_manifest_predicate)
+        .collect::<Vec<ProductInstall>>();
 
     let mut games = Vec::new();
 
@@ -48,25 +45,21 @@ fn get_manifest_predicate(item: &ProductInstall) -> bool {
 }
 
 pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
-    let manifest = read_product(file)
-        .map_err(|error| {
-            Error::new(
-                ErrorKind::InvalidManifest,
-                format!("Invalid Blizzard manifest: {}", error.to_string()),
-            )
-        })
-        .ok()
-        .map(|data| data.product_installs)
-        .and_then(|product_installs| product_installs.into_iter().find(|item| item.uid == id));
+    let database = read_product(file).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!("Invalid Blizzard manifest: {}", error.to_string()),
+        )
+    })?;
 
-    if manifest.is_none() {
-        return Err(Error::new(
+    let manifest = database
+        .product_installs
+        .into_iter()
+        .find(|item| item.uid == id)
+        .ok_or(Error::new(
             ErrorKind::GameNotFound,
             format!("Blizzard game with id ({}) does not exist", id),
-        ));
-    }
-
-    let manifest = manifest.unwrap();
+        ))?;
 
     Ok(parse_manifest(&manifest, launcher_executable))
 }

@@ -16,7 +16,7 @@ pub fn get_launcher_path() -> Result<PathBuf> {
         ));
     }
 
-    let launcher_path = launcher_path.unwrap();
+    let launcher_path = launcher_path?;
 
     if !launcher_path.exists() {
         return Err(Error::new(

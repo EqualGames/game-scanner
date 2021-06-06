@@ -29,13 +29,9 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
                 error.to_string()
             ),
         )
-    });
+    })?;
 
-    if manifest_data.is_err() {
-        return Err(manifest_data.err().unwrap());
-    }
-
-    let manifest = String::from("http://mock/") + &manifest_data.unwrap();
+    let manifest = String::from("http://mock/") + &manifest_data;
 
     let manifest_url = url::Url::parse(&manifest).map_err(|error| {
         Error::new(
@@ -46,13 +42,7 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
                 error.to_string()
             ),
         )
-    });
-
-    if manifest_url.is_err() {
-        return Err(manifest_url.err().unwrap());
-    }
-
-    let manifest_url = manifest_url.unwrap();
+    })?;
 
     let manifest_lines = manifest_url
         .query()
@@ -65,15 +55,11 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
                     file.display().to_string(),
                 ),
             )
-        });
-
-    if manifest_lines.is_err() {
-        return Err(manifest_lines.err().unwrap());
-    }
+        })?;
 
     let mut manifest = Manifest::default();
 
-    for manifest_line in manifest_lines.unwrap() {
+    for manifest_line in manifest_lines {
         let pair = manifest_line.split("=").collect::<Vec<&str>>();
 
         let attr = pair.get(0).unwrap().to_string();
@@ -127,7 +113,9 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
         }
     }
 
-    let name = get_game_name(file).map_or(String::from("Unknown"), |value| value);
+    let name = get_game_name(file)
+        .or(Some(String::from("Unknown")))
+        .unwrap();
 
     return Ok(Game {
         _type: GameType::Origin.to_string(),

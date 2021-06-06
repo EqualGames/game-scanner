@@ -17,7 +17,7 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
         ));
     }
 
-    let launcher_executable = launcher_executable.unwrap();
+    let launcher_executable = launcher_executable?;
 
     if !launcher_executable.exists() {
         return Err(Error::new(

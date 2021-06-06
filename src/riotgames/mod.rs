@@ -13,8 +13,8 @@ mod utils;
 mod yaml;
 
 pub fn games() -> Result<Vec<Game>> {
-    let launcher_path = get_launcher_path().unwrap();
-    let manifests_path = get_manifests_path(&launcher_path).unwrap();
+    let launcher_path = get_launcher_path()?;
+    let manifests_path = get_manifests_path(&launcher_path)?;
     let manifests = get_files_recursive(&manifests_path, |file| {
         file.display()
             .to_string()
@@ -28,8 +28,7 @@ pub fn games() -> Result<Vec<Game>> {
                 error.to_string()
             ),
         )
-    })
-    .unwrap();
+    })?;
 
     let mut games = Vec::new();
 
@@ -48,8 +47,8 @@ pub fn games() -> Result<Vec<Game>> {
 }
 
 pub fn find(id: &str) -> Result<Game> {
-    let launcher_path = get_launcher_path().unwrap();
-    let manifests_path = get_manifests_path(&launcher_path).unwrap();
+    let launcher_path = get_launcher_path()?;
+    let manifests_path = get_manifests_path(&launcher_path)?;
     let manifests = get_files_recursive(&manifests_path, |file| {
         file.display()
             .to_string()
@@ -64,17 +63,12 @@ pub fn find(id: &str) -> Result<Game> {
                 error.to_string()
             ),
         )
-    })
-    .unwrap();
+    })?;
 
-    if manifests.len() == 0 {
-        return Err(Error::new(
-            ErrorKind::GameNotFound,
-            format!("Riot Games game with id ({}) does not exist", id),
-        ));
-    }
-
-    let manifest = manifests.get(0).unwrap();
+    let manifest = manifests.get(0).ok_or(Error::new(
+        ErrorKind::GameNotFound,
+        format!("Riot Games game with id ({}) does not exist", id),
+    ))?;
 
     return yaml::read(&manifest, &launcher_path);
 }

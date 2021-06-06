@@ -10,9 +10,8 @@ mod utils;
 mod vdf;
 
 pub fn games() -> Result<Vec<Game>> {
-    let launcher_executable = get_launcher_executable().unwrap();
-    let library_manifests =
-        get_library_manifests(|file| get_filename(file).ends_with(".acf")).unwrap();
+    let launcher_executable = get_launcher_executable()?;
+    let library_manifests = get_library_manifests(|file| get_filename(file).ends_with(".acf"))?;
 
     let mut games = Vec::new();
 
@@ -35,21 +34,21 @@ pub fn games() -> Result<Vec<Game>> {
 }
 
 pub fn find(id: &str) -> Result<Game> {
-    let launcher_executable = get_launcher_executable().unwrap();
+    let launcher_executable = get_launcher_executable()?;
 
-    let library_manifests = get_library_manifests(|file| get_filename(file).contains(&id)).unwrap();
+    let library_manifests = get_library_manifests(|file| get_filename(file).contains(&id))?;
 
     let library_manifests = library_manifests.iter().find(|(_, list)| list.len() > 0);
 
-    if library_manifests.is_none() {
-        return Err(Error::new(
-            ErrorKind::GameNotFound,
-            format!("Steam game with id ({}) does not exist", id),
-        ));
-    }
+    let (library_path, manifests) = library_manifests.ok_or(Error::new(
+        ErrorKind::GameNotFound,
+        format!("Steam game with id ({}) does not exist", id),
+    ))?;
 
-    let (library_path, manifests) = library_manifests.unwrap();
-    let manifest = manifests.get(0).unwrap();
+    let manifest = manifests.get(0).ok_or(Error::new(
+        ErrorKind::GameNotFound,
+        format!("Steam game with id ({}) does not exist", id),
+    ))?;
 
     return acf::read(&manifest, &launcher_executable, &library_path);
 }

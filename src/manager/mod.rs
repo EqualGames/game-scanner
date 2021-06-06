@@ -133,7 +133,7 @@ pub fn get_processes(game: &Game) -> Option<Vec<PID>> {
 
     let mut list = Vec::new();
 
-    let path = game.path.as_ref().unwrap().display().to_string();
+    let path = game.path.as_ref()?.display().to_string();
 
     for (pid, process) in processes {
         let should_kill = path_contains(process.cwd(), &path)
@@ -151,12 +151,10 @@ pub fn get_processes(game: &Game) -> Option<Vec<PID>> {
 }
 
 pub fn close_game(game: &Game) -> Result<()> {
-    let processes = get_processes(game)
-        .ok_or(Error::new(
-            ErrorKind::GameProcessNotFound,
-            format!("Could not found the process of {}", game.name),
-        ))
-        .unwrap();
+    let processes = get_processes(game).ok_or(Error::new(
+        ErrorKind::GameProcessNotFound,
+        format!("Could not found the process of {}", game.name),
+    ))?;
 
     let sys = System::new_all();
 

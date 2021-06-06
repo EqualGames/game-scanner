@@ -20,13 +20,12 @@ pub fn get_library_manifests<T>(predicate: T) -> Result<Vec<(PathBuf, Vec<PathBu
 where
     T: Fn(&PathBuf) -> bool,
 {
-    let manifests_path = get_manifests_path().unwrap();
+    let manifests_path = get_manifests_path()?;
 
     let mut library_paths = Vec::new();
     library_paths.push(manifests_path.clone());
 
-    let library_folders =
-        vdf::read_library_folders(&manifests_path.join("libraryfolders.vdf")).unwrap();
+    let library_folders = vdf::read_library_folders(&manifests_path.join("libraryfolders.vdf"))?;
 
     for folder in library_folders {
         library_paths.push(folder.join("steamapps"));

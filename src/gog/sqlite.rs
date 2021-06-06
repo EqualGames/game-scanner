@@ -8,14 +8,13 @@ use crate::{
 };
 
 pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
-    let conn = Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY)
-        .map_err(|error| {
+    let conn =
+        Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
                 format!("Invalid GOG manifest: {}", error.to_string()),
             )
-        })
-        .unwrap();
+        })?;
 
     let mut manifest_ids = Vec::new();
 
@@ -30,8 +29,7 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
                         error.to_string()
                     ),
                 )
-            })
-            .unwrap();
+            })?;
 
         let rows = stmt
             .query_map([], |row| parse_library_releases(row))
@@ -47,11 +45,10 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
                         error.to_string()
                     ),
                 ),
-            })
-            .unwrap();
+            })?;
 
         for id in rows {
-            manifest_ids.push(id.unwrap().replace("gog_", ""));
+            manifest_ids.push(id?.replace("gog_", ""));
         }
     }
 
@@ -68,8 +65,7 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
                         error.to_string()
                     ),
                 )
-            })
-            .unwrap();
+            })?;
 
         let mut game = stmt
             .query_row(&[(":id", &id)], |row| {
@@ -83,8 +79,7 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
                         error.to_string()
                     ),
                 )
-            })
-            .unwrap();
+            })?;
 
         let path = conn
             .prepare("SELECT installationPath FROM InstalledBaseProducts WHERE productId = :id")
@@ -143,14 +138,13 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
 }
 
 pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
-    let conn = Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY)
-        .map_err(|error| {
+    let conn =
+        Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
                 format!("Invalid GOG manifest: {}", error.to_string()),
             )
-        })
-        .unwrap();
+        })?;
 
     let mut stmt = conn
         .prepare("SELECT * FROM LimitedDetails WHERE productId = :id")
@@ -162,8 +156,7 @@ pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
                     error.to_string()
                 ),
             )
-        })
-        .unwrap();
+        })?;
 
     let mut game = stmt
         .query_row(&[(":id", &id)], |row| {
@@ -177,8 +170,7 @@ pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
                     error.to_string()
                 ),
             )
-        })
-        .unwrap();
+        })?;
 
     let path = conn
         .prepare("SELECT installationPath FROM InstalledBaseProducts WHERE productId = :id")
@@ -240,7 +232,7 @@ pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
 }
 
 fn parse_library_releases(row: &Row) -> rusqlite::Result<String> {
-    let id = row.get::<_, String>(0).unwrap();
+    let id = row.get::<_, String>(0)?;
 
     Ok(id)
 }
@@ -252,11 +244,11 @@ fn parse_limited_details(row: &Row, launcher_executable: &Path) -> rusqlite::Res
     game._type = GameType::GOG.to_string();
 
     for col in 0..columns {
-        let name = row.column_name(col).unwrap();
+        let name = row.column_name(col)?;
 
         match name {
-            "productId" => game.id = row.get::<_, i64>(col).unwrap().to_string(),
-            "title" => game.name = row.get(col).unwrap(),
+            "productId" => game.id = row.get::<_, i64>(col)?.to_string(),
+            "title" => game.name = row.get(col)?,
             _ => {}
         }
     }

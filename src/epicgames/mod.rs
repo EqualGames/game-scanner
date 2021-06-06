@@ -12,21 +12,22 @@ mod item;
 mod utils;
 
 pub fn games() -> Result<Vec<Game>> {
-    let launcher_executable = get_launcher_executable().unwrap();
+    let launcher_executable = get_launcher_executable()?;
 
-    let manifests_path = get_manifests_path().unwrap();
+    let manifests_path = get_manifests_path()?;
 
-    let manifests = get_files(&manifests_path, |file| file.extension().unwrap().eq("item"))
-        .map_err(|error| {
-            Error::new(
-                ErrorKind::LauncherNotFound,
-                format!(
-                    "Invalid Epic Games path, maybe this launcher is not installed: {}",
-                    error.to_string()
-                ),
-            )
-        })
-        .unwrap();
+    let manifests = get_files(&manifests_path, |file| {
+        file.display().to_string().ends_with(".item")
+    })
+    .map_err(|error| {
+        Error::new(
+            ErrorKind::LauncherNotFound,
+            format!(
+                "Invalid Epic Games path, maybe this launcher is not installed: {}",
+                error.to_string()
+            ),
+        )
+    })?;
 
     let mut games = Vec::<Game>::new();
 
@@ -45,17 +46,14 @@ pub fn games() -> Result<Vec<Game>> {
 }
 
 pub fn find(id: &str) -> Result<Game> {
-    let manifests = games().unwrap();
-    let manifest = manifests.iter().find(|item| item.id == id);
-
-    if manifest.is_none() {
-        return Err(Error::new(
+    let manifests = games()?;
+    let game = manifests
+        .iter()
+        .find(|item| item.id == id)
+        .ok_or(Error::new(
             ErrorKind::GameNotFound,
             format!("Epic Games game with id ({}) does not exist", id),
-        ));
-    }
-
-    let game = manifest.unwrap();
+        ))?;
 
     Ok(game.clone())
 }

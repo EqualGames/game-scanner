@@ -18,8 +18,8 @@ where
 
     let mut files = Vec::new();
 
-    for entry in fs::read_dir(path).unwrap() {
-        let entry_path = entry.unwrap().path();
+    for entry in fs::read_dir(path)? {
+        let entry_path = entry?.path();
 
         if entry_path.is_file() {
             if predicate(&entry_path) {
@@ -44,15 +44,15 @@ where
 
     let mut files = Vec::new();
 
-    for entry in fs::read_dir(path).unwrap() {
-        let entry_path = entry.unwrap().path();
+    for entry in fs::read_dir(path)? {
+        let entry_path = entry?.path();
 
         if entry_path.is_file() {
             if predicate(&entry_path) {
                 files.push(entry_path);
             }
         } else if entry_path.is_dir() {
-            files.extend(get_files(&entry_path, &predicate).unwrap());
+            files.extend(get_files(&entry_path, &predicate)?);
         }
     }
 

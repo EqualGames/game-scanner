@@ -34,13 +34,7 @@ pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
                 error.to_string()
             ),
         )
-    });
-
-    if manifest_data.is_err() {
-        return Err(manifest_data.err().unwrap());
-    }
-
-    let manifest_data = manifest_data.unwrap();
+    })?;
 
     let product_settings =
         serde_yaml::from_str::<ProductSettings>(&manifest_data).map_err(|error| {
@@ -52,13 +46,7 @@ pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
                     error.to_string()
                 ),
             )
-        });
-
-    if product_settings.is_err() {
-        return Err(product_settings.err().unwrap());
-    }
-
-    let product_settings = product_settings.unwrap();
+        })?;
 
     let launcher_installs = launcher_path.join("RiotClientInstalls.json");
 
@@ -71,31 +59,19 @@ pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
                 error.to_string()
             ),
         )
-    });
-
-    if installs_file.is_err() {
-        return Err(installs_file.err().unwrap());
-    }
-
-    let installs_file = installs_file.unwrap();
+    })?;
 
     let riot_client_installs = serde_yaml::from_str::<RiotClientInstalls>(installs_file.as_str())
         .map_err(|error| {
-            Error::new(
-                ErrorKind::InvalidManifest,
-                format!(
-                    "Invalid Riot Games manifest: {} {}",
-                    file.display().to_string(),
-                    error.to_string()
-                ),
-            )
-        });
-
-    if riot_client_installs.is_err() {
-        return Err(riot_client_installs.err().unwrap());
-    }
-
-    let riot_client_installs = riot_client_installs.unwrap();
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Invalid Riot Games manifest: {} {}",
+                file.display().to_string(),
+                error.to_string()
+            ),
+        )
+    })?;
 
     let manifest_filename = String::from(file.file_name().unwrap().to_str().unwrap())
         .replace(".product_settings.yaml", "");

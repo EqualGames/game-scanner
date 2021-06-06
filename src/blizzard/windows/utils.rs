@@ -20,8 +20,7 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
             ErrorKind::LauncherNotFound,
             "Invalid Blizzard path, maybe this launcher is not installed",
         )
-    })
-    .unwrap();
+    })?;
 
     if !launcher_executable.exists() {
         return Err(Error::new(

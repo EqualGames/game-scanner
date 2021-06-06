@@ -10,7 +10,7 @@ use self::utils::{get_launcher_path, get_manifests_path};
 mod utils;
 
 pub fn games() -> Result<Vec<Game>> {
-    let launcher_path = get_launcher_path().unwrap();
+    let launcher_path = get_launcher_path()?;
     let manifests_path = get_manifests_path(&launcher_path);
 
     match manifests_path {
@@ -23,8 +23,8 @@ pub fn games() -> Result<Vec<Game>> {
 }
 
 pub fn find(id: &str) -> Result<Game> {
-    let launcher_path = get_launcher_path().unwrap();
-    let manifests_path = get_manifests_path(&launcher_path).unwrap();
+    let launcher_path = get_launcher_path()?;
+    let manifests_path = get_manifests_path(&launcher_path)?;
 
     return sqlite::read(id, &manifests_path, &launcher_path);
 }

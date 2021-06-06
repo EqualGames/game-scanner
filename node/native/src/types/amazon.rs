@@ -3,6 +3,7 @@ use neon::prelude::*;
 use game_scanner::amazon;
 
 use crate::utils::from_rust;
+use std::io::{Error, ErrorKind};
 
 pub fn init(context: &mut ModuleContext) {
     let launcher = JsObject::new(context);
