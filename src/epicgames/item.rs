@@ -1,10 +1,14 @@
-use std::fs;
-use std::path::{Path, PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use serde::{Deserialize, Serialize};
 
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::{Game, GameCommands, GameState, GameType};
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::{Game, GameCommands, GameState, GameType},
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Manifest {

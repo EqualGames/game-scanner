@@ -1,11 +1,11 @@
 use crate::{
-    amazon::{
-        sqlite,
-        windows::utils::{get_launcher_path, get_manifests_path},
-    },
     error::{ErrorKind, Result},
     prelude::Game,
 };
+
+use super::sqlite;
+
+use self::utils::{get_launcher_path, get_manifests_path};
 
 mod utils;
 

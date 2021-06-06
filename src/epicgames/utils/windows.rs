@@ -1,8 +1,9 @@
 use std::path::PathBuf;
 
-use crate::error::{Error, ErrorKind, Result};
-use crate::utils::path::fix_path_separator;
-use crate::utils::registry;
+use crate::{
+    error::{Error, ErrorKind, Result},
+    utils::{path::fix_path_separator, registry},
+};
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_executable = registry::get_current_user_reg_key("Epic Games\\EOS")

@@ -1,11 +1,15 @@
 use std::path::{Path, PathBuf};
 
-use crate::blizzard::proto::product::ProductInstall;
-use crate::blizzard::proto::{product, read_product};
-use crate::blizzard::types::BlizzardGames;
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::{Game, GameCommands, GameState, GameType};
-use crate::utils::path::{fix_path_separator, get_filename};
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::{Game, GameCommands, GameState, GameType},
+    utils::path::{fix_path_separator, get_filename},
+};
+
+use self::super::{
+    proto::{product::ProductInstall, read_product},
+    types::BlizzardGames,
+};
 
 pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
     let manifests = read_product(file)
@@ -14,7 +18,7 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
             product_installs
                 .into_iter()
                 .filter(get_manifest_predicate)
-                .collect::<Vec<product::ProductInstall>>()
+                .collect::<Vec<ProductInstall>>()
         })
         .map_err(|error| {
             Error::new(

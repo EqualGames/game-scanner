@@ -1,15 +1,15 @@
 use std::path::PathBuf;
 
-#[cfg(target_os = "macos")]
-pub use self::macos::*;
-#[cfg(target_os = "windows")]
-pub use self::windows::*;
-
 use crate::{
     error::{Error, ErrorKind, Result},
     steam::vdf,
     utils::io::get_files,
 };
+
+#[cfg(target_os = "macos")]
+pub use self::macos::*;
+#[cfg(target_os = "windows")]
+pub use self::windows::*;
 
 #[cfg(target_os = "macos")]
 mod macos;

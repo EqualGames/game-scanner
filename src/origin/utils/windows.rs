@@ -1,7 +1,9 @@
 use std::path::PathBuf;
 
-use crate::error::{Error, ErrorKind, Result};
-use crate::utils::registry;
+use crate::{
+    error::{Error, ErrorKind, Result},
+    utils::registry,
+};
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_executable = registry::get_local_machine_reg_key("Origin")

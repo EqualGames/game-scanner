@@ -1,9 +1,8 @@
-use crate::{
-    blizzard::db,
-    blizzard::windows::utils::{get_launcher_executable, get_manifests_path},
-    error::Result,
-    prelude::Game,
-};
+use crate::{error::Result, prelude::Game};
+
+use super::db;
+
+use self::utils::{get_launcher_executable, get_manifests_path};
 
 mod utils;
 

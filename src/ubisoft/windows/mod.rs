@@ -1,8 +1,9 @@
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::Game;
-use crate::ubisoft::windows::utils::{
-    get_game_info, get_launcher_executable, get_manifest_ids, parse_game_info,
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::Game,
 };
+
+use self::utils::{get_game_info, get_launcher_executable, get_manifest_ids, parse_game_info};
 
 mod utils;
 

@@ -1,9 +1,10 @@
-use self::utils::{get_launcher_path, get_manifests_path};
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::Game,
     utils::io::get_files_recursive,
 };
+
+use self::utils::{get_launcher_path, get_manifests_path};
 
 mod types;
 #[cfg_attr(target_os = "windows", path = "utils/windows.rs")]
