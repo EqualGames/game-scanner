@@ -1,13 +1,17 @@
 use std::any::type_name;
 use std::io::Error;
 
+use game_scanner::prelude::Game;
+
 #[cfg(target_os = "windows")]
 mod amazon {
     use super::*;
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::amazon::games().or(Ok(vec![])).unwrap();
+        let games = game_scanner::amazon::games()
+            .or::<Error>(Ok(Vec::<Game>::new()))
+            .unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -21,7 +25,9 @@ mod blizzard {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::blizzard::games().or(Ok(vec![])).unwrap();
+        let games = game_scanner::blizzard::games()
+            .or::<Error>(Ok(Vec::<Game>::new()))
+            .unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -34,7 +40,9 @@ mod epicgames {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::epicgames::games().or(Ok(vec![])).unwrap();
+        let games = game_scanner::epicgames::games()
+            .or::<Error>(Ok(Vec::<Game>::new()))
+            .unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -47,7 +55,9 @@ mod gog {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::gog::games().or(Ok(vec![])).unwrap();
+        let games = game_scanner::gog::games()
+            .or::<Error>(Ok(Vec::<Game>::new()))
+            .unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -60,7 +70,9 @@ mod origin {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::origin::games().or(Ok(vec![])).unwrap();
+        let games = game_scanner::origin::games()
+            .or::<Error>(Ok(Vec::<Game>::new()))
+            .unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -73,7 +85,9 @@ mod riotgames {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::riotgames::games().or(Ok(vec![])).unwrap();
+        let games = game_scanner::riotgames::games()
+            .or::<Error>(Ok(Vec::<Game>::new()))
+            .unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -86,7 +100,9 @@ mod steam {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::steam::games().or(Ok(vec![])).unwrap();
+        let games = game_scanner::steam::games()
+            .or::<Error>(Ok(Vec::<Game>::new()))
+            .unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -100,7 +116,9 @@ mod ubisoft {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::ubisoft::games().or(Ok(vec![])).unwrap();
+        let games = game_scanner::ubisoft::games()
+            .or::<Error>(Ok(Vec::<Game>::new()))
+            .unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
