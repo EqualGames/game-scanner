@@ -7,7 +7,7 @@ mod amazon {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::amazon::games();
+        let games = game_scanner::amazon::games().or(Ok(vec![])).unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -21,7 +21,7 @@ mod blizzard {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::blizzard::games();
+        let games = game_scanner::blizzard::games().or(Ok(vec![])).unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -34,7 +34,7 @@ mod epicgames {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::epicgames::games();
+        let games = game_scanner::epicgames::games().or(Ok(vec![])).unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -47,7 +47,7 @@ mod gog {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::gog::games();
+        let games = game_scanner::gog::games().or(Ok(vec![])).unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -60,7 +60,7 @@ mod origin {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::origin::games();
+        let games = game_scanner::origin::games().or(Ok(vec![])).unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -73,7 +73,7 @@ mod riotgames {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::riotgames::games();
+        let games = game_scanner::riotgames::games().or(Ok(vec![])).unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -86,7 +86,7 @@ mod steam {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::steam::games();
+        let games = game_scanner::steam::games().or(Ok(vec![])).unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -100,7 +100,7 @@ mod ubisoft {
 
     #[test]
     fn games() -> Result<(), Error> {
-        let games = game_scanner::ubisoft::games();
+        let games = game_scanner::ubisoft::games().or(Ok(vec![])).unwrap();
 
         assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&games));
 
@@ -112,4 +112,4 @@ fn type_of<T>(_: T) -> &'static str {
     type_name::<T>()
 }
 
-const GAME_LIST_RETURN_TYPE: &str = "&core::result::Result<alloc::vec::Vec<game_scanner::prelude::Game>, game_scanner::error::Error>";
+const GAME_LIST_RETURN_TYPE: &str = "&alloc::vec::Vec<game_scanner::prelude::Game>";
