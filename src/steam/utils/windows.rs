@@ -39,19 +39,16 @@ pub fn get_manifests_path() -> Result<PathBuf> {
     let manifests_path = registry::get_local_machine_reg_key("Valve\\Steam")
         .and_then(|launcher_reg| registry::get_value(&launcher_reg, "InstallPath"))
         .map(PathBuf::from)
-        .map(|path| path.join("steamapps"));
-
-    if manifests_path.is_err() {
-        return Err(Error::new(
-            ErrorKind::LauncherNotFound,
-            format!(
-                "Invalid Steam path, maybe this launcher is not installed: {}",
-                manifests_path.err()?.to_string()
-            ),
-        ));
-    }
-
-    let manifests_path = manifests_path?;
+        .map(|path| path.join("steamapps"))
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::LauncherNotFound,
+                format!(
+                    "Invalid Steam path, maybe this launcher is not installed: {}",
+                    error.to_string()
+                ),
+            )
+        })?;
 
     if !manifests_path.exists() {
         return Err(Error::new(

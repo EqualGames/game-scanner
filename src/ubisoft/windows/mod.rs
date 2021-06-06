@@ -33,14 +33,11 @@ pub fn find(id: &str) -> Result<Game> {
 
     let manifest_id = manifest_ids.iter().find(|item| item.as_str() == id);
 
-    if manifest_id.is_none() {
-        return Err(Error::new(
-            ErrorKind::GameNotFound,
-            format!("Ubisoft game with id ({}) does not exist", id),
-        ));
-    }
+    let manifest_id = manifest_id.ok_or(Error::new(
+        ErrorKind::GameNotFound,
+        format!("Ubisoft game with id ({}) does not exist", id),
+    ))?;
 
-    let manifest_id = manifest_id?;
     let game_info = get_game_info(&manifest_id)?;
 
     Ok(parse_game_info(

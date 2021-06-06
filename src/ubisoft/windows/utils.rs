@@ -40,21 +40,23 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
 }
 
 pub fn get_manifest_ids() -> Result<Vec<String>> {
-    let manifests = registry::get_local_machine_reg_key("Ubisoft\\Launcher")
+    return registry::get_local_machine_reg_key("Ubisoft\\Launcher")
         .and_then(|launcher_reg| registry::get_sub_key(&launcher_reg, "Installs"))
-        .map(|manifests| manifests.enum_keys().map(|x| x?).collect::<Vec<String>>());
-
-    if manifests.is_err() {
-        return Err(Error::new(
-            ErrorKind::LauncherNotFound,
-            format!(
-                "Invalid Ubisoft path, maybe this launcher is not installed: {}",
-                manifests.err()?.to_string()
-            ),
-        ));
-    }
-
-    return manifests;
+        .map(|manifests| {
+            manifests
+                .enum_keys()
+                .map(|x| x.unwrap())
+                .collect::<Vec<String>>()
+        })
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::LauncherNotFound,
+                format!(
+                    "Invalid Ubisoft path, maybe this launcher is not installed: {}",
+                    error.to_string()
+                ),
+            )
+        });
 }
 
 pub fn get_game_info(manifest_id: &String) -> Result<(String, PathBuf)> {

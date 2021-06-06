@@ -9,26 +9,12 @@ pub fn get_launcher_path() -> Result<PathBuf> {
         .map(|base_dirs| PathBuf::from(base_dirs.data_local_dir()))
         .map(|path| path.join("Amazon Games"));
 
-    if launcher_path.is_none() {
-        return Err(Error::new(
+    return launcher_path
+        .filter(|value| value.exists())
+        .ok_or(Error::new(
             ErrorKind::LauncherNotFound,
             "Invalid Amazon Games path, maybe this launcher is not installed",
         ));
-    }
-
-    let launcher_path = launcher_path?;
-
-    if !launcher_path.exists() {
-        return Err(Error::new(
-            ErrorKind::LauncherNotFound,
-            format!(
-                "Invalid Amazon Games path, maybe this launcher is not installed: {}",
-                launcher_path.display().to_string()
-            ),
-        ));
-    }
-
-    return Ok(launcher_path);
 }
 
 pub fn get_manifests_path(launcher_path: &Path) -> Result<PathBuf> {
