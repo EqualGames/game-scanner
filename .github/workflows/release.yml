@@ -89,7 +89,7 @@ jobs:
           path: node/npm/native
 
       - name: Rename macos asset
-        run: mv index.node macos.node
+        run: mv index.node darwin.node
         working-directory: node/npm/native
 
       - name: Update version on package.json

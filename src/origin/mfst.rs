@@ -11,7 +11,6 @@ struct Manifest {
     dipinstallpath: String,
     previousstate: String,
     currentstate: String,
-    ddinstallalreadycompleted: bool,
     downloading: bool,
     paused: bool,
     totaldownloadbytes: i64,
@@ -88,13 +87,6 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
             "savedbytes" => {
                 manifest.savedbytes = value.parse::<i64>().unwrap();
             }
-            "ddinstallalreadycompleted" => {
-                if value == "1" {
-                    manifest.ddinstallalreadycompleted = true;
-                } else {
-                    manifest.ddinstallalreadycompleted = false;
-                }
-            }
             "downloading" => {
                 if value == "1" {
                     manifest.downloading = true;
@@ -134,11 +126,10 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
             uninstall: None,
         },
         state: GameState {
-            installed: manifest.ddinstallalreadycompleted,
-            needs_update: manifest.ddinstallalreadycompleted
-                && (manifest.currentstate == "kTransferring"
-                    || manifest.currentstate == "kEnqueued"),
-            downloading: manifest.currentstate == "kTransferring" || manifest.downloading,
+            installed: true,
+            needs_update: (manifest.currentstate == "kTransferring"
+                || manifest.currentstate == "kEnqueued"),
+            downloading: manifest.currentstate == "kTransferring",
             total_bytes: Some(manifest.totalbytes),
             received_bytes: Some(manifest.savedbytes),
         },

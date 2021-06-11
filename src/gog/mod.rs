@@ -1,7 +1,4 @@
-use crate::{
-    error::{Error, ErrorKind, Result},
-    prelude::Game,
-};
+use crate::{error::Result, prelude::Game};
 
 use self::utils::{get_launcher_executable, get_manifests_path};
 
