@@ -47,7 +47,7 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
         })
         .unwrap();
 
-    if manifest.display_name.contains("Unreal Engine") {
+    if manifest.app_name.contains("UE") || manifest.app_name.contains("QuixelBridge") {
         return Err(Error::new(
             ErrorKind::IgnoredApp,
             format!(
