@@ -86,11 +86,13 @@ fn parse_manifest(manifest: &ProductInstall, launcher_executable: &Path) -> Game
         name: get_filename(&game_path),
         path: Some(game_path),
         commands: GameCommands {
-            install: None,
+            install: Some(vec![
+                launcher_executable.display().to_string(),
+                format!("--game={}", launch_code),
+            ]),
             launch: Some(vec![
                 launcher_executable.display().to_string(),
-                String::from("--exec"),
-                format!("launch {}", launch_code),
+                format!("--exec=\"launch {}\"", launch_code),
             ]),
             uninstall: None,
         },
