@@ -1,7 +1,8 @@
-#[cfg(target_os = "windows")]
-pub use self::windows::*;
 use crate::error::{Error, ErrorKind};
 use crate::prelude::Game;
+
+#[cfg(target_os = "windows")]
+pub use self::windows::*;
 
 mod sqlite;
 #[cfg(target_os = "windows")]

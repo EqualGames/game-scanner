@@ -1,5 +1,5 @@
 fn main() {
-    let games = game_scanner::origin::games();
+    let games = game_scanner::steam::games();
 
     match games {
         Ok(value) => {

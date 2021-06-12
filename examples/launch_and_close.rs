@@ -3,12 +3,12 @@ use std::thread;
 use std::time;
 
 fn main() -> Result<(), Error> {
-    let game = game_scanner::origin::games()
+    let game = game_scanner::steam::games()
         .unwrap()
         .iter()
         .find(|app| app.state.installed)
-        .unwrap()
-        .clone();
+        .map(|app| app.clone())
+        .unwrap();
 
     game_scanner::manager::launch_game(&game).unwrap();
 
