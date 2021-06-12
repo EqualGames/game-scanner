@@ -25,6 +25,7 @@ jobs:
     strategy:
       matrix:
         os:
+          - macos-latest
           - windows-latest
         architecture:
           - x64
@@ -79,6 +80,16 @@ jobs:
 
       - name: Rename windows asset
         run: mv index.node windows.node
+        working-directory: node/npm/native
+
+      - name: Download macos asset
+        uses: actions/download-artifact@v2
+        with:
+          name: macOS-${{ needs.github.outputs.version }}.node
+          path: node/npm/native
+
+      - name: Rename macos asset
+        run: mv index.node darwin.node
         working-directory: node/npm/native
 
       - name: Update version on package.json

@@ -1,8 +1,9 @@
 use std::path::PathBuf;
 
-use crate::error::{Error, ErrorKind, Result};
-use crate::util::path::fix_path_separator;
-use crate::util::registry;
+use crate::{
+    error::{Error, ErrorKind, Result},
+    utils::{path::fix_path_separator, registry},
+};
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_executable = registry::get_current_user_reg_key("Epic Games\\EOS")
@@ -16,7 +17,7 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
         ));
     }
 
-    let launcher_executable_path = launcher_executable.unwrap();
+    let launcher_executable_path = launcher_executable?;
 
     if !launcher_executable_path.exists() {
         return Err(Error::new(
@@ -43,7 +44,7 @@ pub fn get_manifests_path() -> Result<PathBuf> {
         ));
     }
 
-    let manifests_path = launcher_data.unwrap().join("Manifests");
+    let manifests_path = launcher_data?.join("Manifests");
 
     if !manifests_path.exists() {
         return Err(Error::new(

@@ -17,14 +17,15 @@ jobs:
           access_token: ${{ github.token }}
 
   cargo_test:
-    runs-on: ${{ matrix.config.os }}
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        config:
-          #          - os: ubuntu-latest
-          #          - os: macos-latest
-          - os: windows-latest
+        os:
+          - macos-latest
+          - windows-latest
+        architecture:
+          - x64
 
     steps:
       - uses: actions/checkout@v2
@@ -55,14 +56,15 @@ jobs:
 
   node_test:
     needs: cargo_test
-    runs-on: ${{ matrix.config.os }}
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        config:
-          #          - os: ubuntu-latest
-          #          - os: macos-latest
-          - os: windows-latest
+        os:
+          - macos-latest
+          - windows-latest
+        architecture:
+          - x64
 
     steps:
       - uses: actions/checkout@v2

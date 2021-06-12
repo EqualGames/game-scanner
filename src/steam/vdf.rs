@@ -2,23 +2,19 @@ use std::path::{Path, PathBuf};
 
 use crate::{
     error::{Error, ErrorKind, Result},
-    util::string::remove_quotes,
+    utils::string::remove_quotes,
 };
 
 pub fn read_library_folders(file: &Path) -> Result<Vec<PathBuf>> {
-    let library_data = std::fs::read_to_string(&file);
-
-    if library_data.is_err() {
-        return Err(Error::new(
+    let library_data = std::fs::read_to_string(&file).map_err(|error| {
+        Error::new(
             ErrorKind::InvalidLibrary,
             format!(
                 "Invalid Steam library config, maybe this launcher is not installed: {}",
-                library_data.err().unwrap().to_string()
+                error.to_string()
             ),
-        ));
-    }
-
-    let library_data = library_data.unwrap();
+        )
+    })?;
 
     let library = library_data.split("\n").collect::<Vec<&str>>();
 
@@ -39,7 +35,7 @@ pub fn read_library_folders(file: &Path) -> Result<Vec<PathBuf>> {
 
         match attr.parse::<i32>() {
             Ok(_n) => {
-                if cfg!(windows) {
+                if cfg!(target_os = "windows") {
                     let double_separator = std::path::MAIN_SEPARATOR.to_string()
                         + &std::path::MAIN_SEPARATOR.to_string();
 

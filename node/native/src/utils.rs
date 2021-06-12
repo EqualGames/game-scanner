@@ -90,26 +90,24 @@ pub fn from_rust<'a>(ctx: &mut FunctionContext<'a>, game: &Game) -> Handle<'a, J
     match game.state.total_bytes {
         Some(total_bytes) => {
             let value = JsNumber::new(ctx, total_bytes as f64);
-            game_state_object.set(ctx, "total_bytes", value)
+            game_state_object.set(ctx, "total_bytes", value).unwrap()
         }
         None => {
             let value = JsUndefined::new(ctx);
-            game_state_object.set(ctx, "total_bytes", value)
+            game_state_object.set(ctx, "total_bytes", value).unwrap()
         }
-    }
-    .unwrap();
+    };
 
     match game.state.received_bytes {
         Some(received_bytes) => {
             let value = JsNumber::new(ctx, received_bytes as f64);
-            game_state_object.set(ctx, "received_bytes", value)
+            game_state_object.set(ctx, "received_bytes", value).unwrap()
         }
         None => {
             let value = JsUndefined::new(ctx);
-            game_state_object.set(ctx, "received_bytes", value)
+            game_state_object.set(ctx, "received_bytes", value).unwrap()
         }
-    }
-    .unwrap();
+    };
 
     game_object.set(ctx, "state", game_state_object).unwrap();
 
