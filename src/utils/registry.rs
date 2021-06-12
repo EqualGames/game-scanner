@@ -1,6 +1,8 @@
-use crate::error::{Error, ErrorKind, Result};
 use std::env;
+
 use winreg;
+
+use crate::error::{Error, ErrorKind, Result};
 
 pub fn get_local_machine_reg_key(sub_key: &str) -> Result<winreg::RegKey> {
     let reg = winreg::RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE);

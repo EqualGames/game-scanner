@@ -1,13 +1,21 @@
 use std::path::{Path, PathBuf};
 
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::{Game, GameCommands, GameState, GameType};
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::{Game, GameCommands, GameState, GameType},
+};
 
 #[derive(Default)]
 struct Manifest {
     id: String,
     dipinstallpath: String,
     previousstate: String,
+    currentstate: String,
+    downloading: bool,
+    paused: bool,
+    totaldownloadbytes: i64,
+    totalbytes: i64,
+    savedbytes: i64,
 }
 
 pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
@@ -20,13 +28,9 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
                 error.to_string()
             ),
         )
-    });
+    })?;
 
-    if manifest_data.is_err() {
-        return Err(manifest_data.err().unwrap());
-    }
-
-    let manifest = String::from("http://mock/") + &manifest_data.unwrap();
+    let manifest = String::from("http://mock/") + &manifest_data;
 
     let manifest_url = url::Url::parse(&manifest).map_err(|error| {
         Error::new(
@@ -37,13 +41,7 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
                 error.to_string()
             ),
         )
-    });
-
-    if manifest_url.is_err() {
-        return Err(manifest_url.err().unwrap());
-    }
-
-    let manifest_url = manifest_url.unwrap();
+    })?;
 
     let manifest_lines = manifest_url
         .query()
@@ -56,15 +54,11 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
                     file.display().to_string(),
                 ),
             )
-        });
-
-    if manifest_lines.is_err() {
-        return Err(manifest_lines.err().unwrap());
-    }
+        })?;
 
     let mut manifest = Manifest::default();
 
-    for manifest_line in manifest_lines.unwrap() {
+    for manifest_line in manifest_lines {
         let pair = manifest_line.split("=").collect::<Vec<&str>>();
 
         let attr = pair.get(0).unwrap().to_string();
@@ -78,26 +72,47 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
                 manifest.dipinstallpath =
                     make_dip_install_path(&value).map_or(String::new(), |value| value);
             }
+            "currentstate" => {
+                manifest.currentstate = value;
+            }
             "previousstate" => {
                 manifest.previousstate = value;
+            }
+            "totaldownloadbytes" => {
+                manifest.totaldownloadbytes = value.parse::<i64>().unwrap();
+            }
+            "totalbytes" => {
+                manifest.totalbytes = value.parse::<i64>().unwrap();
+            }
+            "savedbytes" => {
+                manifest.savedbytes = value.parse::<i64>().unwrap();
+            }
+            "downloading" => {
+                if value == "1" {
+                    manifest.downloading = true;
+                } else {
+                    manifest.downloading = false;
+                }
+            }
+            "paused" => {
+                if value == "1" {
+                    manifest.paused = true;
+                } else {
+                    manifest.paused = false;
+                }
             }
             _ => {}
         }
     }
 
-    let name = get_game_name(file).map_or(String::from("Unknown"), |value| value);
-
-    if manifest.previousstate != "kCompleted" {
-        return Err(Error::new(
-            ErrorKind::IgnoredApp,
-            format!("({}) {} is an invalid game", &manifest.id, &name),
-        ));
-    }
+    let name = get_game_name(file)
+        .or(Some(String::from("Unknown")))
+        .unwrap();
 
     return Ok(Game {
         _type: GameType::Origin.to_string(),
         id: manifest.id.clone(),
-        name: get_game_name(file).unwrap(),
+        name,
         path: Some(PathBuf::from(manifest.dipinstallpath)),
         commands: GameCommands {
             install: Some(vec![
@@ -112,10 +127,11 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
         },
         state: GameState {
             installed: true,
-            needs_update: false,
-            downloading: false,
-            total_bytes: None,
-            received_bytes: None,
+            needs_update: (manifest.currentstate == "kTransferring"
+                || manifest.currentstate == "kEnqueued"),
+            downloading: manifest.currentstate == "kTransferring",
+            total_bytes: Some(manifest.totalbytes),
+            received_bytes: Some(manifest.savedbytes),
         },
     });
 }

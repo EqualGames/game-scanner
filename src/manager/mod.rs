@@ -118,7 +118,12 @@ pub fn launch_game(game: &Game) -> Result<()> {
     Ok(())
 }
 
-pub fn get_processes(game: &Game) -> Option<Vec<usize>> {
+#[cfg(target_os = "macos")]
+type PID = i32;
+#[cfg(target_os = "windows")]
+type PID = usize;
+
+pub fn get_processes(game: &Game) -> Option<Vec<PID>> {
     let sys = System::new_all();
     let processes = sys.get_processes();
 
@@ -128,7 +133,7 @@ pub fn get_processes(game: &Game) -> Option<Vec<usize>> {
 
     let mut list = Vec::new();
 
-    let path = game.path.as_ref().unwrap().display().to_string();
+    let path = game.path.as_ref()?.display().to_string();
 
     for (pid, process) in processes {
         let should_kill = path_contains(process.cwd(), &path)
@@ -146,12 +151,10 @@ pub fn get_processes(game: &Game) -> Option<Vec<usize>> {
 }
 
 pub fn close_game(game: &Game) -> Result<()> {
-    let processes = get_processes(game)
-        .ok_or(Error::new(
-            ErrorKind::GameProcessNotFound,
-            format!("Could not found the process of {}", game.name),
-        ))
-        .unwrap();
+    let processes = get_processes(game).ok_or(Error::new(
+        ErrorKind::GameProcessNotFound,
+        format!("Could not found the process of {}", game.name),
+    ))?;
 
     let sys = System::new_all();
 

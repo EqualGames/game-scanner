@@ -1,10 +1,14 @@
-use std::fs;
-use std::path::{Path, PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use serde::{Deserialize, Serialize};
 
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::{Game, GameCommands, GameState, GameType};
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::{Game, GameCommands, GameState, GameType},
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Manifest {
@@ -21,31 +25,27 @@ struct Manifest {
 }
 
 pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
-    let manifest_data = fs::read_to_string(&file)
-        .map_err(|error| {
-            Error::new(
-                ErrorKind::InvalidManifest,
-                format!(
-                    "Invalid Epic Games manifest: {} {}",
-                    file.display().to_string(),
-                    error.to_string()
-                ),
-            )
-        })
-        .unwrap();
+    let manifest_data = fs::read_to_string(&file).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Invalid Epic Games manifest: {} {}",
+                file.display().to_string(),
+                error.to_string()
+            ),
+        )
+    })?;
 
-    let manifest = serde_json::from_str::<Manifest>(manifest_data.as_str())
-        .map_err(|error| {
-            Error::new(
-                ErrorKind::InvalidManifest,
-                format!(
-                    "Error on read the Epic Games manifest: {} {}",
-                    file.display().to_string(),
-                    error.to_string()
-                ),
-            )
-        })
-        .unwrap();
+    let manifest = serde_json::from_str::<Manifest>(manifest_data.as_str()).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Error on read the Epic Games manifest: {} {}",
+                file.display().to_string(),
+                error.to_string()
+            ),
+        )
+    })?;
 
     if manifest.app_name.contains("UE") || manifest.app_name.contains("QuixelBridge") {
         return Err(Error::new(

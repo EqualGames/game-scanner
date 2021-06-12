@@ -8,27 +8,23 @@ use crate::{
 };
 
 pub fn read_all(file: &Path, launcher_path: &Path) -> Result<Vec<Game>> {
-    let conn = Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY)
-        .map_err(|error| {
+    let conn =
+        Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
                 format!("Invalid Amazon Games manifest: {}", error.to_string()),
             )
-        })
-        .unwrap();
+        })?;
 
-    let mut stmt = conn
-        .prepare("SELECT * FROM DbSet")
-        .map_err(|error| {
-            Error::new(
-                ErrorKind::InvalidManifest,
-                format!(
-                    "Error to read the Amazon Games manifest: {}",
-                    error.to_string()
-                ),
-            )
-        })
-        .unwrap();
+    let mut stmt = conn.prepare("SELECT * FROM DbSet").map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Error to read the Amazon Games manifest: {}",
+                error.to_string()
+            ),
+        )
+    })?;
 
     let rows = stmt
         .query_map([], |row| parse_row(row, launcher_path))
@@ -44,27 +40,25 @@ pub fn read_all(file: &Path, launcher_path: &Path) -> Result<Vec<Game>> {
                     error.to_string()
                 ),
             ),
-        })
-        .unwrap();
+        })?;
 
     let mut games = Vec::<Game>::new();
 
     for game in rows {
-        games.push(game.unwrap());
+        games.push(game?);
     }
 
     return Ok(games);
 }
 
 pub fn read(id: &str, file: &Path, launcher_path: &Path) -> Result<Game> {
-    let conn = Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY)
-        .map_err(|error| {
+    let conn =
+        Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
                 format!("Invalid Amazon Games manifest: {}", error.to_string()),
             )
-        })
-        .unwrap();
+        })?;
 
     let mut stmt = conn
         .prepare("SELECT * FROM DbSet WHERE Id = :id")
@@ -76,8 +70,7 @@ pub fn read(id: &str, file: &Path, launcher_path: &Path) -> Result<Game> {
                     error.to_string()
                 ),
             )
-        })
-        .unwrap();
+        })?;
 
     return stmt
         .query_row(&[(":id", id)], |row| parse_row(row, launcher_path))
@@ -103,13 +96,13 @@ fn parse_row(row: &Row, launcher_path: &Path) -> rusqlite::Result<Game> {
     game._type = GameType::AmazonGames.to_string();
 
     for col in 0..columns {
-        let name = row.column_name(col).unwrap();
+        let name = row.column_name(col)?;
 
         match name {
-            "Id" => game.id = row.get(col).unwrap(),
-            "ProductTitle" => game.name = row.get(col).unwrap(),
+            "Id" => game.id = row.get(col)?,
+            "ProductTitle" => game.name = row.get(col)?,
             "InstallDirectory" => game.path = row.get::<_, String>(col).map(PathBuf::from).ok(),
-            "Installed" => game.state.installed = row.get(col).unwrap(),
+            "Installed" => game.state.installed = row.get(col)?,
             _ => {}
         }
     }

@@ -4,22 +4,20 @@ use crate::{
     error::{Error, ErrorKind, Result},
     prelude::Game,
     steam::types::{SteamAppState, SteamUpdateResult},
-    util::string::remove_quotes,
+    utils::string::remove_quotes,
 };
 
 pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Result<Game> {
-    let manifest_data = std::fs::read_to_string(&file)
-        .map_err(|error| {
-            Error::new(
-                ErrorKind::InvalidManifest,
-                format!(
-                    "Error on read the Steam manifest: {} {}",
-                    file.display().to_string(),
-                    error.to_string()
-                ),
-            )
-        })
-        .unwrap();
+    let manifest_data = std::fs::read_to_string(&file).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Error on read the Steam manifest: {} {}",
+                file.display().to_string(),
+                error.to_string()
+            ),
+        )
+    })?;
 
     let manifest = manifest_data.split("\n").collect::<Vec<&str>>();
 

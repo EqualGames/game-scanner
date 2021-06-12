@@ -24,11 +24,11 @@ in [index.d.ts](./node/lib/index.d.ts).
 | ---------- | ---------------------------------------- | ------- | ----- | ----- |
 | Amazon     | ✅                                        | ✅       | ❌     | ❌     |
 | Blizzard   | ❓                                        | ✅       | ❌     | ❌     |
-| Epic Games | ❌                                        | ✅       | ❌     | ❌     |
-| GOG        | ❌                                        | ✅       | ❌     | ❌     |
-| Origin     | ❌                                        | ✅       | ❌     | ❌     |
-| Riot Games | ❓                                        | ✅       | ❌     | ❌     |
-| Steam      | ✅                                        | ✅       | ❌     | ❌     |
+| Epic Games | ❌                                        | ✅       | ❌     | ✅     |
+| GOG        | ❌                                        | ✅       | ❌     | ✅     |
+| Origin     | ❌                                        | ✅       | ❌     | ✅     |
+| Riot Games | ❓                                        | ✅       | ❌     | ✅     |
+| Steam      | ✅                                        | ✅       | ❌     | ✅     |
 | Ubisoft    | ❌                                        | ✅       | ❌     | ❌     |
 
 <a name="multi-directories"></a>[1]: **Multi-directories**: is different game install locations (e.g., folders, and

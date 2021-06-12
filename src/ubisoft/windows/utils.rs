@@ -1,29 +1,27 @@
 use std::path::{Path, PathBuf};
 
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::{Game, GameCommands, GameState, GameType};
-use crate::util::path::fix_path_separator;
-use crate::util::registry;
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::{Game, GameCommands, GameState, GameType},
+    utils::{path::fix_path_separator, registry},
+};
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
-    let launcher_executable =
-        registry::get_local_machine_reg_key("Ubisoft\\Launcher").and_then(|launcher_reg| {
+    let launcher_executable = registry::get_local_machine_reg_key("Ubisoft\\Launcher")
+        .and_then(|launcher_reg| {
             registry::get_value(&launcher_reg, "InstallDir")
                 .map(PathBuf::from)
                 .map(|path| path.join("upc.exe"))
-        });
-
-    if launcher_executable.is_err() {
-        return Err(Error::new(
-            ErrorKind::LauncherNotFound,
-            format!(
-                "Invalid Ubisoft path, maybe this launcher is not installed: {}",
-                launcher_executable.err().unwrap().to_string()
-            ),
-        ));
-    }
-
-    let launcher_executable = launcher_executable.unwrap();
+        })
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::LauncherNotFound,
+                format!(
+                    "Invalid Ubisoft path, maybe this launcher is not installed: {}",
+                    error.to_string()
+                ),
+            )
+        })?;
 
     if !launcher_executable.exists() {
         return Err(Error::new(
@@ -39,26 +37,23 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
 }
 
 pub fn get_manifest_ids() -> Result<Vec<String>> {
-    let manifests = registry::get_local_machine_reg_key("Ubisoft\\Launcher")
+    return registry::get_local_machine_reg_key("Ubisoft\\Launcher")
         .and_then(|launcher_reg| registry::get_sub_key(&launcher_reg, "Installs"))
         .map(|manifests| {
             manifests
                 .enum_keys()
                 .map(|x| x.unwrap())
                 .collect::<Vec<String>>()
+        })
+        .map_err(|error| {
+            Error::new(
+                ErrorKind::LauncherNotFound,
+                format!(
+                    "Invalid Ubisoft path, maybe this launcher is not installed: {}",
+                    error.to_string()
+                ),
+            )
         });
-
-    if manifests.is_err() {
-        return Err(Error::new(
-            ErrorKind::LauncherNotFound,
-            format!(
-                "Invalid Ubisoft path, maybe this launcher is not installed: {}",
-                manifests.err().unwrap().to_string()
-            ),
-        ));
-    }
-
-    return manifests;
 }
 
 pub fn get_game_info(manifest_id: &String) -> Result<(String, PathBuf)> {

@@ -1,28 +1,29 @@
 use std::path::{Path, PathBuf};
 
-use crate::blizzard::proto::product::ProductInstall;
-use crate::blizzard::proto::{product, read_product};
-use crate::blizzard::types::BlizzardGames;
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::{Game, GameCommands, GameState, GameType};
-use crate::util::path::{fix_path_separator, get_filename};
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::{Game, GameCommands, GameState, GameType},
+    utils::path::{fix_path_separator, get_filename},
+};
+
+use self::super::{
+    proto::{product::ProductInstall, read_product},
+    types::BlizzardGames,
+};
 
 pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
-    let manifests = read_product(file)
-        .map(|data| data.product_installs)
-        .map(|product_installs| {
-            product_installs
-                .into_iter()
-                .filter(get_manifest_predicate)
-                .collect::<Vec<product::ProductInstall>>()
-        })
-        .map_err(|error| {
-            Error::new(
-                ErrorKind::InvalidManifest,
-                format!("Invalid Blizzard manifest: {}", error.to_string()),
-            )
-        })
-        .unwrap();
+    let database = read_product(file).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!("Invalid Blizzard manifest: {}", error.to_string()),
+        )
+    })?;
+
+    let manifests = database
+        .product_installs
+        .into_iter()
+        .filter(get_manifest_predicate)
+        .collect::<Vec<ProductInstall>>();
 
     let mut games = Vec::new();
 
@@ -44,25 +45,21 @@ fn get_manifest_predicate(item: &ProductInstall) -> bool {
 }
 
 pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
-    let manifest = read_product(file)
-        .map_err(|error| {
-            Error::new(
-                ErrorKind::InvalidManifest,
-                format!("Invalid Blizzard manifest: {}", error.to_string()),
-            )
-        })
-        .ok()
-        .map(|data| data.product_installs)
-        .and_then(|product_installs| product_installs.into_iter().find(|item| item.uid == id));
+    let database = read_product(file).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!("Invalid Blizzard manifest: {}", error.to_string()),
+        )
+    })?;
 
-    if manifest.is_none() {
-        return Err(Error::new(
+    let manifest = database
+        .product_installs
+        .into_iter()
+        .find(|item| item.uid == id)
+        .ok_or(Error::new(
             ErrorKind::GameNotFound,
             format!("Blizzard game with id ({}) does not exist", id),
-        ));
-    }
-
-    let manifest = manifest.unwrap();
+        ))?;
 
     Ok(parse_manifest(&manifest, launcher_executable))
 }
@@ -74,7 +71,7 @@ fn parse_manifest(manifest: &ProductInstall, launcher_executable: &Path) -> Game
         .map(|settings| settings.install_path)
         .map_or(PathBuf::new(), PathBuf::from);
 
-    if cfg!(windows) {
+    if cfg!(target_os = "windows") {
         game_path = fix_path_separator(&game_path);
     }
 

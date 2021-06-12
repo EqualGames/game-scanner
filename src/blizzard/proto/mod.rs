@@ -1,7 +1,6 @@
+use std::{fs, io, path::Path};
+
 use prost::Message;
-use std::fs;
-use std::io;
-use std::path::Path;
 
 pub mod product;
 
