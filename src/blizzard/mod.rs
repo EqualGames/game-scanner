@@ -1,6 +1,8 @@
 #[cfg(target_os = "windows")]
 pub use self::windows::*;
+#[cfg(not(target_os = "windows"))]
 use crate::error::{Error, ErrorKind};
+#[cfg(not(target_os = "windows"))]
 use crate::prelude::Game;
 
 mod db;
