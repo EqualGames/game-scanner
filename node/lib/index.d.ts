@@ -69,6 +69,8 @@ export declare const riotgames: {
 }
 
 export declare const steam: {
+    executable(): string | undefined;
+
     find(id: string): Game | undefined;
 
     games(): Array<Game>;

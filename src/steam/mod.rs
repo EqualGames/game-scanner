@@ -1,6 +1,10 @@
-use crate::error::{Error, ErrorKind, Result};
-use crate::prelude::Game;
-use crate::utils::path::get_filename;
+use std::path::PathBuf;
+
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::Game,
+    utils::path::get_filename,
+};
 
 use self::utils::{get_launcher_executable, get_library_manifests};
 
@@ -8,6 +12,10 @@ mod acf;
 mod types;
 mod utils;
 mod vdf;
+
+pub fn executable() -> Result<PathBuf> {
+    return get_launcher_executable();
+}
 
 pub fn games() -> Result<Vec<Game>> {
     let launcher_executable = get_launcher_executable()?;
