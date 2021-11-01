@@ -4,6 +4,6 @@
     "build": "neon build --release"
   },
   "devDependencies": {
-    "neon-cli": "^0.8.2"
+    "neon-cli": "^0.9.1"
   }
 }
