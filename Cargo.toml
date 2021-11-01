@@ -1,5 +1,5 @@
 [package]
-edition = "2018"
+edition = "2021"
 build = "build.rs"
 name = "game-scanner"
 description = "Game Scanner for any launcher and OS"
@@ -28,24 +28,24 @@ doc = true
 crate-type = ["rlib", "cdylib"]
 
 [dependencies]
-serde = { version = "1.0.126", features = ["derive"] }
-serde_json = { version = "1.0.64" }
-serde_yaml = { version = "0.8.17" }
+serde = { version = "1.0.130", features = ["derive"] }
+serde_json = { version = "1.0.68" }
+serde_yaml = { version = "0.8.21" }
 url = { version = "2.2.2" }
-rusqlite = { version = "0.25.3", features = ["bundled"] }
-sysinfo = { version = "0.18.0" }
-prost = { version = "0.7.0" }
-prost-types = { version = "0.7.0" }
-bytes = { version = "1.0.1" }
+rusqlite = { version = "0.26.1", features = ["bundled"] }
+sysinfo = { version = "0.20.5" }
+prost = { version = "0.9.0" }
+prost-types = { version = "0.9.0" }
+bytes = { version = "1.1.0" }
 chrono = { version = "0.4.19" }
-directories = { version = "3.0.2" }
+directories = { version = "4.0.1" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 case = { version = "1.0.0" }
-winreg = { version = "0.9.0" }
+winreg = { version = "0.10.1" }
 
 [dev-dependencies]
-criterion = { version = "0.3.4" }
+criterion = { version = "0.3.5" }
 
 [build-dependencies]
-prost-build = { version = "0.7.0" }
+prost-build = { version = "0.9.0" }
