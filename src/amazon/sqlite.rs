@@ -26,8 +26,14 @@ pub fn read_all(file: &Path, launcher_path: &Path) -> Result<Vec<Game>> {
         )
     })?;
 
+    let columns = stmt
+        .column_names()
+        .into_iter()
+        .map(String::from)
+        .collect::<Vec<String>>();
+
     let rows = stmt
-        .query_map([], |row| parse_row(row, launcher_path))
+        .query_map([], |row| parse_row(&columns, row, launcher_path))
         .map_err(|error| match error {
             rusqlite::Error::QueryReturnedNoRows => Error::new(
                 ErrorKind::LibraryNotFound,
@@ -72,8 +78,16 @@ pub fn read(id: &str, file: &Path, launcher_path: &Path) -> Result<Game> {
             )
         })?;
 
+    let columns = stmt
+        .column_names()
+        .into_iter()
+        .map(String::from)
+        .collect::<Vec<String>>();
+
     return stmt
-        .query_row(&[(":id", id)], |row| parse_row(row, launcher_path))
+        .query_row(&[(":id", id)], |row| {
+            parse_row(&columns, row, launcher_path)
+        })
         .map_err(|error| match error {
             rusqlite::Error::QueryReturnedNoRows => Error::new(
                 ErrorKind::GameNotFound,
@@ -89,16 +103,14 @@ pub fn read(id: &str, file: &Path, launcher_path: &Path) -> Result<Game> {
         });
 }
 
-fn parse_row(row: &Row, launcher_path: &Path) -> rusqlite::Result<Game> {
-    let columns = row.column_count();
-
+fn parse_row(columns: &Vec<String>, row: &Row, launcher_path: &Path) -> rusqlite::Result<Game> {
     let mut game = Game::default();
     game._type = GameType::AmazonGames.to_string();
 
-    for col in 0..columns {
-        let name = row.column_name(col)?;
+    for col in 0..columns.len() {
+        let name = columns.get(col).unwrap();
 
-        match name {
+        match name.as_str() {
             "Id" => game.id = row.get(col)?,
             "ProductTitle" => game.name = row.get(col)?,
             "InstallDirectory" => game.path = row.get::<_, String>(col).map(PathBuf::from).ok(),
