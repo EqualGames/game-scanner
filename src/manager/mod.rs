@@ -125,7 +125,7 @@ type PID = usize;
 
 pub fn get_processes(game: &Game) -> Option<Vec<PID>> {
     let sys = System::new_all();
-    let processes = sys.get_processes();
+    let processes = sys.processes();
 
     let str_array_contains =
         |path: &[String], value: &str| String::from(path.to_vec().join(" ")).contains(value);
@@ -163,7 +163,7 @@ pub fn close_game(game: &Game) -> Result<()> {
     }
 
     for pid in processes {
-        match sys.get_process(pid) {
+        match sys.process(pid) {
             Some(process) => {
                 if cfg!(debug_assertions) {
                     println!(
