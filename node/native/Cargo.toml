@@ -2,7 +2,7 @@
 name = "game-scanner-node"
 version = "0.0.0"
 authors = ["Matheus Albino <matheusalbino@users.noreply.github.com>"]
-edition = "2018"
+edition = "2021"
 publish = false
 
 [lib]
@@ -10,5 +10,5 @@ name = "game_scanner_node"
 crate-type = ["cdylib"]
 
 [dependencies]
-neon = { version = "0.8.2", default-features = false, features = ["napi-5"] }
+neon = { version = "0.9.1", default-features = false, features = ["napi-5"] }
 game-scanner = { version = "1", path = "../../" }
