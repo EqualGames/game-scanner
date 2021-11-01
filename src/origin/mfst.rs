@@ -30,7 +30,7 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
         )
     })?;
 
-    let manifest = String::from("http://mock/") + &manifest_data;
+    let manifest = String::from("http://localhost/") + &manifest_data;
 
     let manifest_url = url::Url::parse(&manifest).map_err(|error| {
         Error::new(
@@ -43,27 +43,14 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
         )
     })?;
 
-    let manifest_lines = manifest_url
-        .query()
-        .map(|data| data.split("&").collect::<Vec<&str>>())
-        .ok_or_else(|| {
-            Error::new(
-                ErrorKind::InvalidManifest,
-                format!(
-                    "Error on read the Origin manifest: {}",
-                    file.display().to_string(),
-                ),
-            )
-        })?;
+    let manifest_entries = manifest_url
+        .query_pairs()
+        .map(|(attr, value)| (attr.to_string(), value.to_string()))
+        .collect::<Vec<_>>();
 
     let mut manifest = Manifest::default();
 
-    for manifest_line in manifest_lines {
-        let pair = manifest_line.split("=").collect::<Vec<&str>>();
-
-        let attr = pair.get(0).unwrap().to_string();
-        let value = pair.get(1).unwrap().to_string();
-
+    for (attr, value) in manifest_entries {
         match attr.as_str() {
             "id" => {
                 manifest.id = value;
@@ -137,9 +124,15 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
 }
 
 fn make_dip_install_path(value: &String) -> Option<String> {
+    let separator = std::path::MAIN_SEPARATOR.to_string();
+
     return Option::from(value.clone())
-        .map(|path| path.replace("%5c", &std::path::MAIN_SEPARATOR.to_string()))
+        .map(|path| path.replace("%5c", &separator))
+        .map(|path| path.replace("%5C", &separator))
+        .map(|path| path.replace("%2f", &separator))
+        .map(|path| path.replace("%2F", &separator))
         .map(|path| path.replace("%3a", ":"))
+        .map(|path| path.replace("%3A", ":"))
         .map(|path| path.replace("%20", " "))
         .map(PathBuf::from)
         .map(|path| path.display().to_string());
