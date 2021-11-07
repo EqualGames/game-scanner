@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::Game,
@@ -10,6 +12,10 @@ mod item;
 #[cfg_attr(target_os = "windows", path = "utils/windows.rs")]
 #[cfg_attr(target_os = "macos", path = "utils/macos.rs")]
 mod utils;
+
+pub fn executable() -> Result<PathBuf> {
+    return get_launcher_executable();
+}
 
 pub fn games() -> Result<Vec<Game>> {
     let launcher_executable = get_launcher_executable()?;

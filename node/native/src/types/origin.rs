@@ -7,6 +7,9 @@ use crate::utils::from_rust;
 pub fn init(context: &mut ModuleContext) {
     let launcher = JsObject::new(context);
 
+    let fn_executable = JsFunction::new(context, executable).unwrap();
+    launcher.set(context, "executable", fn_executable).unwrap();
+
     let fn_find = JsFunction::new(context, find).unwrap();
     launcher.set(context, "find", fn_find).unwrap();
 
@@ -14,6 +17,15 @@ pub fn init(context: &mut ModuleContext) {
     launcher.set(context, "games", fn_games).unwrap();
 
     context.export_value("origin", launcher).unwrap();
+}
+
+fn executable(mut context: FunctionContext) -> JsResult<JsValue> {
+    match origin::executable() {
+        Ok(path) => {
+            Ok(JsString::new(&mut context, path.display().to_string()).as_value(&mut context))
+        }
+        Err(_error) => Ok(JsUndefined::new(&mut context).as_value(&mut context)),
+    }
 }
 
 fn find(mut context: FunctionContext) -> JsResult<JsValue> {

@@ -11,17 +11,43 @@ use crate::{
     utils::path::fix_path_separator,
 };
 
-use self::super::{types::RiotGamesProducts, utils::get_launcher_path};
+use self::super::types::RiotGamesProducts;
 
 #[derive(Serialize, Deserialize, Debug)]
-struct ProductSettings {
-    product_install_full_path: String,
-    product_install_root: String,
+pub struct ProductSettings {
+    pub product_install_full_path: String,
+    pub product_install_root: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct RiotClientInstalls {
-    associated_client: Option<HashMap<String, String>>,
+pub struct RiotClientInstalls {
+    pub associated_client: Option<HashMap<String, String>>,
+    pub rc_default: String,
+    pub rc_live: String,
+}
+
+pub fn read_riot_client_installs(file: &Path) -> Result<RiotClientInstalls> {
+    let installs_file = std::fs::read_to_string(&file).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Invalid Riot Games config: {} {}",
+                file.display().to_string(),
+                error.to_string()
+            ),
+        )
+    })?;
+
+    return serde_json::from_str::<RiotClientInstalls>(installs_file.as_str()).map_err(|error| {
+        Error::new(
+            ErrorKind::InvalidManifest,
+            format!(
+                "Invalid Riot Games config: {} {}",
+                file.display().to_string(),
+                error.to_string()
+            ),
+        )
+    });
 }
 
 pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
@@ -48,31 +74,6 @@ pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
             )
         })?;
 
-    let launcher_installs = launcher_path.join("RiotClientInstalls.json");
-
-    let installs_file = std::fs::read_to_string(&launcher_installs).map_err(|error| {
-        Error::new(
-            ErrorKind::InvalidManifest,
-            format!(
-                "Invalid Riot Games manifest: {} {}",
-                file.display().to_string(),
-                error.to_string()
-            ),
-        )
-    })?;
-
-    let riot_client_installs = serde_yaml::from_str::<RiotClientInstalls>(installs_file.as_str())
-        .map_err(|error| {
-        Error::new(
-            ErrorKind::InvalidManifest,
-            format!(
-                "Invalid Riot Games manifest: {} {}",
-                file.display().to_string(),
-                error.to_string()
-            ),
-        )
-    })?;
-
     let manifest_filename = String::from(file.file_name().unwrap().to_str().unwrap())
         .replace(".product_settings.yaml", "");
 
@@ -84,34 +85,40 @@ pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
         game_path.push_str("/");
     }
 
-    let mut launcher_executable = None;
+    let launcher_client_installs = launcher_path.join("RiotClientInstalls.json");
 
-    if cfg!(target_os = "windows") {
-        launcher_executable = riot_client_installs
-            .associated_client
-            .and_then(|data| data.get(&game_path).cloned())
-            .map(PathBuf::from);
+    let launcher_executable = read_riot_client_installs(&launcher_client_installs)?
+        .associated_client
+        .and_then(|data| {
+            if cfg!(target_os = "windows") {
+                return data.get(&game_path).cloned();
+            }
 
-        if launcher_executable.is_none() {
-            return Err(Error::new(
-                ErrorKind::IgnoredApp,
-                format!(
-                    "({}) {} is an invalid game",
-                    &product.get_code(),
-                    &product.get_name()
-                ),
-            ));
-        }
-    }
+            if cfg!(target_os = "macos") {
+                let key = data
+                    .keys()
+                    .find(|path| path.starts_with(&game_path.to_string()));
 
-    if cfg!(target_os = "macos") {
-        launcher_executable = get_launcher_path().ok().map(|value| {
-            value
-                .join("Riot Client.app")
-                .join("Contents")
-                .join("MacOS")
-                .join("RiotClientServices")
-        });
+                if key.is_none() {
+                    return None;
+                }
+
+                return data.get(key.unwrap()).cloned();
+            }
+
+            return None;
+        })
+        .map(PathBuf::from);
+
+    if launcher_executable.is_none() {
+        return Err(Error::new(
+            ErrorKind::IgnoredApp,
+            format!(
+                "({}) {} is an invalid game",
+                &product.get_code(),
+                &product.get_name()
+            ),
+        ));
     }
 
     let mut game_install_path = PathBuf::from(&game_path);

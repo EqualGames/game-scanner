@@ -1,6 +1,16 @@
 use std::path::{Path, PathBuf};
 
+use self::super::yaml::read_riot_client_installs;
 use crate::error::{Error, ErrorKind, Result};
+
+pub fn get_launcher_executable() -> Result<PathBuf> {
+    let launcher_client_installs =
+        get_launcher_path().map(|path| path.join("RiotClientInstalls.json"))?;
+
+    return read_riot_client_installs(&launcher_client_installs)
+        .map(|data| data.rc_default)
+        .map(PathBuf::from);
+}
 
 pub fn get_launcher_path() -> Result<PathBuf> {
     let launcher_path = PathBuf::from("/")

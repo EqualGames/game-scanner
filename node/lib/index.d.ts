@@ -33,36 +33,48 @@ export declare const manager: {
 }
 
 export declare const amazon: {
+    executable(): string | undefined;
+
     find(id: string): Game | undefined;
 
     games(): Array<Game>;
 }
 
 export declare const blizzard: {
+    executable(): string | undefined;
+
     find(id: string): Game | undefined;
 
     games(): Array<Game>;
 }
 
 export declare const epicgames: {
+    executable(): string | undefined;
+
     find(id: string): Game | undefined;
 
     games(): Array<Game>;
 }
 
 export declare const gog: {
+    executable(): string | undefined;
+
     find(id: string): Game | undefined;
 
     games(): Array<Game>;
 }
 
 export declare const origin: {
+    executable(): string | undefined;
+
     find(id: string): Game | undefined;
 
     games(): Array<Game>;
 }
 
 export declare const riotgames: {
+    executable(): string | undefined;
+
     find(id: string): Game | undefined;
 
     games(): Array<Game>;
@@ -77,6 +89,8 @@ export declare const steam: {
 }
 
 export declare const ubisoft: {
+    executable(): string | undefined;
+
     find(id: string): Game | undefined;
 
     games(): Array<Game>;

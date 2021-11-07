@@ -7,7 +7,7 @@ use crate::{
     prelude::{Game, GameType},
 };
 
-pub fn read_all(file: &Path, launcher_path: &Path) -> Result<Vec<Game>> {
+pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
     let conn =
         Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
             Error::new(
@@ -33,7 +33,7 @@ pub fn read_all(file: &Path, launcher_path: &Path) -> Result<Vec<Game>> {
         .collect::<Vec<String>>();
 
     let rows = stmt
-        .query_map([], |row| parse_row(&columns, row, launcher_path))
+        .query_map([], |row| parse_row(&columns, row, launcher_executable))
         .map_err(|error| match error {
             rusqlite::Error::QueryReturnedNoRows => Error::new(
                 ErrorKind::LibraryNotFound,
@@ -57,7 +57,7 @@ pub fn read_all(file: &Path, launcher_path: &Path) -> Result<Vec<Game>> {
     return Ok(games);
 }
 
-pub fn read(id: &str, file: &Path, launcher_path: &Path) -> Result<Game> {
+pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
     let conn =
         Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
             Error::new(
@@ -86,7 +86,7 @@ pub fn read(id: &str, file: &Path, launcher_path: &Path) -> Result<Game> {
 
     return stmt
         .query_row(&[(":id", id)], |row| {
-            parse_row(&columns, row, launcher_path)
+            parse_row(&columns, row, launcher_executable)
         })
         .map_err(|error| match error {
             rusqlite::Error::QueryReturnedNoRows => Error::new(
@@ -103,7 +103,11 @@ pub fn read(id: &str, file: &Path, launcher_path: &Path) -> Result<Game> {
         });
 }
 
-fn parse_row(columns: &Vec<String>, row: &Row, launcher_path: &Path) -> rusqlite::Result<Game> {
+fn parse_row(
+    columns: &Vec<String>,
+    row: &Row,
+    launcher_executable: &Path,
+) -> rusqlite::Result<Game> {
     let mut game = Game::default();
     game._type = GameType::AmazonGames.to_string();
 
@@ -118,8 +122,6 @@ fn parse_row(columns: &Vec<String>, row: &Row, launcher_path: &Path) -> rusqlite
             _ => {}
         }
     }
-
-    let launcher_executable = launcher_path.join("App").join("Amazon Games.exe");
 
     game.commands.launch = Some(vec![
         launcher_executable.display().to_string(),

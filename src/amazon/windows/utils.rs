@@ -4,6 +4,10 @@ use directories::BaseDirs;
 
 use crate::error::{Error, ErrorKind, Result};
 
+pub fn get_launcher_executable() -> Result<PathBuf> {
+    return get_launcher_path().map(|path| path.join("App").join("Amazon Games.exe"));
+}
+
 pub fn get_launcher_path() -> Result<PathBuf> {
     let launcher_path = BaseDirs::new()
         .map(|base_dirs| PathBuf::from(base_dirs.data_local_dir()))
