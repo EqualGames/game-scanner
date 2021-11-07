@@ -1,4 +1,7 @@
-use std::path::{Path, PathBuf};
+use std::{
+    convert::identity,
+    path::{Path, PathBuf},
+};
 
 use crate::{
     error::{Error, ErrorKind, Result},
@@ -35,13 +38,7 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
 }
 
 fn get_manifest_predicate(item: &ProductInstall) -> bool {
-    item.product_code.ne("agent")
-        && item.product_code.ne("bna")
-        && item.clone().cached_product_state.map_or(true, |product| {
-            product
-                .base_product_state
-                .map_or(true, |base_state| base_state.playable != false)
-        })
+    item.product_code.ne("agent") && item.product_code.ne("bna")
 }
 
 pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
@@ -77,6 +74,66 @@ fn parse_manifest(manifest: &ProductInstall, launcher_executable: &Path) -> Game
 
     let launch_code = BlizzardGames::from_uid(&manifest.uid).get_code();
 
+    let installed = manifest
+        .cached_product_state
+        .clone()
+        .map_or(true, |cached_product_state| {
+            cached_product_state
+                .base_product_state
+                .map_or(true, |state| state.installed || state.playable)
+        });
+
+    let needs_update =
+        manifest
+            .cached_product_state
+            .clone()
+            .map_or(false, |cached_product_state| {
+                cached_product_state
+                    .base_product_state
+                    .map_or(false, |state| !state.update_complete)
+            });
+
+    let downloading = manifest
+        .cached_product_state
+        .clone()
+        .map_or(false, |cached_product_state| {
+            cached_product_state
+                .update_progress
+                .map_or(false, |update_progress| {
+                    update_progress.download_remaining > 0
+                })
+        });
+
+    let total_bytes = manifest
+        .cached_product_state
+        .clone()
+        .map_or(None, |product| {
+            product.update_progress.map_or(None, |update_progress| {
+                Some(update_progress.total_to_download)
+            })
+        });
+
+    let received_bytes = manifest
+        .cached_product_state
+        .clone()
+        .map_or(None, |product| {
+            product.update_progress.map_or(None, |update_progress| {
+                let total_to_download: i64 =
+                    i64::try_from(update_progress.total_to_download).map_or(0, identity);
+
+                let download_remaining: i64 =
+                    i64::try_from(update_progress.download_remaining).map_or(0, identity);
+
+                let mut received = total_to_download - download_remaining;
+
+                if received < 0 {
+                    received = download_remaining;
+                }
+
+                u64::try_from(received).map_or(None, Some)
+            })
+        });
+
     Game {
         _type: GameType::Blizzard.to_string(),
         id: String::from(&manifest.uid),
@@ -94,11 +151,11 @@ fn parse_manifest(manifest: &ProductInstall, launcher_executable: &Path) -> Game
             uninstall: None,
         },
         state: GameState {
-            installed: true,
-            needs_update: false,
-            downloading: false,
-            total_bytes: None,
-            received_bytes: None,
+            installed,
+            needs_update,
+            downloading,
+            total_bytes,
+            received_bytes,
         },
     }
 }

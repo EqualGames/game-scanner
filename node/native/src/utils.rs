@@ -224,13 +224,13 @@ pub fn from_js<'a>(ctx: &mut FunctionContext<'a>, object: &JsObject) -> io::Resu
         .get(ctx, "total_bytes")
         .ok()
         .and_then(|value| value.downcast::<JsNumber, FunctionContext<'a>>(ctx).ok())
-        .map(|number| number.value(ctx) as i64);
+        .map(|number| number.value(ctx) as u64);
 
     let received_bytes = state
         .get(ctx, "received_bytes")
         .ok()
         .and_then(|value| value.downcast::<JsNumber, FunctionContext<'a>>(ctx).ok())
-        .map(|number| number.value(ctx) as i64);
+        .map(|number| number.value(ctx) as u64);
 
     return Ok(Game {
         _type,
