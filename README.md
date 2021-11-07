@@ -62,16 +62,16 @@ drivers).
 
 ### Operations
 
-| Launcher   | List Games | Find Game[¹](#find-game) |
-| ---------- | ---------- | ------------------------ |
-| Amazon     | ✅          | ✅                        |
-| Blizzard   | ✅          | ✅                        |
-| Epic Games | ✅          | ✅                        |
-| GOG        | ✅          | ✅                        |
-| Origin     | ✅          | ✅                        |
-| Riot Games | ✅          | ✅                        |
-| Steam      | ✅          | ✅                        |
-| Ubisoft    | ✅          | ✅                        |
+| Launcher   | List Games | Find Game[¹](#find-game) | Get launcher executable |
+| ---------- | ---------- | ------------------------ | ----------------------- |
+| Amazon     | ✅          | ✅                       | ✅                      |
+| Blizzard   | ✅          | ✅                       | ✅                      |
+| Epic Games | ✅          | ✅                       | ✅                      |
+| GOG        | ✅          | ✅                       | ✅                      |
+| Origin     | ✅          | ✅                       | ✅                      |
+| Riot Games | ✅          | ✅                       | ✅                      |
+| Steam      | ✅          | ✅                       | ✅                      |
+| Ubisoft    | ✅          | ✅                       | ✅                      |
 
 <a name="find-game"></a>[1]: **Find Game**: you can find for a specific game passing only the `id`.
 

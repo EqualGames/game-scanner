@@ -1,7 +1,11 @@
 #[cfg(not(target_os = "windows"))]
-use crate::error::{Error, ErrorKind};
+use std::path::PathBuf;
+
 #[cfg(not(target_os = "windows"))]
-use crate::prelude::Game;
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::Game,
+};
 
 #[cfg(target_os = "windows")]
 pub use self::windows::*;
@@ -11,7 +15,15 @@ mod sqlite;
 mod windows;
 
 #[cfg(not(target_os = "windows"))]
-pub fn games() -> Result<Vec<Game>, Error> {
+pub fn executable() -> Result<PathBuf> {
+    return Err(Error::new(
+        ErrorKind::InvalidLauncher,
+        "launcher not supported",
+    ));
+}
+
+#[cfg(not(target_os = "windows"))]
+pub fn games() -> Result<Vec<Game>> {
     Err(Error::new(
         ErrorKind::InvalidLauncher,
         "launcher not supported",
@@ -19,7 +31,7 @@ pub fn games() -> Result<Vec<Game>, Error> {
 }
 
 #[cfg(not(target_os = "windows"))]
-pub fn find(_id: &str) -> Result<Game, Error> {
+pub fn find(_id: &str) -> Result<Game> {
     Err(Error::new(
         ErrorKind::InvalidLauncher,
         "launcher not supported",
