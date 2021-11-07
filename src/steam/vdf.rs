@@ -6,7 +6,7 @@ use crate::{
 };
 
 pub fn read_library_folders(file: &Path) -> Result<Vec<PathBuf>> {
-    let library_data = std::fs::read_to_string(&file).map_err(|error| {
+    let library_folders_data = std::fs::read_to_string(&file).map_err(|error| {
         Error::new(
             ErrorKind::InvalidLibrary,
             format!(
@@ -16,11 +16,11 @@ pub fn read_library_folders(file: &Path) -> Result<Vec<PathBuf>> {
         )
     })?;
 
-    let library = library_data.split("\n").collect::<Vec<&str>>();
+    let library_folders = library_folders_data.split("\n").collect::<Vec<&str>>();
 
     let mut folders = Vec::new();
 
-    for file_line in library {
+    for file_line in library_folders {
         let line: Vec<&str> = file_line
             .split("\t")
             .filter(|str| str.trim().len() != 0)
@@ -33,8 +33,8 @@ pub fn read_library_folders(file: &Path) -> Result<Vec<PathBuf>> {
         let attr = remove_quotes(line.get(0).unwrap());
         let mut value = remove_quotes(line.get(1).unwrap());
 
-        match attr.parse::<i32>() {
-            Ok(_n) => {
+        match attr.as_str() {
+            "path" => {
                 if cfg!(target_os = "windows") {
                     let double_separator = std::path::MAIN_SEPARATOR.to_string()
                         + &std::path::MAIN_SEPARATOR.to_string();
@@ -45,7 +45,7 @@ pub fn read_library_folders(file: &Path) -> Result<Vec<PathBuf>> {
 
                 folders.push(PathBuf::from(value))
             }
-            Err(_e) => {}
+            _ => {}
         }
     }
 
