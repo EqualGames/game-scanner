@@ -57,8 +57,8 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Res
                         has_update_result(state, SteamUpdateResult::Downloading);
                 }
             }
-            "BytesToDownload" => game.state.total_bytes = value.parse::<i64>().ok(),
-            "BytesDownloaded" => game.state.received_bytes = value.parse::<i64>().ok(),
+            "BytesToDownload" => game.state.total_bytes = value.parse::<u64>().ok(),
+            "BytesDownloaded" => game.state.received_bytes = value.parse::<u64>().ok(),
             "installdir" => {
                 game.path = Some(PathBuf::from(library_path).join("common").join(value))
             }
