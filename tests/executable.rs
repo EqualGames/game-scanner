@@ -10,7 +10,7 @@ mod amazon {
             .or::<Error>(Ok(PathBuf::new()))
             .unwrap();
 
-        assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&executable));
+        assert_eq!(LAUNCHER_EXECUTABLE_PATH, type_of(&executable));
 
         Ok(())
     }
@@ -26,13 +26,13 @@ mod blizzard {
             .or::<Error>(Ok(PathBuf::new()))
             .unwrap();
 
-        assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&executable));
+        assert_eq!(LAUNCHER_EXECUTABLE_PATH, type_of(&executable));
 
         Ok(())
     }
 }
 
-mod epicexecutable {
+mod epicgames {
     use super::*;
 
     #[test]
@@ -41,7 +41,7 @@ mod epicexecutable {
             .or::<Error>(Ok(PathBuf::new()))
             .unwrap();
 
-        assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&executable));
+        assert_eq!(LAUNCHER_EXECUTABLE_PATH, type_of(&executable));
 
         Ok(())
     }
@@ -56,7 +56,7 @@ mod gog {
             .or::<Error>(Ok(PathBuf::new()))
             .unwrap();
 
-        assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&executable));
+        assert_eq!(LAUNCHER_EXECUTABLE_PATH, type_of(&executable));
 
         Ok(())
     }
@@ -71,13 +71,13 @@ mod origin {
             .or::<Error>(Ok(PathBuf::new()))
             .unwrap();
 
-        assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&executable));
+        assert_eq!(LAUNCHER_EXECUTABLE_PATH, type_of(&executable));
 
         Ok(())
     }
 }
 
-mod riotexecutable {
+mod riotgames {
     use super::*;
 
     #[test]
@@ -86,7 +86,7 @@ mod riotexecutable {
             .or::<Error>(Ok(PathBuf::new()))
             .unwrap();
 
-        assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&executable));
+        assert_eq!(LAUNCHER_EXECUTABLE_PATH, type_of(&executable));
 
         Ok(())
     }
@@ -101,7 +101,7 @@ mod steam {
             .or::<Error>(Ok(PathBuf::new()))
             .unwrap();
 
-        assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&executable));
+        assert_eq!(LAUNCHER_EXECUTABLE_PATH, type_of(&executable));
 
         Ok(())
     }
@@ -117,7 +117,7 @@ mod ubisoft {
             .or::<Error>(Ok(PathBuf::new()))
             .unwrap();
 
-        assert_eq!(GAME_LIST_RETURN_TYPE, type_of(&executable));
+        assert_eq!(LAUNCHER_EXECUTABLE_PATH, type_of(&executable));
 
         Ok(())
     }
@@ -127,4 +127,4 @@ fn type_of<T>(_: T) -> &'static str {
     type_name::<T>()
 }
 
-const GAME_LIST_RETURN_TYPE: &str = "&std::path::PathBuf";
+const LAUNCHER_EXECUTABLE_PATH: &str = "&std::path::PathBuf";
