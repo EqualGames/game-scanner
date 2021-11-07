@@ -21,14 +21,16 @@ where
     T: Fn(&PathBuf) -> bool,
 {
     let manifests_path = get_manifests_path()?;
+    let library_folders = vdf::read_library_folders(&manifests_path.join("libraryfolders.vdf"))?;
 
     let mut library_paths = Vec::new();
-    library_paths.push(manifests_path.clone());
-
-    let library_folders = vdf::read_library_folders(&manifests_path.join("libraryfolders.vdf"))?;
 
     for folder in library_folders {
         library_paths.push(folder.join("steamapps"));
+    }
+
+    if !library_paths.contains(&manifests_path) {
+        library_paths.push(manifests_path.clone())
     }
 
     let mut library_manifests = Vec::new();
@@ -40,8 +42,8 @@ where
                 Error::new(
                     ErrorKind::LibraryNotFound,
                     format!(
-                        "Invalid Steam library path, maybe this launcher is not installed: {} {}",
-                        manifests_path.display().to_string(),
+                        "Invalid Steam library path, something is wrong: {} {}",
+                        path.display().to_string(),
                         error.to_string()
                     ),
                 )
