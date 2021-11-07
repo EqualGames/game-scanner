@@ -13,9 +13,9 @@ struct Manifest {
     currentstate: String,
     downloading: bool,
     paused: bool,
-    totaldownloadbytes: i64,
-    totalbytes: i64,
-    savedbytes: i64,
+    totaldownloadbytes: u64,
+    totalbytes: u64,
+    savedbytes: u64,
 }
 
 pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
@@ -66,13 +66,13 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
                 manifest.previousstate = value;
             }
             "totaldownloadbytes" => {
-                manifest.totaldownloadbytes = value.parse::<i64>().unwrap();
+                manifest.totaldownloadbytes = value.parse::<u64>().unwrap();
             }
             "totalbytes" => {
-                manifest.totalbytes = value.parse::<i64>().unwrap();
+                manifest.totalbytes = value.parse::<u64>().unwrap();
             }
             "savedbytes" => {
-                manifest.savedbytes = value.parse::<i64>().unwrap();
+                manifest.savedbytes = value.parse::<u64>().unwrap();
             }
             "downloading" => {
                 if value == "1" {
