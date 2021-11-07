@@ -42,9 +42,15 @@ fn find(mut context: FunctionContext) -> JsResult<JsValue> {
 }
 
 fn games(mut context: FunctionContext) -> JsResult<JsArray> {
-    let games = blizzard::games().unwrap();
+    let games = blizzard::games();
+    let mut array = JsArray::new(&mut context, 0 as u32);
 
-    let array = JsArray::new(&mut context, games.len() as u32);
+    if games.is_err() {
+        return Ok(array);
+    }
+
+    let games = games.unwrap();
+    array = JsArray::new(&mut context, games.len() as u32);
 
     for (i, game) in games.iter().enumerate() {
         let item = from_rust(&mut context, game);
