@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::{error::Result, prelude::Game};
 
 use super::db;
@@ -5,6 +7,10 @@ use super::db;
 use self::utils::{get_launcher_executable, get_manifests_path};
 
 mod utils;
+
+pub fn executable() -> Result<PathBuf> {
+    return get_launcher_executable();
+}
 
 pub fn games() -> Result<Vec<Game>> {
     let launcher_executable = get_launcher_executable()?;
