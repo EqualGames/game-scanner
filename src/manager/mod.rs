@@ -1,6 +1,6 @@
 use std::{path::Path, process};
 
-use sysinfo::{ProcessExt, System, SystemExt};
+use sysinfo::{Pid, PidExt, ProcessExt, System, SystemExt};
 
 use crate::{
     error::{Error, ErrorKind, Result},
@@ -118,12 +118,7 @@ pub fn launch_game(game: &Game) -> Result<()> {
     Ok(())
 }
 
-#[cfg(target_os = "macos")]
-type PID = i32;
-#[cfg(target_os = "windows")]
-type PID = usize;
-
-pub fn get_processes(game: &Game) -> Option<Vec<PID>> {
+pub fn get_processes(game: &Game) -> Option<Vec<u32>> {
     let sys = System::new_all();
     let processes = sys.processes();
 
@@ -144,7 +139,7 @@ pub fn get_processes(game: &Game) -> Option<Vec<PID>> {
             continue;
         }
 
-        list.push(pid.clone());
+        list.push(pid.as_u32());
     }
 
     Some(list)
@@ -163,7 +158,7 @@ pub fn close_game(game: &Game) -> Result<()> {
     }
 
     for pid in processes {
-        match sys.process(pid) {
+        match sys.process(Pid::from_u32(pid)) {
             Some(process) => {
                 if cfg!(debug_assertions) {
                     println!(
@@ -175,7 +170,7 @@ pub fn close_game(game: &Game) -> Result<()> {
                     );
                 }
 
-                process.kill(sysinfo::Signal::Quit);
+                process.kill();
             }
             None => {
                 if cfg!(debug_assertions) {
