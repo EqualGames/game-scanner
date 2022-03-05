@@ -29,11 +29,11 @@ crate-type = ["rlib", "cdylib"]
 
 [dependencies]
 serde = { version = "1.0.130", features = ["derive"] }
-serde_json = { version = "1.0.68" }
-serde_yaml = { version = "0.8.21" }
+serde_json = { version = "1.0.79" }
+serde_yaml = { version = "0.8.23" }
 url = { version = "2.2.2" }
-rusqlite = { version = "0.26.1", features = ["bundled"] }
-sysinfo = { version = "0.20.5" }
+rusqlite = { version = "0.27.0", features = ["bundled"] }
+sysinfo = { version = "0.23.5" }
 prost = { version = "0.9.0" }
 prost-types = { version = "0.9.0" }
 bytes = { version = "1.1.0" }
