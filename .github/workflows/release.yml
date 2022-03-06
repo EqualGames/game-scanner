@@ -65,6 +65,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: cargo check
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
+          args: --package game-scanner
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
       - uses: actions/setup-node@v2.1.4
         with:
           node-version: 12.x
