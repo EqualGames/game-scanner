@@ -48,6 +48,12 @@ jobs:
         env:
           RUST_BACKTRACE: 1
 
+      - name: cargo doc
+          uses: actions-rs/cargo@v1
+          with:
+            command: doc
+            args: --package game-scanner --no-deps
+
       - name: cargo build
         uses: actions-rs/cargo@v1
         with:
