@@ -1,7 +1,7 @@
 on:
   push:
     tags:
-      - "v*"
+      - 'v*'
 
 name: Release
 
@@ -121,8 +121,8 @@ jobs:
           architecture: x64
           cache: 'npm'
           cache-dependency-path: node/package-lock.json
-          scope: "@equal-games"
-          registry-url: "https://registry.npmjs.org"
+          scope: '@equal-games'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: cargo publish
         uses: actions-rs/cargo@v1
