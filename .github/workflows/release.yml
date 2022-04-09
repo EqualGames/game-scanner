@@ -1,12 +1,11 @@
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 name: Release
 
 jobs:
-
   github:
     runs-on: ubuntu-latest
 
@@ -19,28 +18,49 @@ jobs:
         run: echo ::set-output name=value::${GITHUB_REF#refs/*/v*}
 
   build_assets:
-    needs: [ github ]
+    needs: [github]
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        os:
-          - macos-latest
-          - windows-latest
-        architecture:
-          - x64
+        include:
+          - os: windows-latest
+            rust-target: x86_64-pc-windows-msvc
+            node-target: x64
+            output: windows-x64
+          - os: windows-latest
+            rust-target: aarch64-pc-windows-msvc
+            node-target: arm64
+            output: windows-arm64
+          - os: ubuntu-latest
+            rust-target: x86_64-unknown-linux-gnu
+            node-target: x64
+            output: linux-x64
+          - os: ubuntu-latest
+            rust-target: aarch64-unknown-linux-gnu
+            node-target: arm64
+            output: linux-arm64
+          - os: macos-latest
+            rust-target: x86_64-apple-darwin
+            node-target: x64
+            output: darwin-x64
+          - os: macos-latest
+            rust-target: aarch64-apple-darwin
+            node-target: arm64
+            output: darwin-arm64
 
     steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-node@v2.1.4
-        with:
-          node-version: 12.x
-          architecture: ${{ matrix.architecture }}
+      - uses: actions/checkout@v3
 
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          target: ${{ matrix.rust-target }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 12.x
+          architecture: ${{ matrix.node-target }}
 
       - run: npm ci
         working-directory: node
@@ -49,32 +69,30 @@ jobs:
         working-directory: node
 
       - name: Upload release assets
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ASSET_NAME: ${{ runner.os }}-${{ needs.github.outputs.version }}.node
         with:
-          name: ${{ env.ASSET_NAME }}
+          name: ${{ matrix.output }}.node
           path: node/native/index.node
           if-no-files-found: error
 
   publish:
-    needs: [ github, build_assets ]
-    runs-on: macos-latest
+    needs: [github, build_assets]
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
 
-      - uses: actions/setup-node@v2.1.4
+      - uses: actions/setup-node@v3
         with:
           node-version: 12.x
-          architecture: x64
-          scope: '@equal-games'
-          registry-url: 'https://registry.npmjs.org'
+          scope: "@equal-games"
+          registry-url: "https://registry.npmjs.org"
 
       - name: cargo publish
         uses: actions-rs/cargo@v1
@@ -84,25 +102,41 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
-      - name: Download windows asset
-        uses: actions/download-artifact@v2
+      - name: Download windows-x64 asset
+        uses: actions/download-artifact@v3
         with:
-          name: Windows-${{ needs.github.outputs.version }}.node
+          name: windows-x64.node
           path: node/npm/native
 
-      - name: Rename windows asset
-        run: mv index.node windows.node
-        working-directory: node/npm/native
-
-      - name: Download macos asset
-        uses: actions/download-artifact@v2
+      - name: Download macos-x64 asset
+        uses: actions/download-artifact@v3
         with:
-          name: macOS-${{ needs.github.outputs.version }}.node
+          name: darwin-x64.node
           path: node/npm/native
 
-      - name: Rename macos asset
-        run: mv index.node darwin.node
-        working-directory: node/npm/native
+      - name: Download linux-x64 asset
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-x64.node
+          path: node/npm/native
+
+      - name: Download windows-arm64 asset
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-arm64.node
+          path: node/npm/native
+
+      - name: Download macos-arm64 asset
+        uses: actions/download-artifact@v3
+        with:
+          name: darwin-arm64.node
+          path: node/npm/native
+
+      - name: Download linux-arm64 asset
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-arm64.node
+          path: node/npm/native
 
       - name: Update version on package.json
         run: npm version ${{ needs.github.outputs.version }}
