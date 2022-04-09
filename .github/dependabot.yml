@@ -16,7 +16,7 @@ updates:
       interval: "daily"
 
   - package-ecosystem: "cargo"
-    directory: "/node/native"
+    directory: "/node"
     schedule:
       interval: "daily"
 
