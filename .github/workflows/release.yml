@@ -30,7 +30,7 @@ jobs:
             output: windows-x64
           - os: windows-latest
             rust-target: aarch64-pc-windows-msvc
-            node-target: arm64
+            node-target: x64
             output: windows-arm64
           - os: ubuntu-latest
             rust-target: x86_64-unknown-linux-gnu
@@ -38,7 +38,7 @@ jobs:
             output: linux-x64
           - os: ubuntu-latest
             rust-target: aarch64-unknown-linux-gnu
-            node-target: arm64
+            node-target: x64
             output: linux-arm64
           - os: macos-latest
             rust-target: x86_64-apple-darwin
@@ -46,7 +46,7 @@ jobs:
             output: darwin-x64
           - os: macos-latest
             rust-target: aarch64-apple-darwin
-            node-target: arm64
+            node-target: x64
             output: darwin-arm64
 
     steps:
@@ -57,15 +57,31 @@ jobs:
           toolchain: stable
           target: ${{ matrix.rust-target }}
 
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+            node/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
       - uses: actions/setup-node@v3
         with:
           node-version: 12.x
           architecture: ${{ matrix.node-target }}
+          cache: 'npm'
+          cache-dependency-path: node/package-lock.json
 
       - run: npm ci
         working-directory: node
 
-      - run: npm run build
+      - run: npm run build:release
+        working-directory: node
+
+      - run: mv index.node ${{ matrix.output }}.node
         working-directory: node
 
       - name: Upload release assets
@@ -74,7 +90,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           name: ${{ matrix.output }}.node
-          path: node/native/index.node
+          path: node/${{ matrix.output }}.node
           if-no-files-found: error
 
   publish:
@@ -88,9 +104,23 @@ jobs:
         with:
           toolchain: stable
 
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+            node/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
       - uses: actions/setup-node@v3
         with:
           node-version: 12.x
+          architecture: x64
+          cache: 'npm'
+          cache-dependency-path: node/package-lock.json
           scope: "@equal-games"
           registry-url: "https://registry.npmjs.org"
 
@@ -138,8 +168,7 @@ jobs:
           name: linux-arm64.node
           path: node/npm/native
 
-      - name: Update version on package.json
-        run: npm version ${{ needs.github.outputs.version }}
+      - run: npm version ${{ needs.github.outputs.version }}
         working-directory: node/npm
 
       - name: Copy files
