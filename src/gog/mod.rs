@@ -6,6 +6,7 @@ use self::utils::{get_launcher_executable, get_manifests_path};
 
 mod sqlite;
 #[cfg_attr(target_os = "windows", path = "utils/windows.rs")]
+#[cfg_attr(target_os = "linux", path = "utils/linux.rs")]
 #[cfg_attr(target_os = "macos", path = "utils/macos.rs")]
 mod utils;
 

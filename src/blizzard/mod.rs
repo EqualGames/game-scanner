@@ -10,8 +10,11 @@ use crate::{
 #[cfg(target_os = "windows")]
 pub use self::windows::*;
 
+#[cfg(target_os = "windows")]
 mod db;
+#[cfg(target_os = "windows")]
 mod proto;
+#[cfg(target_os = "windows")]
 mod types;
 #[cfg(target_os = "windows")]
 mod windows;
