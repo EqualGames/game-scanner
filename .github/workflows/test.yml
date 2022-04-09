@@ -73,6 +73,7 @@ jobs:
           RUST_BACKTRACE: 1
 
   build:
+    needs: test
     runs-on: ${{ matrix.os }}
 
     strategy:
