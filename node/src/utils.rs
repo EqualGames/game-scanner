@@ -130,38 +130,38 @@ fn make_array_of_string<'a>(
 
 pub fn from_js<'a>(ctx: &mut FunctionContext<'a>, object: &JsObject) -> io::Result<Game> {
     let _type = object
-        .get(ctx, "_type")
+        .get_value(ctx, "_type")
         .unwrap()
         .to_string(ctx)
         .unwrap()
         .value(ctx);
     let id = object
-        .get(ctx, "id")
+        .get_value(ctx, "id")
         .unwrap()
         .to_string(ctx)
         .unwrap()
         .value(ctx);
     let name = object
-        .get(ctx, "name")
+        .get_value(ctx, "name")
         .unwrap()
         .to_string(ctx)
         .unwrap()
         .value(ctx);
 
     let path = object
-        .get(ctx, "path")
+        .get_value(ctx, "path")
         .ok()
         .and_then(|value| value.to_string(ctx).ok())
         .map(|value| PathBuf::from(value.value(ctx)));
 
     let commands = object
-        .get(ctx, "commands")
+        .get_value(ctx, "commands")
         .unwrap()
         .downcast::<JsObject, FunctionContext<'a>>(ctx)
         .unwrap();
 
     let install_command = commands
-        .get(ctx, "install")
+        .get_value(ctx, "install")
         .ok()
         .and_then(|value| value.downcast::<JsArray, FunctionContext<'a>>(ctx).ok())
         .and_then(|arr| arr.to_vec(ctx).ok())
@@ -172,7 +172,7 @@ pub fn from_js<'a>(ctx: &mut FunctionContext<'a>, object: &JsObject) -> io::Resu
         });
 
     let launch_command = commands
-        .get(ctx, "launch")
+        .get_value(ctx, "launch")
         .ok()
         .and_then(|value| value.downcast::<JsArray, FunctionContext<'a>>(ctx).ok())
         .and_then(|arr| arr.to_vec(ctx).ok())
@@ -183,7 +183,7 @@ pub fn from_js<'a>(ctx: &mut FunctionContext<'a>, object: &JsObject) -> io::Resu
         });
 
     let uninstall_command = commands
-        .get(ctx, "uninstall")
+        .get_value(ctx, "uninstall")
         .ok()
         .and_then(|value| value.downcast::<JsArray, FunctionContext<'a>>(ctx).ok())
         .and_then(|arr| arr.to_vec(ctx).ok())
@@ -194,40 +194,40 @@ pub fn from_js<'a>(ctx: &mut FunctionContext<'a>, object: &JsObject) -> io::Resu
         });
 
     let state = object
-        .get(ctx, "state")
+        .get_value(ctx, "state")
         .unwrap()
         .downcast::<JsObject, FunctionContext<'a>>(ctx)
         .unwrap();
 
     let installed = state
-        .get(ctx, "installed")
+        .get_value(ctx, "installed")
         .unwrap()
         .downcast::<JsBoolean, FunctionContext<'a>>(ctx)
         .unwrap()
         .value(ctx);
 
     let needs_update = state
-        .get(ctx, "needs_update")
+        .get_value(ctx, "needs_update")
         .unwrap()
         .downcast::<JsBoolean, FunctionContext<'a>>(ctx)
         .unwrap()
         .value(ctx);
 
     let downloading = state
-        .get(ctx, "downloading")
+        .get_value(ctx, "downloading")
         .unwrap()
         .downcast::<JsBoolean, FunctionContext<'a>>(ctx)
         .unwrap()
         .value(ctx);
 
     let total_bytes = state
-        .get(ctx, "total_bytes")
+        .get_value(ctx, "total_bytes")
         .ok()
         .and_then(|value| value.downcast::<JsNumber, FunctionContext<'a>>(ctx).ok())
         .map(|number| number.value(ctx) as u64);
 
     let received_bytes = state
-        .get(ctx, "received_bytes")
+        .get_value(ctx, "received_bytes")
         .ok()
         .and_then(|value| value.downcast::<JsNumber, FunctionContext<'a>>(ctx).ok())
         .map(|number| number.value(ctx) as u64);
