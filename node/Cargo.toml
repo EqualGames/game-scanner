@@ -6,9 +6,8 @@ edition = "2021"
 publish = false
 
 [lib]
-name = "game_scanner_node"
 crate-type = ["cdylib"]
 
 [dependencies]
-neon = { version = "0.9.1", default-features = false, features = ["napi-5"] }
-game-scanner = { version = "1", path = "../../" }
+neon = { version = "0.10.0", default-features = false, features = ["napi-5"] }
+game-scanner = { version = "1", path = "../" }
