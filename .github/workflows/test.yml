@@ -15,7 +15,7 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-  cargo_test:
+  build:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -26,19 +26,19 @@ jobs:
             node-target: x64
           - os: windows-latest
             rust-target: aarch64-pc-windows-msvc
-            node-target: arm64
+            node-target: x64
           - os: ubuntu-latest
             rust-target: x86_64-unknown-linux-gnu
             node-target: x64
           - os: ubuntu-latest
             rust-target: aarch64-unknown-linux-gnu
-            node-target: arm64
+            node-target: x64
           - os: macos-latest
             rust-target: x86_64-apple-darwin
             node-target: x64
           - os: macos-latest
             rust-target: aarch64-apple-darwin
-            node-target: arm64
+            node-target: x64
 
     steps:
       - uses: actions/checkout@v3
@@ -48,72 +48,26 @@ jobs:
           toolchain: stable
           target: ${{ matrix.rust-target }}
 
-      - name: cargo check
-        uses: actions-rs/cargo@v1
+      - uses: actions/cache@v3
         with:
-          command: check
-          args: --package game-scanner
-
-      - name: cargo test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --package game-scanner
-        env:
-          RUST_BACKTRACE: 1
-
-      - name: cargo doc
-        uses: actions-rs/cargo@v1
-        with:
-          command: doc
-          args: --package game-scanner --no-deps
-
-      - name: cargo build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --package game-scanner --lib --release
-
-  node_test:
-    needs: cargo_test
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            rust-target: x86_64-pc-windows-msvc
-            node-target: x64
-          - os: windows-latest
-            rust-target: aarch64-pc-windows-msvc
-            node-target: arm64
-          - os: ubuntu-latest
-            rust-target: x86_64-unknown-linux-gnu
-            node-target: x64
-          - os: ubuntu-latest
-            rust-target: aarch64-unknown-linux-gnu
-            node-target: arm64
-          - os: macos-latest
-            rust-target: x86_64-apple-darwin
-            node-target: x64
-          - os: macos-latest
-            rust-target: aarch64-apple-darwin
-            node-target: arm64
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: ${{ matrix.rust-target }}
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+            node/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - uses: actions/setup-node@v3
         with:
           node-version: 12.x
           architecture: ${{ matrix.node-target }}
+          cache: 'npm'
+          cache-dependency-path: node/package-lock.json
 
-      - run: |
-          cd node
-          npm ci
-          npm run build
+      - run: npm ci
+        working-directory: node
+
+      - run: npm run build:debug
+        working-directory: node
