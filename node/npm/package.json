@@ -12,9 +12,7 @@
   "files": [
     "index.d.ts",
     "index.js",
-    "native/windows.node",
-    "native/darwin.node",
-    "native/linux.node"
+    "native",
   ],
   "main": "index.js",
   "os": [
