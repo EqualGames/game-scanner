@@ -25,7 +25,7 @@ doc = true
 crate-type = ["rlib", "cdylib"]
 
 [dependencies]
-serde = { version = "1.0.130", features = ["derive"] }
+serde = { version = "1.0.137", features = ["derive"] }
 serde_json = { version = "1.0.79" }
 serde_yaml = { version = "0.8.23" }
 url = { version = "2.2.2" }
