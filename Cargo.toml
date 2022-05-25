@@ -29,7 +29,7 @@ serde = { version = "1.0.130", features = ["derive"] }
 serde_json = { version = "1.0.79" }
 serde_yaml = { version = "0.8.23" }
 url = { version = "2.2.2" }
-sysinfo = { version = "0.23.5" }
+sysinfo = { version = "0.23.15" }
 prost = { version = "0.9.0" }
 prost-types = { version = "0.9.0" }
 bytes = { version = "1.1.0" }
