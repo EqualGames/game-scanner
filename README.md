@@ -23,7 +23,7 @@ in [index.d.ts](./node/lib/index.d.ts).
 | Launcher   | Multi-directories[¹](#multi-directories) | Windows | Linux | MacOS |
 | ---------- | ---------------------------------------- | ------- | ----- | ----- |
 | Amazon     | ✅                                        | ✅       | ❌     | ❌     |
-| Blizzard   | ❓                                        | ✅       | ❌     | ❌     |
+| Blizzard   | ❓                                        | ✅       | ❌     | ✅     |
 | Epic Games | ❌                                        | ✅       | ❌     | ✅     |
 | GOG        | ❌                                        | ✅       | ❌     | ✅     |
 | Origin     | ❌                                        | ✅       | ❌     | ✅     |
