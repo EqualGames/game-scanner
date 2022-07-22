@@ -5,8 +5,10 @@ use crate::{
     utils::registry,
 };
 
-pub fn get_manifests_path() -> PathBuf {
-    PathBuf::from("C:\\ProgramData\\Battle.net\\Agent\\product.db")
+pub fn get_manifests_path() -> Result<PathBuf> {
+    return Ok(PathBuf::from(
+        "C:\\ProgramData\\Battle.net\\Agent\\product.db",
+    ));
 }
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
