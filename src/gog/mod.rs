@@ -1,13 +1,11 @@
+use self::utils::{get_launcher_executable, get_manifests_path};
+use crate::{error::Result, prelude::Game};
 use std::path::PathBuf;
 
-use crate::{error::Result, prelude::Game};
-
-use self::utils::{get_launcher_executable, get_manifests_path};
-
 mod sqlite;
-#[cfg_attr(target_os = "windows", path = "utils/windows.rs")]
-#[cfg_attr(target_os = "linux", path = "utils/linux.rs")]
-#[cfg_attr(target_os = "macos", path = "utils/macos.rs")]
+#[cfg_attr(target_os = "windows", path = "platform/windows.rs")]
+#[cfg_attr(target_os = "linux", path = "platform/linux.rs")]
+#[cfg_attr(target_os = "macos", path = "platform/macos.rs")]
 mod utils;
 
 pub fn executable() -> Result<PathBuf> {

@@ -1,11 +1,9 @@
-use std::{path::Path, process};
-
-use sysinfo::{Pid, PidExt, ProcessExt, System, SystemExt};
-
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::Game,
 };
+use std::{path::Path, process};
+use sysinfo::{Pid, PidExt, ProcessExt, System, SystemExt};
 
 pub fn install_game(game: &Game) -> Result<()> {
     let mut command = process::Command::new("");

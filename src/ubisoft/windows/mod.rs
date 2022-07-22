@@ -1,11 +1,9 @@
-use std::path::PathBuf;
-
+use self::utils::{get_game_info, get_launcher_executable, get_manifest_ids, parse_game_info};
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::Game,
 };
-
-use self::utils::{get_game_info, get_launcher_executable, get_manifest_ids, parse_game_info};
+use std::path::PathBuf;
 
 mod utils;
 
