@@ -1,8 +1,6 @@
-use std::path::PathBuf;
-
-use directories::ProjectDirs;
-
 use crate::error::{Error, ErrorKind, Result};
+use directories::ProjectDirs;
+use std::path::PathBuf;
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_executable_path = PathBuf::from("/")

@@ -1,12 +1,10 @@
+use self::utils::{get_launcher_executable, get_launcher_path, get_manifests_path};
+use super::sqlite;
 use crate::{
     error::{ErrorKind, Result},
     prelude::Game,
 };
 use std::path::PathBuf;
-
-use super::sqlite;
-
-use self::utils::{get_launcher_executable, get_launcher_path, get_manifests_path};
 
 mod utils;
 

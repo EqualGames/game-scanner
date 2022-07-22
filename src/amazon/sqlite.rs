@@ -1,11 +1,9 @@
-use std::path::{Path, PathBuf};
-
-use rusqlite::{Connection, OpenFlags, Row};
-
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::{Game, GameType},
 };
+use rusqlite::{Connection, OpenFlags, Row};
+use std::path::{Path, PathBuf};
 
 pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
     let conn =

@@ -1,17 +1,14 @@
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
-
-use serde::{Deserialize, Serialize};
-
+use self::super::types::RiotGamesProducts;
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::{Game, GameCommands, GameState, GameType},
     utils::path::fix_path_separator,
 };
-
-use self::super::types::RiotGamesProducts;
+use serde::{Deserialize, Serialize};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProductSettings {
