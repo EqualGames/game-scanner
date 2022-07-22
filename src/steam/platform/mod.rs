@@ -1,10 +1,9 @@
-use std::path::PathBuf;
-
 use crate::{
     error::{Error, ErrorKind, Result},
     steam::vdf,
     utils::io::get_files,
 };
+use std::path::PathBuf;
 
 #[cfg(target_os = "linux")]
 pub use self::linux::*;

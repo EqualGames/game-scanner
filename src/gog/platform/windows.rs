@@ -1,9 +1,8 @@
-use std::path::PathBuf;
-
 use crate::{
     error::{Error, ErrorKind, Result},
     utils::registry,
 };
+use std::path::PathBuf;
 
 pub fn get_manifests_path() -> Result<PathBuf> {
     let manifest_path = PathBuf::from("C:\\ProgramData\\GOG.com\\Galaxy\\storage\\galaxy-2.0.db");

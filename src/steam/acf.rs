@@ -1,11 +1,10 @@
-use std::path::{Path, PathBuf};
-
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::Game,
     steam::types::{SteamAppState, SteamUpdateResult},
     utils::string::remove_quotes,
 };
+use std::path::{Path, PathBuf};
 
 pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Result<Game> {
     let manifest_data = std::fs::read_to_string(&file).map_err(|error| {

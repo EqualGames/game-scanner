@@ -1,9 +1,8 @@
-use std::path::{Path, PathBuf};
-
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::{Game, GameCommands, GameState, GameType},
 };
+use std::path::{Path, PathBuf};
 
 #[derive(Default)]
 struct Manifest {

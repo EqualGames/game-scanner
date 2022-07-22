@@ -1,6 +1,5 @@
-use std::{error, fmt, io};
-
 use chrono::Utc;
+use std::{error, fmt, io};
 
 #[derive(Debug)]
 pub struct Error {

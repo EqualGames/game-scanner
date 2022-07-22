@@ -1,16 +1,14 @@
-use std::path::PathBuf;
-
+use self::platform::{get_launcher_executable, get_library_manifests};
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::Game,
     utils::path::get_filename,
 };
-
-use self::utils::{get_launcher_executable, get_library_manifests};
+use std::path::PathBuf;
 
 mod acf;
+mod platform;
 mod types;
-mod utils;
 mod vdf;
 
 pub fn executable() -> Result<PathBuf> {

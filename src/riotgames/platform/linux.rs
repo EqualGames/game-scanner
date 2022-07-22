@@ -1,6 +1,5 @@
-use std::path::{Path, PathBuf};
-
 use crate::error::{Error, ErrorKind, Result};
+use std::path::{Path, PathBuf};
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     return Err(Error::new(

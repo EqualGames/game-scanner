@@ -1,10 +1,9 @@
-use std::path::{Path, PathBuf};
-
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::{Game, GameCommands, GameState, GameType},
     utils::{path::fix_path_separator, registry},
 };
+use std::path::{Path, PathBuf};
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_executable = registry::get_local_machine_reg_key("Ubisoft\\Launcher")

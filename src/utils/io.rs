@@ -1,9 +1,8 @@
+use crate::error::{Error, ErrorKind, Result};
 use std::{
     fs,
     path::{Path, PathBuf},
 };
-
-use crate::error::{Error, ErrorKind, Result};
 
 pub fn get_files<T>(path: &Path, predicate: T) -> Result<Vec<PathBuf>>
 where

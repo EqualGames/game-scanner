@@ -1,8 +1,6 @@
-use std::path::{Path, PathBuf};
-
-use directories::BaseDirs;
-
 use crate::error::{Error, ErrorKind, Result};
+use directories::BaseDirs;
+use std::path::{Path, PathBuf};
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     return get_launcher_path().map(|path| path.join("App").join("Amazon Games.exe"));

@@ -1,23 +1,13 @@
+use crate::error::{Error, ErrorKind, Result};
 use std::path::PathBuf;
 
-use crate::{
-    error::{Error, ErrorKind, Result},
-    utils::registry,
-};
-
 pub fn get_launcher_executable() -> Result<PathBuf> {
-    let launcher_executable = registry::get_local_machine_reg_key("Origin")
-        .and_then(|launcher_reg| registry::get_value(&launcher_reg, "ClientPath"))
-        .map(PathBuf::from);
-
-    if launcher_executable.is_err() {
-        return Err(Error::new(
-            ErrorKind::LauncherNotFound,
-            "Invalid Origin path, maybe this launcher is not installed",
-        ));
-    }
-
-    let launcher_executable = launcher_executable?;
+    let launcher_executable = PathBuf::from("/")
+        .join("Applications")
+        .join("Origin.app")
+        .join("Contents")
+        .join("MacOS")
+        .join("Origin");
 
     if !launcher_executable.exists() {
         return Err(Error::new(
@@ -33,9 +23,9 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
 }
 
 pub fn get_manifests_path() -> Result<PathBuf> {
-    let manifests_path = PathBuf::from("C:")
-        .join(std::path::MAIN_SEPARATOR.to_string())
-        .join("ProgramData")
+    let manifests_path = PathBuf::from("/")
+        .join("Library")
+        .join("Application Support")
         .join("Origin")
         .join("LocalContent");
 

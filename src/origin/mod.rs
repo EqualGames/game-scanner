@@ -1,18 +1,16 @@
-use std::{ops::Add, path::PathBuf};
-
+use self::platform::{get_launcher_executable, get_manifests_path};
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::Game,
     utils::io::get_files_recursive,
 };
-
-use self::utils::{get_launcher_executable, get_manifests_path};
+use std::{ops::Add, path::PathBuf};
 
 mod mfst;
-#[cfg_attr(target_os = "windows", path = "utils/windows.rs")]
-#[cfg_attr(target_os = "linux", path = "utils/linux.rs")]
-#[cfg_attr(target_os = "macos", path = "utils/macos.rs")]
-mod utils;
+#[cfg_attr(target_os = "windows", path = "platform/windows.rs")]
+#[cfg_attr(target_os = "linux", path = "platform/linux.rs")]
+#[cfg_attr(target_os = "macos", path = "platform/macos.rs")]
+mod platform;
 
 pub fn executable() -> Result<PathBuf> {
     return get_launcher_executable();
