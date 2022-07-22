@@ -1,17 +1,15 @@
-use std::{
-    convert::identity,
-    path::{Path, PathBuf},
+use self::super::{
+    proto::{product::ProductInstall, read_product},
+    types::BlizzardGames,
 };
-
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::{Game, GameCommands, GameState, GameType},
     utils::path::{fix_path_separator, get_filename},
 };
-
-use self::super::{
-    proto::{product::ProductInstall, read_product},
-    types::BlizzardGames,
+use std::{
+    convert::identity,
+    path::{Path, PathBuf},
 };
 
 pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
@@ -77,10 +75,10 @@ fn parse_manifest(manifest: &ProductInstall, launcher_executable: &Path) -> Game
     let installed = manifest
         .cached_product_state
         .clone()
-        .map_or(true, |cached_product_state| {
+        .map_or(false, |cached_product_state| {
             cached_product_state
                 .base_product_state
-                .map_or(true, |state| state.installed || state.playable)
+                .map_or(false, |state| state.installed || state.playable)
         });
 
     let needs_update =
