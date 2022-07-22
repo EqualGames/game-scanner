@@ -16,7 +16,7 @@ mod amazon {
     }
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(not(target_os = "linux"))]
 mod blizzard {
     use super::*;
 

@@ -1,7 +1,5 @@
-use std::any::type_name;
-use std::io::Error;
-
 use game_scanner::prelude::Game;
+use std::{any::type_name, io::Error};
 
 #[cfg(target_os = "windows")]
 mod amazon {
@@ -19,7 +17,7 @@ mod amazon {
     }
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(not(target_os = "linux"))]
 mod blizzard {
     use super::*;
 
