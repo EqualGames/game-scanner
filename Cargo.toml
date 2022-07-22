@@ -20,9 +20,11 @@ include = [
 
 [lib]
 name = "game_scanner"
-bench = true
-doc = true
 crate-type = ["rlib", "cdylib"]
+
+[[bench]]
+name = "list"
+harness = false
 
 [dependencies]
 serde = { version = "1.0.139", features = ["derive"] }
