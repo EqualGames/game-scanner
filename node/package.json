@@ -11,6 +11,6 @@
     "test": "cargo test"
   },
   "devDependencies": {
-    "cargo-cp-artifact": "^0.1.6"
+    "cargo-cp-artifact": "^0.1.7"
   }
 }
