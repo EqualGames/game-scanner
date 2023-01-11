@@ -507,9 +507,9 @@ checksum = "e5ce46fe64a9d73be07dcbe690a38ce1b293be448fd8ce1e6c1b8062c9f72c6a"
 
 [[package]]
 name = "ntapi"
-version = "0.3.7"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c28774a7fd2fbb4f0babd8237ce554b73af68021b5f695a3cebd6c59bac0980f"
+checksum = "bc51db7b362b205941f71232e56c625156eb9a929f8cf74a428fd5bc094a4afc"
 dependencies = [
  "winapi",
 ]
@@ -874,9 +874,9 @@ dependencies = [
 
 [[package]]
 name = "sysinfo"
-version = "0.24.7"
+version = "0.27.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54cb4ebf3d49308b99e6e9dc95e989e2fdbdc210e4f67c39db0bb89ba927001c"
+checksum = "fcd303550875ba33b137a7c93318cfdeb54c95e63ff7a0982d28425d3f87552c"
 dependencies = [
  "cfg-if",
  "core-foundation-sys",
