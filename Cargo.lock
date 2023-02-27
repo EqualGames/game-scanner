@@ -124,15 +124,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cmake"
-version = "0.1.48"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8ad8cef104ac57b68b89df3208164d228503abbdce70f6880ffa3d970e7443a"
-dependencies = [
- "cc",
-]
-
-[[package]]
 name = "core-foundation-sys"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -312,9 +303,9 @@ dependencies = [
  "chrono",
  "criterion",
  "directories",
- "prost",
+ "prost 0.10.4",
  "prost-build",
- "prost-types",
+ "prost-types 0.10.1",
  "rusqlite",
  "serde",
  "serde_json",
@@ -606,6 +597,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "prettyplease"
+version = "0.1.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e97e3215779627f01ee256d2fad52f3d95e8e1c11e9fc6fd08f7cd455d5d5c78"
+dependencies = [
+ "proc-macro2",
+ "syn",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -621,27 +622,37 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "71adf41db68aa0daaefc69bb30bcd68ded9b9abaad5d1fbb6304c4fb390e083e"
 dependencies = [
  "bytes",
- "prost-derive",
+ "prost-derive 0.10.1",
+]
+
+[[package]]
+name = "prost"
+version = "0.11.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e48e50df39172a3e7eb17e14642445da64996989bc212b583015435d39a58537"
+dependencies = [
+ "bytes",
+ "prost-derive 0.11.8",
 ]
 
 [[package]]
 name = "prost-build"
-version = "0.10.4"
+version = "0.11.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ae5a4388762d5815a9fc0dea33c56b021cdc8dde0c55e0c9ca57197254b0cab"
+checksum = "2c828f93f5ca4826f97fedcbd3f9a536c16b12cff3dbbb4a007f932bbad95b12"
 dependencies = [
  "bytes",
- "cfg-if",
- "cmake",
  "heck",
  "itertools",
  "lazy_static",
  "log",
  "multimap",
  "petgraph",
- "prost",
- "prost-types",
+ "prettyplease",
+ "prost 0.11.8",
+ "prost-types 0.11.8",
  "regex",
+ "syn",
  "tempfile",
  "which",
 ]
@@ -660,13 +671,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "prost-derive"
+version = "0.11.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ea9b0f8cbe5e15a8a042d030bd96668db28ecb567ec37d691971ff5731d2b1b"
+dependencies = [
+ "anyhow",
+ "itertools",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "prost-types"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2d0a014229361011dc8e69c8a1ec6c2e8d0f2af7c91e3ea3f5b2170298461e68"
 dependencies = [
  "bytes",
- "prost",
+ "prost 0.10.4",
+]
+
+[[package]]
+name = "prost-types"
+version = "0.11.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "379119666929a1afd7a043aa6cf96fa67a6dce9af60c88095a4686dbce4c9c88"
+dependencies = [
+ "prost 0.11.8",
 ]
 
 [[package]]
