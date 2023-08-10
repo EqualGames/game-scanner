@@ -8,8 +8,8 @@ pub enum RiotGamesProducts {
 impl RiotGamesProducts {
     pub fn from_manifest_name(manifest_name: &str) -> RiotGamesProducts {
         let manifest_info = manifest_name.split(".").collect::<Vec<&str>>();
-        let code = manifest_info.get(0).unwrap().clone();
-        let server = manifest_info.get(1).unwrap().clone();
+        let code = manifest_info.get(0).unwrap().to_owned();
+        let server = manifest_info.get(1).unwrap().to_owned();
 
         match code {
             "league_of_legends" => {
