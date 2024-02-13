@@ -1,13 +1,11 @@
-use std::io::Error;
-use std::thread;
-use std::time;
+use std::{thread, time};
 
-fn main() -> Result<(), Error> {
+fn main() {
     let game = game_scanner::steam::games()
         .unwrap()
         .iter()
         .find(|app| app.state.installed)
-        .map(|app| app.clone())
+        .cloned()
         .unwrap();
 
     game_scanner::manager::launch_game(&game).unwrap();
@@ -15,6 +13,4 @@ fn main() -> Result<(), Error> {
     thread::sleep(time::Duration::from_secs(30));
 
     game_scanner::manager::close_game(&game).unwrap();
-
-    Ok(())
 }

@@ -26,7 +26,7 @@ pub enum SteamAppState {
 }
 
 impl SteamAppState {
-    pub fn get_code(&self) -> i64 {
+    pub const fn get_code(self) -> i64 {
         match self {
             Self::Invalid => 0,
             Self::Uninstalled => 1,
@@ -63,7 +63,7 @@ pub enum SteamUpdateResult {
 }
 
 impl SteamUpdateResult {
-    pub fn get_code(&self) -> i64 {
+    pub const fn get_code(self) -> i64 {
         match self {
             Self::Downloading => 0,
             Self::Paused => 1 << 1,

@@ -1,5 +1,6 @@
-use crate::error::{Error, ErrorKind, Result};
 use std::path::PathBuf;
+
+use crate::error::{Error, ErrorKind, Result};
 
 pub fn get_manifests_path() -> Result<PathBuf> {
     let manifest_path = PathBuf::from("/")

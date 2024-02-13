@@ -1,8 +1,9 @@
-use crate::error::{Error, ErrorKind, Result};
 use std::{
     fs,
     path::{Path, PathBuf},
 };
+
+use crate::error::{Error, ErrorKind, Result};
 
 pub fn get_files<T>(path: &Path, predicate: T) -> Result<Vec<PathBuf>>
 where
@@ -11,7 +12,7 @@ where
     if !path.exists() {
         return Err(Error::new(
             ErrorKind::IO,
-            format!("invalid path {}", path.display().to_string()).as_str(),
+            format!("invalid path {}", path.display()).as_str(),
         ));
     }
 
@@ -20,14 +21,12 @@ where
     for entry in fs::read_dir(path)? {
         let entry_path = entry?.path();
 
-        if entry_path.is_file() {
-            if predicate(&entry_path) {
-                files.push(entry_path);
-            }
+        if entry_path.is_file() && predicate(&entry_path) {
+            files.push(entry_path);
         }
     }
 
-    return Ok(files);
+    Ok(files)
 }
 
 pub fn get_files_recursive<T>(path: &Path, predicate: T) -> Result<Vec<PathBuf>>
@@ -37,7 +36,7 @@ where
     if !path.exists() {
         return Err(Error::new(
             ErrorKind::IO,
-            format!("invalid path {}", path.display().to_string()).as_str(),
+            format!("invalid path {}", path.display()).as_str(),
         ));
     }
 
@@ -55,5 +54,5 @@ where
         }
     }
 
-    return Ok(files);
+    Ok(files)
 }

@@ -1,14 +1,10 @@
 fn main() {
-    let games = game_scanner::steam::games();
-
-    match games {
+    match game_scanner::steam::games() {
         Ok(value) => {
-            println!("{:#?}", value);
+            println!("{value:#?}");
         }
         Err(error) => {
-            println!("{:#?}", error);
+            eprintln!("{error:#?}");
         }
     }
-
-    ()
 }

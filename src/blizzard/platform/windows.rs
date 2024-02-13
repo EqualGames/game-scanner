@@ -5,10 +5,8 @@ use crate::{
     utils::registry,
 };
 
-pub fn get_manifests_path() -> Result<PathBuf> {
-    return Ok(PathBuf::from(
-        "C:\\ProgramData\\Battle.net\\Agent\\product.db",
-    ));
+pub fn get_manifests_path() -> PathBuf {
+    PathBuf::from("C:\\ProgramData\\Battle.net\\Agent\\product.db")
 }
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
@@ -29,10 +27,10 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
             ErrorKind::LauncherNotFound,
             format!(
                 "Invalid Blizzard path, maybe this launcher is not installed: {}",
-                launcher_executable.display().to_string()
+                launcher_executable.display()
             ),
         ));
     }
 
-    return Ok(launcher_executable);
+    Ok(launcher_executable)
 }

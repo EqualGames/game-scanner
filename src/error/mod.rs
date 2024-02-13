@@ -1,9 +1,10 @@
-use chrono::Utc;
 use std::{error, fmt, io};
+
+use chrono::Utc;
 
 #[derive(Debug)]
 pub struct Error {
-    kind: ErrorKind,
+    kind:  ErrorKind,
     error: Box<dyn error::Error + Send + Sync>,
 }
 
@@ -16,39 +17,39 @@ impl Error {
     }
 
     fn _new(kind: ErrorKind, error: Box<dyn error::Error + Send + Sync>) -> Self {
-        Error { kind, error }
+        Self { kind, error }
     }
 
-    pub fn kind(&self) -> ErrorKind {
+    pub const fn kind(&self) -> ErrorKind {
         self.kind
     }
 
     pub fn print(&self) {
-        println!("{:?}", self);
+        println!("{self:?}");
     }
 }
 
 impl From<rusqlite::Error> for Error {
-    fn from(error: rusqlite::Error) -> Error {
-        Error::new(ErrorKind::SQLite, error)
+    fn from(error: rusqlite::Error) -> Self {
+        Self::new(ErrorKind::SQLite, error)
     }
 }
 
 impl From<serde_yaml::Error> for Error {
-    fn from(error: serde_yaml::Error) -> Error {
-        Error::new(ErrorKind::YAML, error)
+    fn from(error: serde_yaml::Error) -> Self {
+        Self::new(ErrorKind::Yaml, error)
     }
 }
 
 impl From<serde_json::Error> for Error {
-    fn from(error: serde_json::Error) -> Error {
-        Error::new(ErrorKind::JSON, error)
+    fn from(error: serde_json::Error) -> Self {
+        Self::new(ErrorKind::Json, error)
     }
 }
 
 impl From<io::Error> for Error {
-    fn from(error: io::Error) -> Error {
-        Error::new(ErrorKind::IO, error)
+    fn from(error: io::Error) -> Self {
+        Self::new(ErrorKind::IO, error)
     }
 }
 
@@ -77,6 +78,7 @@ impl error::Error for Error {
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum ErrorKind {
     IgnoredApp,
+    InstallFailed,
     InvalidGame,
     InvalidLauncher,
     InvalidManifest,
@@ -87,8 +89,8 @@ pub enum ErrorKind {
     LibraryNotFound,
     IO,
     SQLite,
-    JSON,
-    YAML,
+    Json,
+    Yaml,
     WinReg,
     Other,
 }
@@ -96,20 +98,18 @@ pub enum ErrorKind {
 pub type Result<T> = std::result::Result<T, Error>;
 
 pub fn can_logger(error: &Error) -> bool {
-    return error.kind().ne(&ErrorKind::IgnoredApp)
-        && error.kind().ne(&ErrorKind::LauncherNotFound)
+    error.kind().ne(&ErrorKind::IgnoredApp) && error.kind().ne(&ErrorKind::LauncherNotFound)
         || cfg!(debug_assertions)
-        || cfg!(test);
+        || cfg!(test)
 }
 
 #[allow(unused)]
 pub fn print_error(error: &Error) {
     if can_logger(error) {
         println!(
-            "[{}][{:?}] {}",
+            "[{}][{:?}] {error}",
             Utc::now().format("%Y-%m-%dT%H:%M:%S%.3f%:z"),
             error.kind(),
-            error.to_string(),
         );
     }
 }

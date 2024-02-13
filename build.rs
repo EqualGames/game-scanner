@@ -9,7 +9,7 @@ fn main() {
 
     println!("Compiling protos...");
     prost_build::Config::new()
-        .btree_map(&["."])
+        .btree_map(["."])
         .out_dir(&blizzard_proto_path)
         .compile_protos(
             &[blizzard_proto_path.join("product_db.proto")],

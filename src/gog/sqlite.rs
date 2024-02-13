@@ -1,17 +1,20 @@
+use std::path::{Path, PathBuf};
+
+use rusqlite::{params_from_iter, Connection, OpenFlags, Row};
+
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::{Game, GameType},
     utils::sqlite::repeat_vars,
 };
-use rusqlite::{params_from_iter, Connection, OpenFlags, Row};
-use std::path::{Path, PathBuf};
 
+#[allow(clippy::too_many_lines)]
 pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
     let conn =
-        Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
+        Connection::open_with_flags(file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
-                format!("Invalid GOG manifest: {}", error.to_string()),
+                format!("Invalid GOG manifest: {error}"),
             )
         })?;
 
@@ -23,26 +26,20 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
             .map_err(|error| {
                 Error::new(
                     ErrorKind::InvalidManifest,
-                    format!(
-                        "Error to read the GOG manifest (LibraryReleases): {}",
-                        error.to_string()
-                    ),
+                    format!("Error to read the GOG manifest (LibraryReleases): {error}"),
                 )
             })?;
 
         let rows = stmt
-            .query_map([], |row| parse_library_releases(row))
+            .query_map([], parse_library_releases)
             .map_err(|error| match error {
                 rusqlite::Error::QueryReturnedNoRows => Error::new(
                     ErrorKind::LibraryNotFound,
-                    format!("GOG library could be empty"),
+                    "GOG library could be empty".to_string(),
                 ),
                 _ => Error::new(
                     ErrorKind::InvalidManifest,
-                    format!(
-                        "Error to read the GOG manifest (LibraryReleases): {}",
-                        error.to_string()
-                    ),
+                    format!("Error to read the GOG manifest (LibraryReleases): {error}"),
                 ),
             })?;
 
@@ -62,10 +59,7 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
         .map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
-                format!(
-                    "Error to read the GOG manifest (LimitedDetails): {}",
-                    error.to_string()
-                ),
+                format!("Error to read the GOG manifest (LimitedDetails): {error}"),
             )
         })?;
 
@@ -82,10 +76,7 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
         .map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
-                format!(
-                    "Error to read the GOG manifest (LimitedDetails): {}",
-                    error.to_string()
-                ),
+                format!("Error to read the GOG manifest (LimitedDetails): {error}"),
             )
         })?;
 
@@ -102,14 +93,11 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
             .map_err(|error| match error {
                 rusqlite::Error::QueryReturnedNoRows => Error::new(
                     ErrorKind::LibraryNotFound,
-                    format!("GOG library could be empty"),
+                    "GOG library could be empty".to_string(),
                 ),
                 _ => Error::new(
                     ErrorKind::InvalidManifest,
-                    format!(
-                        "Error to read the GOG manifest (Manifests): {}",
-                        error.to_string()
-                    ),
+                    format!("Error to read the GOG manifest (Manifests): {error}"),
                 ),
             });
 
@@ -137,15 +125,15 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
         games.push(game);
     }
 
-    return Ok(games);
+    Ok(games)
 }
 
 pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
     let conn =
-        Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
+        Connection::open_with_flags(file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
-                format!("Invalid GOG manifest: {}", error.to_string()),
+                format!("Invalid GOG manifest: {error}"),
             )
         })?;
 
@@ -154,10 +142,7 @@ pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
         .map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
-                format!(
-                    "Error to read the GOG manifest (LimitedDetails): {}",
-                    error.to_string()
-                ),
+                format!("Error to read the GOG manifest (LimitedDetails): {error}"),
             )
         })?;
 
@@ -174,10 +159,7 @@ pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
         .map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
-                format!(
-                    "Error to read the GOG manifest (LimitedDetails): {}",
-                    error.to_string()
-                ),
+                format!("Error to read the GOG manifest (LimitedDetails): {error}"),
             )
         })?;
 
@@ -186,10 +168,7 @@ pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
         .map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
-                format!(
-                    "Error to read the GOG manifest (Manifests): {}",
-                    error.to_string()
-                ),
+                format!("Error to read the GOG manifest (Manifests): {error}"),
             )
         })
         .and_then(|mut statement| {
@@ -198,14 +177,11 @@ pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
                 .map_err(|error| match error {
                     rusqlite::Error::QueryReturnedNoRows => Error::new(
                         ErrorKind::LibraryNotFound,
-                        format!("GOG library could be empty"),
+                        "GOG library could be empty".to_string(),
                     ),
                     _ => Error::new(
                         ErrorKind::InvalidManifest,
-                        format!(
-                            "Error to read the GOG manifest (Manifests): {}",
-                            error.to_string()
-                        ),
+                        format!("Error to read the GOG manifest (Manifests): {error}"),
                     ),
                 })
         });
@@ -245,17 +221,17 @@ fn parse_library_releases(row: &Row) -> rusqlite::Result<String> {
 }
 
 fn parse_limited_details(
-    columns: &Vec<String>,
+    columns: &[String],
     row: &Row,
     launcher_executable: &Path,
 ) -> rusqlite::Result<Game> {
-    let mut game = Game::default();
-    game._type = GameType::GOG.to_string();
+    let mut game = Game {
+        type_: GameType::GOG.to_string(),
+        ..Default::default()
+    };
 
     for col in 0..columns.len() {
-        let name = columns.get(col).unwrap();
-
-        match name.as_str() {
+        match columns.get(col).unwrap().as_str() {
             "productId" => game.id = row.get::<_, i64>(col)?.to_string(),
             "title" => game.name = row.get(col)?,
             _ => {}

@@ -1,5 +1,6 @@
-use crate::error::{Error, ErrorKind, Result};
 use std::path::PathBuf;
+
+use crate::error::{Error, ErrorKind, Result};
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_executable = PathBuf::from("/")

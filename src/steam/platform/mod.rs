@@ -1,8 +1,3 @@
-use crate::{
-    error::{Error, ErrorKind, Result},
-    steam::vdf,
-    utils::io::get_files,
-};
 use std::path::PathBuf;
 
 #[cfg(target_os = "linux")]
@@ -11,6 +6,11 @@ pub use self::linux::*;
 pub use self::macos::*;
 #[cfg(target_os = "windows")]
 pub use self::windows::*;
+use crate::{
+    error::{Error, ErrorKind, Result},
+    steam::vdf,
+    utils::io::get_files,
+};
 
 #[cfg(target_os = "linux")]
 mod linux;
@@ -33,7 +33,7 @@ where
     }
 
     if !library_paths.contains(&manifests_path) {
-        library_paths.push(manifests_path.clone())
+        library_paths.push(manifests_path);
     }
 
     let mut library_manifests = Vec::new();
@@ -45,9 +45,8 @@ where
                 Error::new(
                     ErrorKind::LibraryNotFound,
                     format!(
-                        "Invalid Steam library path, something is wrong: {} {}",
-                        path.display().to_string(),
-                        error.to_string()
+                        "Invalid Steam library path, something is wrong: {} {error}",
+                        path.display()
                     ),
                 )
                 .print();

@@ -1,11 +1,13 @@
-use crate::{
-    error::{Error, ErrorKind, Result},
-    prelude::{Game, GameCommands, GameState, GameType},
-};
-use serde::{Deserialize, Serialize};
 use std::{
     fs,
     path::{Path, PathBuf},
+};
+
+use serde::{Deserialize, Serialize};
+
+use crate::{
+    error::{Error, ErrorKind, Result},
+    prelude::{Game, GameCommands, GameState, GameType},
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -23,14 +25,10 @@ struct Manifest {
 }
 
 pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
-    let manifest_data = fs::read_to_string(&file).map_err(|error| {
+    let manifest_data = fs::read_to_string(file).map_err(|error| {
         Error::new(
             ErrorKind::InvalidManifest,
-            format!(
-                "Invalid Epic Games manifest: {} {}",
-                file.display().to_string(),
-                error.to_string()
-            ),
+            format!("Invalid Epic Games manifest: {} {}", file.display(), error),
         )
     })?;
 
@@ -39,8 +37,8 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
             ErrorKind::InvalidManifest,
             format!(
                 "Error on read the Epic Games manifest: {} {}",
-                file.display().to_string(),
-                error.to_string()
+                file.display(),
+                error
             ),
         )
     })?;
@@ -55,14 +53,14 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
         ));
     }
 
-    return Ok(Game {
-        _type: GameType::EpicGames.to_string(),
-        id: manifest.app_name.clone(),
-        name: manifest.display_name.clone(),
-        path: Some(PathBuf::from(manifest.install_location)),
+    Ok(Game {
+        type_:    GameType::EpicGames.to_string(),
+        id:       manifest.app_name.clone(),
+        name:     manifest.display_name.clone(),
+        path:     Some(PathBuf::from(manifest.install_location)),
         commands: GameCommands {
-            install: None,
-            launch: Some(vec![
+            install:   None,
+            launch:    Some(vec![
                 launcher_executable.display().to_string(),
                 format!(
                     "com.epicgames.launcher://apps/{}?action=launch&silent=true",
@@ -71,12 +69,12 @@ pub fn read(file: &Path, launcher_executable: &Path) -> Result<Game> {
             ]),
             uninstall: None,
         },
-        state: GameState {
-            installed: !manifest.is_incomplete_install,
-            needs_update: false,
-            downloading: false,
-            total_bytes: None,
+        state:    GameState {
+            installed:      !manifest.is_incomplete_install,
+            needs_update:   false,
+            downloading:    false,
+            total_bytes:    None,
             received_bytes: None,
         },
-    });
+    })
 }

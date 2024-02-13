@@ -1,6 +1,7 @@
+use std::path::{Path, PathBuf};
+
 use self::super::yaml::read_riot_client_installs;
 use crate::error::{Error, ErrorKind, Result};
-use std::path::{Path, PathBuf};
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_client_installs =
