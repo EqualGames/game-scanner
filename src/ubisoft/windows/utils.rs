@@ -1,9 +1,10 @@
+use std::path::{Path, PathBuf};
+
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::{Game, GameCommands, GameState, GameType},
     utils::{path::fix_path_separator, registry},
 };
-use std::path::{Path, PathBuf};
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_executable = registry::get_local_machine_reg_key("Ubisoft\\Launcher")
@@ -15,10 +16,7 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
         .map_err(|error| {
             Error::new(
                 ErrorKind::LauncherNotFound,
-                format!(
-                    "Invalid Ubisoft path, maybe this launcher is not installed: {}",
-                    error.to_string()
-                ),
+                format!("Invalid Ubisoft path, maybe this launcher is not installed: {error}"),
             )
         })?;
 
@@ -27,12 +25,12 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
             ErrorKind::LauncherNotFound,
             format!(
                 "Invalid Ubisoft path, maybe this launcher is not installed: {}",
-                launcher_executable.display().to_string()
+                launcher_executable.display()
             ),
         ));
     }
 
-    return Ok(launcher_executable);
+    Ok(launcher_executable)
 }
 
 pub fn get_manifest_ids() -> Result<Vec<String>> {
@@ -47,21 +45,15 @@ pub fn get_manifest_ids() -> Result<Vec<String>> {
         .map_err(|error| {
             Error::new(
                 ErrorKind::LauncherNotFound,
-                format!(
-                    "Invalid Ubisoft path, maybe this launcher is not installed: {}",
-                    error.to_string()
-                ),
+                format!("Invalid Ubisoft path, maybe this launcher is not installed: {error}"),
             )
         });
 }
 
 pub fn get_game_info(manifest_id: &String) -> Result<(String, PathBuf)> {
     registry::get_local_machine_reg_key(
-        format!(
-            "Microsoft\\Windows\\CurrentVersion\\Uninstall\\Uplay Install {}",
-            manifest_id
-        )
-        .as_str(),
+        format!("Microsoft\\Windows\\CurrentVersion\\Uninstall\\Uplay Install {manifest_id}")
+            .as_str(),
     )
     .and_then(|game_reg| {
         registry::get_value(&game_reg, "DisplayName").and_then(|game_name| {
@@ -73,7 +65,7 @@ pub fn get_game_info(manifest_id: &String) -> Result<(String, PathBuf)> {
     .map_err(|error| {
         Error::new(
             ErrorKind::InvalidGame,
-            format!("Error on read the Ubisoft manifest: {}", error.to_string()),
+            format!("Error on read the Ubisoft manifest: {error}"),
         )
     })
 }
@@ -86,16 +78,16 @@ pub fn parse_game_info(
     let (name, path) = game_info;
 
     Game {
-        _type: GameType::Ubisoft.to_string(),
-        id: id.clone(),
-        name: name.clone(),
-        path: Some(path.clone()),
+        type_:    GameType::Ubisoft.to_string(),
+        id:       id.clone(),
+        name:     name.clone(),
+        path:     Some(path.clone()),
         commands: GameCommands {
-            install: Some(vec![
+            install:   Some(vec![
                 launcher_executable.display().to_string(),
                 format!("uplay://install/{}", &id),
             ]),
-            launch: Some(vec![
+            launch:    Some(vec![
                 launcher_executable.display().to_string(),
                 format!("uplay://launch/{}/0", &id),
             ]),
@@ -104,11 +96,11 @@ pub fn parse_game_info(
                 format!("uplay://uninstall/{}", &id),
             ]),
         },
-        state: GameState {
-            installed: true,
-            needs_update: false,
-            downloading: false,
-            total_bytes: None,
+        state:    GameState {
+            installed:      true,
+            needs_update:   false,
+            downloading:    false,
+            total_bytes:    None,
             received_bytes: None,
         },
     }

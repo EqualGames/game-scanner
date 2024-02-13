@@ -1,3 +1,7 @@
+#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::multiple_crate_versions)]
+#![allow(clippy::struct_excessive_bools)]
+
 pub mod amazon;
 pub mod blizzard;
 pub mod epicgames;

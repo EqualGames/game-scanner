@@ -18,7 +18,7 @@ pub enum BlizzardGames {
 }
 
 impl BlizzardGames {
-    pub fn get_code(&self) -> &'static str {
+    pub const fn get_code(&self) -> &'static str {
         match self {
             Self::StarCraft => "S1",
             Self::StarCraftII => "S2",
@@ -39,7 +39,7 @@ impl BlizzardGames {
         }
     }
 
-    pub fn from_uid(uid: &str) -> BlizzardGames {
+    pub fn from_uid(uid: &str) -> Self {
         match uid {
             "s1" => Self::StarCraft,
             "s2" => Self::StarCraftII,

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{PathBuf, MAIN_SEPARATOR_STR};
 
 use case::CaseExt;
 
@@ -15,10 +15,7 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
         .map_err(|error| {
             Error::new(
                 ErrorKind::LauncherNotFound,
-                format!(
-                    "Invalid Steam path, maybe this launcher is not installed: {}",
-                    error.to_string()
-                ),
+                format!("Invalid Steam path, maybe this launcher is not installed: {error}"),
             )
         })?;
 
@@ -27,12 +24,12 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
             ErrorKind::LauncherNotFound,
             format!(
                 "Invalid Steam path, maybe this launcher is not installed: {}",
-                launcher_executable.display().to_string()
+                launcher_executable.display()
             ),
         ));
     }
 
-    return Ok(launcher_executable);
+    Ok(launcher_executable)
 }
 
 pub fn get_manifests_path() -> Result<PathBuf> {
@@ -43,10 +40,7 @@ pub fn get_manifests_path() -> Result<PathBuf> {
         .map_err(|error| {
             Error::new(
                 ErrorKind::LauncherNotFound,
-                format!(
-                    "Invalid Steam path, maybe this launcher is not installed: {}",
-                    error.to_string()
-                ),
+                format!("Invalid Steam path, maybe this launcher is not installed: {error}"),
             )
         })?;
 
@@ -55,35 +49,36 @@ pub fn get_manifests_path() -> Result<PathBuf> {
             ErrorKind::LauncherNotFound,
             format!(
                 "Invalid Steam path, maybe this launcher is not installed: {}",
-                manifests_path.display().to_string()
+                manifests_path.display()
             ),
         ));
     }
 
-    return Ok(manifests_path);
+    Ok(manifests_path)
 }
 
+#[allow(clippy::needless_pass_by_value)]
 pub fn fix_launcher_executable_path(path: PathBuf) -> PathBuf {
     let path_string = path.display().to_string();
-    let words = path_string.split("/").collect::<Vec<_>>();
+    let words = path_string.split('/').collect::<Vec<_>>();
     let mut result_path = PathBuf::new();
 
     for word in words {
         let mut new_word = String::from(word);
 
-        if new_word.contains(":") {
+        if new_word.contains(':') {
             new_word = new_word.to_camel();
-            new_word.push_str(&std::path::MAIN_SEPARATOR.to_string())
+            new_word.push_str(MAIN_SEPARATOR_STR);
         } else if new_word.contains("x86") {
             new_word = new_word
-                .split(" ")
+                .split(' ')
                 .collect::<Vec<_>>()
                 .into_iter()
                 .map(|value| {
-                    if !value.contains("86") {
-                        value.to_camel()
-                    } else {
+                    if value.contains("86") {
                         String::from(value)
+                    } else {
+                        value.to_camel()
                     }
                 })
                 .collect::<Vec<_>>()
@@ -95,5 +90,5 @@ pub fn fix_launcher_executable_path(path: PathBuf) -> PathBuf {
         result_path = result_path.join(new_word);
     }
 
-    return result_path;
+    result_path
 }

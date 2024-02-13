@@ -1,14 +1,10 @@
 fn main() {
-    let executable = game_scanner::steam::executable();
-
-    match executable {
+    match game_scanner::steam::executable() {
         Ok(value) => {
-            println!("{:#?}", value);
+            println!("{value:#?}");
         }
         Err(error) => {
-            println!("{:#?}", error);
+            eprintln!("{error:#?}");
         }
     }
-
-    ()
 }

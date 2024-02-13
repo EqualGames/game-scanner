@@ -1,16 +1,14 @@
 use game_scanner::steam;
 
 fn main() {
-    let games = steam::games().unwrap();
-
-    match games.get(0) {
+    match steam::games().unwrap().first() {
         Some(game) => {
             match steam::find(&game.id) {
                 Ok(game) => {
-                    println!("{:#?}", game);
+                    println!("{game:#?}");
                 }
                 Err(error) => {
-                    println!("{:#?}", error);
+                    eprintln!("{error:#?}");
                 }
             };
         }
@@ -18,6 +16,4 @@ fn main() {
             println!("Library is empty");
         }
     }
-
-    ()
 }

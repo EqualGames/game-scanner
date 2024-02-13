@@ -1,61 +1,51 @@
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
+
+use serde::{Deserialize, Serialize};
+
 use self::super::types::RiotGamesProducts;
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::{Game, GameCommands, GameState, GameType},
     utils::path::fix_path_separator,
 };
-use serde::{Deserialize, Serialize};
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ProductSettings {
     pub product_install_full_path: String,
-    pub product_install_root: String,
+    pub product_install_root:      String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RiotClientInstalls {
     pub associated_client: Option<HashMap<String, String>>,
-    pub rc_default: String,
-    pub rc_live: String,
+    pub rc_default:        String,
+    pub rc_live:           String,
 }
 
 pub fn read_riot_client_installs(file: &Path) -> Result<RiotClientInstalls> {
-    let installs_file = std::fs::read_to_string(&file).map_err(|error| {
+    let installs_file = std::fs::read_to_string(file).map_err(|error| {
         Error::new(
             ErrorKind::InvalidManifest,
-            format!(
-                "Invalid Riot Games config: {} {}",
-                file.display().to_string(),
-                error.to_string()
-            ),
+            format!("Invalid Riot Games config: {} {error}", file.display()),
         )
     })?;
 
     return serde_json::from_str::<RiotClientInstalls>(installs_file.as_str()).map_err(|error| {
         Error::new(
             ErrorKind::InvalidManifest,
-            format!(
-                "Invalid Riot Games config: {} {}",
-                file.display().to_string(),
-                error.to_string()
-            ),
+            format!("Invalid Riot Games config: {} {error}", file.display()),
         )
     });
 }
 
 pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
-    let manifest_data = std::fs::read_to_string(&file).map_err(|error| {
+    let manifest_data = std::fs::read_to_string(file).map_err(|error| {
         Error::new(
             ErrorKind::InvalidManifest,
-            format!(
-                "Invalid Riot Games manifest: {} {}",
-                file.display().to_string(),
-                error.to_string()
-            ),
+            format!("Invalid Riot Games manifest: {} {error}", file.display()),
         )
     })?;
 
@@ -63,11 +53,7 @@ pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
         serde_yaml::from_str::<ProductSettings>(&manifest_data).map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
-                format!(
-                    "Invalid Riot Games manifest: {} {}",
-                    file.display().to_string(),
-                    error.to_string()
-                ),
+                format!("Invalid Riot Games manifest: {} {error}", file.display()),
             )
         })?;
 
@@ -76,10 +62,10 @@ pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
 
     let product = RiotGamesProducts::from_manifest_name(&manifest_filename);
 
-    let mut game_path = product_settings.product_install_full_path.clone();
+    let mut game_path = product_settings.product_install_full_path;
 
-    if !game_path.ends_with("/") {
-        game_path.push_str("/");
+    if !game_path.ends_with('/') {
+        game_path.push('/');
     }
 
     let launcher_client_installs = launcher_path.join("RiotClientInstalls.json");
@@ -96,14 +82,12 @@ pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
                     .keys()
                     .find(|path| path.starts_with(&game_path.to_string()));
 
-                if key.is_none() {
-                    return None;
-                }
+                key?;
 
                 return data.get(key.unwrap()).cloned();
             }
 
-            return None;
+            None
         })
         .map(PathBuf::from);
 
@@ -130,14 +114,14 @@ pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
         launcher_executable_path = fix_path_separator(&launcher_executable_path);
     }
 
-    return Ok(Game {
-        _type: GameType::RiotGames.to_string(),
-        id: product.get_code().to_string(),
-        name: product.get_name().to_string(),
-        path: Some(game_install_path),
+    Ok(Game {
+        type_:    GameType::RiotGames.to_string(),
+        id:       product.get_code().to_string(),
+        name:     product.get_name().to_string(),
+        path:     Some(game_install_path),
         commands: GameCommands {
-            install: None,
-            launch: Some(vec![
+            install:   None,
+            launch:    Some(vec![
                 launcher_executable_path.display().to_string(),
                 format!("--launch-product={}", product.get_code()),
                 format!("--launch-patchline={}", product.get_server()),
@@ -148,12 +132,12 @@ pub fn read(file: &Path, launcher_path: &Path) -> Result<Game> {
                 format!("--uninstall-patchline={}", product.get_server()),
             ]),
         },
-        state: GameState {
-            installed: true,
-            needs_update: false,
-            downloading: false,
-            total_bytes: None,
+        state:    GameState {
+            installed:      true,
+            needs_update:   false,
+            downloading:    false,
+            total_bytes:    None,
             received_bytes: None,
         },
-    });
+    })
 }

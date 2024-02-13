@@ -1,4 +1,4 @@
-use criterion::*;
+use criterion::{criterion_group, criterion_main, Criterion};
 
 fn list(c: &mut Criterion) {
     let mut group = c.benchmark_group("list");
@@ -8,7 +8,7 @@ fn list(c: &mut Criterion) {
         b.iter(|| {
             let games = game_scanner::amazon::games().unwrap();
             assert_ne!(games.len(), 0);
-        })
+        });
     });
 
     #[cfg(not(target_os = "linux"))]
@@ -16,7 +16,7 @@ fn list(c: &mut Criterion) {
         b.iter(|| {
             let games = game_scanner::blizzard::games().unwrap();
             assert_ne!(games.len(), 0);
-        })
+        });
     });
 
     #[cfg(not(target_os = "linux"))]
@@ -24,7 +24,7 @@ fn list(c: &mut Criterion) {
         b.iter(|| {
             let games = game_scanner::epicgames::games().unwrap();
             assert_ne!(games.len(), 0);
-        })
+        });
     });
 
     #[cfg(not(target_os = "linux"))]
@@ -32,7 +32,7 @@ fn list(c: &mut Criterion) {
         b.iter(|| {
             let games = game_scanner::gog::games().unwrap();
             assert_ne!(games.len(), 0);
-        })
+        });
     });
 
     #[cfg(not(target_os = "linux"))]
@@ -40,7 +40,7 @@ fn list(c: &mut Criterion) {
         b.iter(|| {
             let games = game_scanner::origin::games().unwrap();
             assert_ne!(games.len(), 0);
-        })
+        });
     });
 
     #[cfg(not(target_os = "linux"))]
@@ -48,7 +48,7 @@ fn list(c: &mut Criterion) {
         b.iter(|| {
             let games = game_scanner::riotgames::games().unwrap();
             assert_ne!(games.len(), 0);
-        })
+        });
     });
 
     #[cfg(not(target_os = "linux"))]
@@ -56,7 +56,7 @@ fn list(c: &mut Criterion) {
         b.iter(|| {
             let games = game_scanner::steam::games().unwrap();
             assert_ne!(games.len(), 0);
-        })
+        });
     });
 
     #[cfg(target_os = "windows")]
@@ -64,7 +64,7 @@ fn list(c: &mut Criterion) {
         b.iter(|| {
             let games = game_scanner::ubisoft::games().unwrap();
             assert_ne!(games.len(), 0);
-        })
+        });
     });
 
     group.finish();

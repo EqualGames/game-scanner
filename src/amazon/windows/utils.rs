@@ -1,9 +1,11 @@
-use crate::error::{Error, ErrorKind, Result};
-use directories::BaseDirs;
 use std::path::{Path, PathBuf};
 
+use directories::BaseDirs;
+
+use crate::error::{Error, ErrorKind, Result};
+
 pub fn get_launcher_executable() -> Result<PathBuf> {
-    return get_launcher_path().map(|path| path.join("App").join("Amazon Games.exe"));
+    get_launcher_path().map(|path| path.join("App").join("Amazon Games.exe"))
 }
 
 pub fn get_launcher_path() -> Result<PathBuf> {
@@ -11,12 +13,12 @@ pub fn get_launcher_path() -> Result<PathBuf> {
         .map(|base_dirs| PathBuf::from(base_dirs.data_local_dir()))
         .map(|path| path.join("Amazon Games"));
 
-    return launcher_path
-        .filter(|value| value.exists())
-        .ok_or(Error::new(
+    launcher_path.filter(|value| value.exists()).ok_or_else(|| {
+        Error::new(
             ErrorKind::LauncherNotFound,
             "Invalid Amazon Games path, maybe this launcher is not installed",
-        ));
+        )
+    })
 }
 
 pub fn get_manifests_path(launcher_path: &Path) -> Result<PathBuf> {
@@ -29,9 +31,9 @@ pub fn get_manifests_path(launcher_path: &Path) -> Result<PathBuf> {
     if !launcher_manifests_path.exists() {
         return Err(Error::new(
             ErrorKind::LibraryNotFound,
-            format!("Amazon library could be empty"),
+            "Amazon library could be empty".to_string(),
         ));
     }
 
-    return Ok(launcher_manifests_path);
+    Ok(launcher_manifests_path)
 }

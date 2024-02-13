@@ -1,17 +1,18 @@
+use std::path::{Path, PathBuf};
+
 use self::super::yaml::read_riot_client_installs;
 use crate::{
     error::{Error, ErrorKind, Result},
     utils::path::fix_path_separator,
 };
-use std::path::{Path, PathBuf};
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_client_installs = get_launcher_path()?.join("RiotClientInstalls.json");
 
-    return read_riot_client_installs(&launcher_client_installs)
+    read_riot_client_installs(&launcher_client_installs)
         .map(|data| data.rc_default)
         .map(PathBuf::from)
-        .map(|path| fix_path_separator(&path));
+        .map(|path| fix_path_separator(&path))
 }
 
 pub fn get_launcher_path() -> Result<PathBuf> {
@@ -25,12 +26,12 @@ pub fn get_launcher_path() -> Result<PathBuf> {
             ErrorKind::LauncherNotFound,
             format!(
                 "Invalid Riot Games path, maybe this launcher is not installed: {}",
-                launcher_path.display().to_string()
+                launcher_path.display()
             ),
         ));
     }
 
-    return Ok(launcher_path);
+    Ok(launcher_path)
 }
 
 pub fn get_manifests_path(launcher_path: &Path) -> Result<PathBuf> {
@@ -41,10 +42,10 @@ pub fn get_manifests_path(launcher_path: &Path) -> Result<PathBuf> {
             ErrorKind::LauncherNotFound,
             format!(
                 "Invalid Riot Games path, maybe this launcher is not installed: {}",
-                manifests_path.display().to_string()
+                manifests_path.display()
             ),
         ));
     }
 
-    return Ok(manifests_path);
+    Ok(manifests_path)
 }

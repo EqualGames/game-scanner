@@ -46,3 +46,8 @@ criterion = { version = "0.5" }
 
 [build-dependencies]
 prost-build = { version = "0.12" }
+
+[lints.clippy]
+pedantic = "warn"
+nursery = "warn"
+cargo = "warn"

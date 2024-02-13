@@ -1,19 +1,15 @@
-use std::path::{Path, PathBuf};
+use std::path::{Path, PathBuf, MAIN_SEPARATOR, MAIN_SEPARATOR_STR};
 
 pub fn fix_path_separator(path: &Path) -> PathBuf {
-    return PathBuf::from(
-        path.display()
-            .to_string()
-            .replace("/", &std::path::MAIN_SEPARATOR.to_string()),
-    );
+    PathBuf::from(path.display().to_string().replace('/', MAIN_SEPARATOR_STR))
 }
 
 pub fn get_filename(path: &Path) -> String {
-    return String::from(
+    String::from(
         path.display()
             .to_string()
-            .split(std::path::MAIN_SEPARATOR)
+            .split(MAIN_SEPARATOR)
             .last()
             .unwrap_or(""),
-    );
+    )
 }

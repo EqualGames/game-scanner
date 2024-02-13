@@ -1,23 +1,34 @@
+use std::path::{Path, PathBuf};
+
 use self::platform::{get_launcher_executable, get_library_manifests};
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::Game,
     utils::path::get_filename,
 };
-use std::path::PathBuf;
 
 mod acf;
 mod platform;
 mod types;
 mod vdf;
 
+/// # Errors
+///
+/// Will return `Err` if the executable is not found
 pub fn executable() -> Result<PathBuf> {
-    return get_launcher_executable();
+    get_launcher_executable()
 }
 
+/// # Errors
+///
+/// Will return `Err` if games are not found
 pub fn games() -> Result<Vec<Game>> {
     let launcher_executable = get_launcher_executable()?;
-    let library_manifests = get_library_manifests(|file| get_filename(file).ends_with(".acf"))?;
+    let library_manifests = get_library_manifests(|file| {
+        Path::new(&get_filename(file))
+            .extension()
+            .map_or(false, |ext| ext.eq_ignore_ascii_case("acf"))
+    })?;
 
     let mut games = Vec::new();
 
@@ -36,25 +47,29 @@ pub fn games() -> Result<Vec<Game>> {
         }
     }
 
-    return Ok(games);
+    Ok(games)
 }
 
+/// # Errors
+///
+/// Will return `Err` if the id is not found
 pub fn find(id: &str) -> Result<Game> {
     let launcher_executable = get_launcher_executable()?;
+    let library_manifests = get_library_manifests(|file| get_filename(file).contains(id))?;
+    let library_manifests = library_manifests.iter().find(|(_, list)| !list.is_empty());
+    let (library_path, manifests) = library_manifests.ok_or_else(|| {
+        Error::new(
+            ErrorKind::GameNotFound,
+            format!("Steam game with id ({id}) does not exist"),
+        )
+    })?;
 
-    let library_manifests = get_library_manifests(|file| get_filename(file).contains(&id))?;
+    let manifest = manifests.first().ok_or_else(|| {
+        Error::new(
+            ErrorKind::GameNotFound,
+            format!("Steam game with id ({id}) does not exist"),
+        )
+    })?;
 
-    let library_manifests = library_manifests.iter().find(|(_, list)| list.len() > 0);
-
-    let (library_path, manifests) = library_manifests.ok_or(Error::new(
-        ErrorKind::GameNotFound,
-        format!("Steam game with id ({}) does not exist", id),
-    ))?;
-
-    let manifest = manifests.get(0).ok_or(Error::new(
-        ErrorKind::GameNotFound,
-        format!("Steam game with id ({}) does not exist", id),
-    ))?;
-
-    return acf::read(&manifest, &launcher_executable, &library_path);
+    acf::read(manifest, &launcher_executable, library_path)
 }

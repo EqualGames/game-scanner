@@ -1,8 +1,9 @@
+use std::path::PathBuf;
+
 use crate::{
     error::{Error, ErrorKind, Result},
     utils::registry,
 };
-use std::path::PathBuf;
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
     let launcher_executable = registry::get_local_machine_reg_key("Origin")
@@ -23,12 +24,12 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
             ErrorKind::LauncherNotFound,
             format!(
                 "Invalid Origin path, maybe this launcher is not installed: {}",
-                launcher_executable.display().to_string()
+                launcher_executable.display()
             ),
         ));
     }
 
-    return Ok(launcher_executable);
+    Ok(launcher_executable)
 }
 
 pub fn get_manifests_path() -> Result<PathBuf> {
@@ -43,10 +44,10 @@ pub fn get_manifests_path() -> Result<PathBuf> {
             ErrorKind::LauncherNotFound,
             format!(
                 "Invalid Origin path, maybe this launcher is not installed: {}",
-                manifests_path.display().to_string()
+                manifests_path.display()
             ),
         ));
     }
 
-    return Ok(manifests_path);
+    Ok(manifests_path)
 }

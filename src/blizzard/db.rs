@@ -1,3 +1,8 @@
+use std::{
+    convert::identity,
+    path::{Path, PathBuf},
+};
+
 use self::super::{
     proto::{product::ProductInstall, read_product},
     types::BlizzardGames,
@@ -7,16 +12,12 @@ use crate::{
     prelude::{Game, GameCommands, GameState, GameType},
     utils::path::{fix_path_separator, get_filename},
 };
-use std::{
-    convert::identity,
-    path::{Path, PathBuf},
-};
 
 pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
     let database = read_product(file).map_err(|error| {
         Error::new(
             ErrorKind::InvalidManifest,
-            format!("Invalid Blizzard manifest: {}", error.to_string()),
+            format!("Invalid Blizzard manifest: {error}"),
         )
     })?;
 
@@ -29,10 +30,10 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
     let mut games = Vec::new();
 
     for manifest in manifests {
-        games.push(parse_manifest(&manifest, launcher_executable))
+        games.push(parse_manifest(&manifest, launcher_executable));
     }
 
-    return Ok(games);
+    Ok(games)
 }
 
 fn get_manifest_predicate(item: &ProductInstall) -> bool {
@@ -43,7 +44,7 @@ pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
     let database = read_product(file).map_err(|error| {
         Error::new(
             ErrorKind::InvalidManifest,
-            format!("Invalid Blizzard manifest: {}", error.to_string()),
+            format!("Invalid Blizzard manifest: {error}"),
         )
     })?;
 
@@ -51,10 +52,12 @@ pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
         .product_installs
         .into_iter()
         .find(|item| item.uid == id)
-        .ok_or(Error::new(
-            ErrorKind::GameNotFound,
-            format!("Blizzard game with id ({}) does not exist", id),
-        ))?;
+        .ok_or_else(|| {
+            Error::new(
+                ErrorKind::GameNotFound,
+                format!("Blizzard game with id ({id}) does not exist"),
+            )
+        })?;
 
     Ok(parse_manifest(&manifest, launcher_executable))
 }
@@ -64,7 +67,7 @@ fn parse_manifest(manifest: &ProductInstall, launcher_executable: &Path) -> Game
         .settings
         .clone()
         .map(|settings| settings.install_path)
-        .map_or(PathBuf::new(), PathBuf::from);
+        .map_or_else(PathBuf::new, PathBuf::from);
 
     if cfg!(target_os = "windows") {
         game_path = fix_path_separator(&game_path);
@@ -102,53 +105,47 @@ fn parse_manifest(manifest: &ProductInstall, launcher_executable: &Path) -> Game
                 })
         });
 
-    let total_bytes = manifest
-        .cached_product_state
-        .clone()
-        .map_or(None, |product| {
-            product.update_progress.map_or(None, |update_progress| {
-                Some(update_progress.total_to_download)
-            })
-        });
+    let total_bytes = manifest.cached_product_state.clone().and_then(|product| {
+        product
+            .update_progress
+            .map(|update_progress| update_progress.total_to_download)
+    });
 
-    let received_bytes = manifest
-        .cached_product_state
-        .clone()
-        .map_or(None, |product| {
-            product.update_progress.map_or(None, |update_progress| {
-                let total_to_download: i64 =
-                    i64::try_from(update_progress.total_to_download).map_or(0, identity);
+    let received_bytes = manifest.cached_product_state.clone().and_then(|product| {
+        product.update_progress.and_then(|update_progress| {
+            let total_to_download: i64 =
+                i64::try_from(update_progress.total_to_download).map_or(0, identity);
 
-                let download_remaining: i64 =
-                    i64::try_from(update_progress.download_remaining).map_or(0, identity);
+            let download_remaining: i64 =
+                i64::try_from(update_progress.download_remaining).map_or(0, identity);
 
-                let mut received = total_to_download - download_remaining;
+            let mut received = total_to_download - download_remaining;
 
-                if received < 0 {
-                    received = download_remaining;
-                }
+            if received < 0 {
+                received = download_remaining;
+            }
 
-                u64::try_from(received).map_or(None, Some)
-            })
-        });
+            u64::try_from(received).ok()
+        })
+    });
 
     Game {
-        _type: GameType::Blizzard.to_string(),
-        id: String::from(&manifest.uid),
-        name: get_filename(&game_path),
-        path: Some(game_path),
+        type_:    GameType::Blizzard.to_string(),
+        id:       String::from(&manifest.uid),
+        name:     get_filename(&game_path),
+        path:     Some(game_path),
         commands: GameCommands {
-            install: Some(vec![
+            install:   Some(vec![
                 launcher_executable.display().to_string(),
                 format!("--game={}", launch_code),
             ]),
-            launch: Some(vec![
+            launch:    Some(vec![
                 launcher_executable.display().to_string(),
                 format!("--exec=\"launch {}\"", launch_code),
             ]),
             uninstall: None,
         },
-        state: GameState {
+        state:    GameState {
             installed,
             needs_update,
             downloading,

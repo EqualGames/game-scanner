@@ -1,8 +1,9 @@
+use std::path::PathBuf;
+
 use crate::{
     error::{Error, ErrorKind, Result},
     utils::registry,
 };
-use std::path::PathBuf;
 
 pub fn get_manifests_path() -> Result<PathBuf> {
     let manifest_path = PathBuf::from("C:\\ProgramData\\GOG.com\\Galaxy\\storage\\galaxy-2.0.db");
@@ -12,12 +13,12 @@ pub fn get_manifests_path() -> Result<PathBuf> {
             ErrorKind::LauncherNotFound,
             format!(
                 "Invalid GOG path, maybe this launcher is not installed: {}",
-                manifest_path.display().to_string()
+                manifest_path.display()
             ),
         ));
     }
 
-    return Ok(manifest_path);
+    Ok(manifest_path)
 }
 
 pub fn get_launcher_executable() -> Result<PathBuf> {
@@ -41,7 +42,7 @@ pub fn get_launcher_executable() -> Result<PathBuf> {
             ErrorKind::LauncherNotFound,
             format!(
                 "Invalid GOG path, maybe this launcher is not installed: {}",
-                launcher_executable.display().to_string()
+                launcher_executable.display()
             ),
         ));
     }

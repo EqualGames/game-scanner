@@ -1,26 +1,25 @@
+use std::path::{Path, PathBuf};
+
+use rusqlite::{Connection, OpenFlags, Row};
+
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::{Game, GameType},
 };
-use rusqlite::{Connection, OpenFlags, Row};
-use std::path::{Path, PathBuf};
 
 pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
     let conn =
-        Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
+        Connection::open_with_flags(file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
-                format!("Invalid Amazon Games manifest: {}", error.to_string()),
+                format!("Invalid Amazon Games manifest: {error}"),
             )
         })?;
 
     let mut stmt = conn.prepare("SELECT * FROM DbSet").map_err(|error| {
         Error::new(
             ErrorKind::InvalidManifest,
-            format!(
-                "Error to read the Amazon Games manifest: {}",
-                error.to_string()
-            ),
+            format!("Error to read the Amazon Games manifest: {error}"),
         )
     })?;
 
@@ -35,14 +34,11 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
         .map_err(|error| match error {
             rusqlite::Error::QueryReturnedNoRows => Error::new(
                 ErrorKind::LibraryNotFound,
-                format!("Amazon library could be empty"),
+                "Amazon library could be empty".to_string(),
             ),
             _ => Error::new(
                 ErrorKind::InvalidManifest,
-                format!(
-                    "Error to read the Amazon Games manifest: {}",
-                    error.to_string()
-                ),
+                format!("Error to read the Amazon Games manifest: {error}"),
             ),
         })?;
 
@@ -52,15 +48,15 @@ pub fn read_all(file: &Path, launcher_executable: &Path) -> Result<Vec<Game>> {
         games.push(game?);
     }
 
-    return Ok(games);
+    Ok(games)
 }
 
 pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
     let conn =
-        Connection::open_with_flags(&file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
+        Connection::open_with_flags(file, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
-                format!("Invalid Amazon Games manifest: {}", error.to_string()),
+                format!("Invalid Amazon Games manifest: {error}"),
             )
         })?;
 
@@ -69,10 +65,7 @@ pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
         .map_err(|error| {
             Error::new(
                 ErrorKind::InvalidManifest,
-                format!(
-                    "Error to read the Amazon Games manifest: {}",
-                    error.to_string()
-                ),
+                format!("Error to read the Amazon Games manifest: {error}"),
             )
         })?;
 
@@ -82,37 +75,29 @@ pub fn read(id: &str, file: &Path, launcher_executable: &Path) -> Result<Game> {
         .map(String::from)
         .collect::<Vec<String>>();
 
-    return stmt
-        .query_row(&[(":id", id)], |row| {
-            parse_row(&columns, row, launcher_executable)
-        })
-        .map_err(|error| match error {
-            rusqlite::Error::QueryReturnedNoRows => Error::new(
-                ErrorKind::GameNotFound,
-                format!("Amazon game with id ({}) does not exist", id),
-            ),
-            _ => Error::new(
-                ErrorKind::InvalidManifest,
-                format!(
-                    "Error to read the Amazon Games manifest: {}",
-                    error.to_string()
-                ),
-            ),
-        });
+    stmt.query_row(&[(":id", id)], |row| {
+        parse_row(&columns, row, launcher_executable)
+    })
+    .map_err(|error| match error {
+        rusqlite::Error::QueryReturnedNoRows => Error::new(
+            ErrorKind::GameNotFound,
+            format!("Amazon game with id ({id}) does not exist"),
+        ),
+        _ => Error::new(
+            ErrorKind::InvalidManifest,
+            format!("Error to read the Amazon Games manifest: {error}"),
+        ),
+    })
 }
 
-fn parse_row(
-    columns: &Vec<String>,
-    row: &Row,
-    launcher_executable: &Path,
-) -> rusqlite::Result<Game> {
-    let mut game = Game::default();
-    game._type = GameType::AmazonGames.to_string();
+fn parse_row(columns: &[String], row: &Row, launcher_executable: &Path) -> rusqlite::Result<Game> {
+    let mut game = Game {
+        type_: GameType::AmazonGames.to_string(),
+        ..Default::default()
+    };
 
     for col in 0..columns.len() {
-        let name = columns.get(col).unwrap();
-
-        match name.as_str() {
+        match columns.get(col).unwrap().as_str() {
             "Id" => game.id = row.get(col)?,
             "ProductTitle" => game.name = row.get(col)?,
             "InstallDirectory" => game.path = row.get::<_, String>(col).map(PathBuf::from).ok(),

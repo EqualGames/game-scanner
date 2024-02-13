@@ -1,31 +1,34 @@
+use std::path::{Path, PathBuf};
+
 use crate::{
     error::{Error, ErrorKind, Result},
     prelude::Game,
     steam::types::{SteamAppState, SteamUpdateResult},
     utils::string::remove_quotes,
 };
-use std::path::{Path, PathBuf};
 
 pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Result<Game> {
-    let manifest_data = std::fs::read_to_string(&file).map_err(|error| {
+    let manifest_data = std::fs::read_to_string(file).map_err(|error| {
         Error::new(
             ErrorKind::InvalidManifest,
             format!(
                 "Error on read the Steam manifest: {} {}",
-                file.display().to_string(),
-                error.to_string()
+                file.display(),
+                error
             ),
         )
     })?;
 
-    let manifest = manifest_data.split("\n").collect::<Vec<&str>>();
+    let manifest = manifest_data.split('\n').collect::<Vec<&str>>();
 
-    let mut game = Game::default();
-    game._type = String::from("steam");
+    let mut game = Game {
+        type_: String::from("steam"),
+        ..Default::default()
+    };
 
     for file_line in manifest {
         let line = file_line
-            .split("\t")
+            .split('\t')
             .filter(|str| !str.trim().is_empty())
             .collect::<Vec<&str>>();
 
@@ -33,7 +36,7 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Res
             continue;
         }
 
-        let attr = remove_quotes(line.get(0).unwrap());
+        let attr = remove_quotes(line.first().unwrap());
         let value = remove_quotes(line.get(1).unwrap());
 
         match attr.as_str() {
@@ -43,9 +46,7 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Res
                 let state = value.parse::<i64>().unwrap();
 
                 game.state.installed = has_app_state(state, SteamAppState::FullyInstalled);
-
                 game.state.needs_update = has_app_state(state, SteamAppState::UpdateRequired);
-
                 game.state.downloading = has_app_state(state, SteamAppState::Downloading);
             }
             "UpdateResult" => {
@@ -59,7 +60,7 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Res
             "BytesToDownload" => game.state.total_bytes = value.parse::<u64>().ok(),
             "BytesDownloaded" => game.state.received_bytes = value.parse::<u64>().ok(),
             "installdir" => {
-                game.path = Some(PathBuf::from(library_path).join("common").join(value))
+                game.path = Some(PathBuf::from(library_path).join("common").join(value));
             }
             _ => {}
         }
@@ -90,7 +91,7 @@ pub fn read(file: &Path, launcher_executable: &Path, library_path: &Path) -> Res
         format!("steam://uninstall/{}", &game.id),
     ]);
 
-    return Ok(game);
+    Ok(game)
 }
 
 fn has_app_state(state: i64, flag: SteamAppState) -> bool {
