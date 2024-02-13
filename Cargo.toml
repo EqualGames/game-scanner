@@ -11,12 +11,7 @@ categories = ["api-bindings", "games"]
 homepage = "https://github.com/EqualGames/game-scanner"
 repository = "https://github.com/EqualGames/game-scanner"
 readme = "README.md"
-include = [
-    "src/**/*.proto",
-    "src/**/*.rs",
-    "build.rs",
-    "Cargo.toml",
-]
+include = ["src/**/*.proto", "src/**/*.rs", "build.rs", "Cargo.toml"]
 
 [lib]
 name = "game_scanner"
@@ -31,23 +26,23 @@ serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
 serde_yaml = { version = "0.9" }
 url = { version = "2" }
-sysinfo = { version = "0.29" }
-prost = { version = "0.11" }
-prost-types = { version = "0.11" }
+sysinfo = { version = "0.30" }
+prost = { version = "0.12" }
+prost-types = { version = "0.12" }
 bytes = { version = "1" }
 chrono = { version = "0.4" }
 directories = { version = "5" }
 
 [target.'cfg(unix)'.dependencies]
-rusqlite = { version = "0.29",  features = ["bundled"] }
+rusqlite = { version = "0.30", features = ["bundled"] }
 
 [target.'cfg(windows)'.dependencies]
 case = { version = "1" }
-winreg = { version = "0.50" }
-rusqlite = { version = "0.29", features = ["bundled-windows"] }
+winreg = { version = "0.52" }
+rusqlite = { version = "0.30", features = ["bundled-windows"] }
 
 [dev-dependencies]
 criterion = { version = "0.5" }
 
 [build-dependencies]
-prost-build = { version = "0.11" }
+prost-build = { version = "0.12" }
